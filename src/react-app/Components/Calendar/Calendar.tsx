@@ -6,6 +6,17 @@ import {
   EllipsisHorizontalIcon,
 } from '@heroicons/react/20/solid'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import {
+  NightsIcon, 
+  PriorityIcon,
+  TypeIcon,
+ } from './calendar_info_display';
+const calendar_info = [
+  { date: '2021-12-27', nights: true , priority: true, type: 'ACT'},
+  { date: '2021-12-28', nights: false , priority: false, type: 'PTT'},
+  { date: '2022-01-03', nights: true , priority: true, type: 'ACT'}
+
+]
 
 const events = [
   { id: 1, name: 'Maple syrup museum', time: '3PM', datetime: '2022-01-15T09:00', href: '#' },
@@ -286,28 +297,46 @@ export default function Calendar() {
                 >
                   {day.date.split('-')[2].replace(/^0/, '')}
                 </time>
-                {day.events.length > 0 ? (
-                  <ol className="mt-2">
-                    {day.events.slice(0, 2).map((event) => (
-                      <li key={event.id}>
-                        <a href={event.href} className="group flex">
-                          <p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
-                            {event.name}
-                          </p>
-                          <time
-                            dateTime={event.datetime}
-                            className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block dark:text-gray-400 dark:group-hover:text-indigo-400"
-                          >
-                            {event.time}
-                          </time>
-                        </a>
-                      </li>
-                    ))}
-                    {day.events.length > 2 ? (
-                      <li className="text-gray-500 dark:text-gray-400">+ {day.events.length - 2} more</li>
-                    ) : null}
-                  </ol>
-                ) : null}
+                {(() => {
+                  const att = calendar_info.find(a => a.date === day.date);
+                  return (
+                    <div className="flex mt-2">
+                      <div className="flex-1 flex flex-col text-xs text-gray-900 dark:text-white">
+                        {att && (
+                          <>
+                            <div><NightsIcon nights={att.nights} /></div>
+                            <div><PriorityIcon priority={att.priority} /></div>
+                            <div><TypeIcon type={att.type} /></div>
+                          </>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        {day.events.length > 0 ? (
+                          <ol className="text-xs">
+                            {day.events.slice(0, 2).map((event) => (
+                              <li key={event.id}>
+                                <a href={event.href} className="group flex">
+                                  <p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
+                                    {event.name}
+                                  </p>
+                                  <time
+                                    dateTime={event.datetime}
+                                    className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block dark:text-gray-400 dark:group-hover:text-indigo-400"
+                                  >
+                                    {event.time}
+                                  </time>
+                                </a>
+                              </li>
+                            ))}
+                            {day.events.length > 2 ? (
+                              <li className="text-gray-500 dark:text-gray-400">+ {day.events.length - 2} more</li>
+                            ) : null}
+                          </ol>
+                        ) : null}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             ))}
           </div>

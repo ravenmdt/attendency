@@ -13,7 +13,7 @@ import {
   UsersIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
-import Calendar from '../Components/Calendar'
+import Calendar from '../Components/Calendar/Calendar.tsx'
 import UserList from '../Components/UserList'
 
 const navigation = [

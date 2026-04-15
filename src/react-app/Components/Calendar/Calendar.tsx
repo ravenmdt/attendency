@@ -6,6 +6,7 @@ import {
   EllipsisHorizontalIcon,
 } from '@heroicons/react/20/solid'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import { useMemo, useState } from 'react'
 import {
   NightsIcon, 
   PriorityIcon,
@@ -94,17 +95,88 @@ const days = [
   { date: '2022-02-06', events: [] },
 ]
 
+type EventItem = {
+  id: number
+  name: string
+  time: string
+  datetime: string
+  href: string
+}
+
+type CalendarDay = {
+  date: string
+  isCurrentMonth: boolean
+  isToday: boolean
+  isSelected: boolean
+  events: EventItem[]
+}
+
+function toDateKey(value: Date): string {
+  const year = value.getFullYear()
+  const month = String(value.getMonth() + 1).padStart(2, '0')
+  const day = String(value.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function shiftMonth(month: Date, delta: number): Date {
+  return new Date(month.getFullYear(), month.getMonth() + delta, 1)
+}
+
+function buildMonthDays(month: Date, eventsByDate: Map<string, EventItem[]>): CalendarDay[] {
+  const monthStart = new Date(month.getFullYear(), month.getMonth(), 1)
+  const startOffset = (monthStart.getDay() + 6) % 7
+  const gridStart = new Date(monthStart)
+  gridStart.setDate(monthStart.getDate() - startOffset)
+
+  const todayKey = toDateKey(new Date())
+  const result: CalendarDay[] = []
+
+  for (let i = 0; i < 42; i += 1) {
+    const dayDate = new Date(gridStart)
+    dayDate.setDate(gridStart.getDate() + i)
+    const dayKey = toDateKey(dayDate)
+    const isToday = dayKey === todayKey
+    const isCurrentMonth = dayDate.getMonth() === month.getMonth() && dayDate.getFullYear() === month.getFullYear()
+
+    result.push({
+      date: dayKey,
+      isCurrentMonth,
+      isToday,
+      isSelected: isToday,
+      events: eventsByDate.get(dayKey) ?? [],
+    })
+  }
+
+  return result
+}
+
 export default function Calendar() {
+  const [visibleMonth, setVisibleMonth] = useState(() => {
+    const now = new Date()
+    return new Date(now.getFullYear(), now.getMonth(), 1)
+  })
+
+  const dayEventsByDate = useMemo(() => new Map(days.map((day) => [day.date, day.events] as const)), [])
+  const visibleDays = useMemo(() => buildMonthDays(visibleMonth, dayEventsByDate), [visibleMonth, dayEventsByDate])
+
+  const monthTitle = visibleMonth.toLocaleString(undefined, { month: 'long', year: 'numeric' })
+  const monthDateTime = `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, '0')}`
+  const goToToday = () => {
+    const now = new Date()
+    setVisibleMonth(new Date(now.getFullYear(), now.getMonth(), 1))
+  }
+
   return (
     <div className="lg:flex lg:h-full lg:flex-col">
       <header className="flex items-center justify-between border-b border-gray-200 px-6 py-4 lg:flex-none dark:border-white/10 dark:bg-gray-800/50">
         <h1 className="text-base font-semibold text-gray-900 dark:text-white">
-          <time dateTime="2022-01">January 2022</time>
+          <time dateTime={monthDateTime}>{monthTitle}</time>
         </h1>
         <div className="flex items-center">
           <div className="relative flex items-center rounded-md bg-white shadow-xs outline -outline-offset-1 outline-gray-300 md:items-stretch dark:bg-white/10 dark:shadow-none dark:outline-white/5">
             <button
               type="button"
+              onClick={() => setVisibleMonth((current) => shiftMonth(current, -1))}
               className="flex h-9 w-12 items-center justify-center rounded-l-md pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50 dark:hover:text-white dark:md:hover:bg-white/10"
             >
               <span className="sr-only">Previous month</span>
@@ -112,6 +184,7 @@ export default function Calendar() {
             </button>
             <button
               type="button"
+              onClick={goToToday}
               className="hidden px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:relative md:block dark:text-white dark:hover:bg-white/10"
             >
               Today
@@ -119,6 +192,7 @@ export default function Calendar() {
             <span className="relative -mx-px h-5 w-px bg-gray-300 md:hidden dark:bg-white/10" />
             <button
               type="button"
+              onClick={() => setVisibleMonth((current) => shiftMonth(current, 1))}
               className="flex h-9 w-12 items-center justify-center rounded-r-md pl-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pl-0 md:hover:bg-gray-50 dark:hover:text-white dark:md:hover:bg-white/10"
             >
               <span className="sr-only">Next month</span>
@@ -205,12 +279,13 @@ export default function Calendar() {
               </div>
               <div className="py-1">
                 <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden dark:text-gray-300 dark:data-focus:bg-white/5 dark:data-focus:text-white"
+                  <button
+                    type="button"
+                    onClick={goToToday}
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden dark:text-gray-300 dark:data-focus:bg-white/5 dark:data-focus:text-white"
                   >
                     Go to today
-                  </a>
+                  </button>
                 </MenuItem>
               </div>
               <div className="py-1">
@@ -284,7 +359,7 @@ export default function Calendar() {
         </div>
         <div className="flex bg-gray-200 text-xs/6 text-gray-700 lg:flex-auto dark:bg-white/10 dark:text-gray-300">
           <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
-            {days.map((day) => (
+            {visibleDays.map((day) => (
               <div
                 key={day.date}
                 data-is-today={day.isToday ? '' : undefined}
@@ -341,7 +416,7 @@ export default function Calendar() {
             ))}
           </div>
           <div className="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
-            {days.map((day) => (
+            {visibleDays.map((day) => (
               <button
                 key={day.date}
                 type="button"

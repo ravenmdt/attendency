@@ -11,5 +11,13 @@
 	"assets": {
 		"directory": "./dist/client",
 		"not_found_handling": "single-page-application"
-	}
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "attendencydb",
+			"database_id": "959630e6-7c70-4d6e-b1d7-8969f7abeb59",
+			"preview_database_id": "959630e6-7c70-4d6e-b1d7-8969f7abeb59"
+		}
+	]
 }

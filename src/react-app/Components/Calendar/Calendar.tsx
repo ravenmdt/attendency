@@ -6,94 +6,71 @@ import {
   EllipsisHorizontalIcon,
 } from '@heroicons/react/20/solid'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   NightsIcon, 
   PriorityIcon,
   TypeIcon,
  } from './calendar_info_display';
-const calendar_info = [
-  { date: '2021-12-27', nights: true , priority: true, type: 'ACT'},
-  { date: '2021-12-28', nights: false , priority: false, type: 'PTT'},
-  { date: '2022-01-03', nights: true , priority: true, type: 'ACT'}
 
-]
+/*
+  Database reset commands:
+  npm run db:reset:local   — wipe + reseed local D1 (dev)
+  npm run db:reset:remote  — wipe + reseed remote D1 (prod)
+  npm run cf-typegen       — regenerate worker-configuration.d.ts after wrangler.json changes
+*/
 
-const events = [
-  { id: 1, name: 'Maple syrup museum', time: '3PM', datetime: '2022-01-15T09:00', href: '#' },
-  { id: 2, name: 'Hockey game', time: '7PM', datetime: '2022-01-22T19:00', href: '#' },
-]
-const days = [
-  { date: '2021-12-27', events: [] },
-  { date: '2021-12-28', events: [] },
-  { date: '2021-12-29', events: [] },
-  { date: '2021-12-30', events: [] },
-  { date: '2021-12-31', events: [] },
-  { date: '2022-01-01', isCurrentMonth: true, events: [] },
-  { date: '2022-01-02', isCurrentMonth: true, events: [] },
-  {
-    date: '2022-01-03',
-    isCurrentMonth: true,
-    events: [
-      { id: 1, name: 'Design review', time: '10AM', datetime: '2022-01-03T10:00', href: '#' },
-      { id: 2, name: 'Sales meeting', time: '2PM', datetime: '2022-01-03T14:00', href: '#' },
-    ],
-  },
-  { date: '2022-01-04', isCurrentMonth: true, events: [] },
-  { date: '2022-01-05', isCurrentMonth: true, events: [] },
-  { date: '2022-01-06', isCurrentMonth: true, events: [] },
-  {
-    date: '2022-01-07',
-    isCurrentMonth: true,
-    events: [{ id: 3, name: 'Date night', time: '6PM', datetime: '2022-01-08T18:00', href: '#' }],
-  },
-  { date: '2022-01-08', isCurrentMonth: true, events: [] },
-  { date: '2022-01-09', isCurrentMonth: true, events: [] },
-  { date: '2022-01-10', isCurrentMonth: true, events: [] },
-  { date: '2022-01-11', isCurrentMonth: true, events: [] },
-  {
-    date: '2022-01-12',
-    isCurrentMonth: true,
-    isToday: true,
-    events: [{ id: 6, name: "Sam's birthday party", time: '2PM', datetime: '2022-01-25T14:00', href: '#' }],
-  },
-  { date: '2022-01-13', isCurrentMonth: true, events: [] },
-  { date: '2022-01-14', isCurrentMonth: true, events: [] },
-  { date: '2022-01-15', isCurrentMonth: true, events: [] },
-  { date: '2022-01-16', isCurrentMonth: true, events: [] },
-  { date: '2022-01-17', isCurrentMonth: true, events: [] },
-  { date: '2022-01-18', isCurrentMonth: true, events: [] },
-  { date: '2022-01-19', isCurrentMonth: true, events: [] },
-  { date: '2022-01-20', isCurrentMonth: true, events: [] },
-  { date: '2022-01-21', isCurrentMonth: true, events: [] },
-  {
-    date: '2022-01-22',
-    isCurrentMonth: true,
-    isSelected: true,
-    events: [
-      { id: 4, name: 'Maple syrup museum', time: '3PM', datetime: '2022-01-22T15:00', href: '#' },
-      { id: 5, name: 'Hockey game', time: '7PM', datetime: '2022-01-22T19:00', href: '#' },
-    ],
-  },
-  { date: '2022-01-23', isCurrentMonth: true, events: [] },
-  { date: '2022-01-24', isCurrentMonth: true, events: [] },
-  { date: '2022-01-25', isCurrentMonth: true, events: [] },
-  { date: '2022-01-26', isCurrentMonth: true, events: [] },
-  { date: '2022-01-27', isCurrentMonth: true, events: [] },
-  { date: '2022-01-28', isCurrentMonth: true, events: [] },
-  { date: '2022-01-29', isCurrentMonth: true, events: [] },
-  { date: '2022-01-30', isCurrentMonth: true, events: [] },
-  { date: '2022-01-31', isCurrentMonth: true, events: [] },
-  { date: '2022-02-01', events: [] },
-  { date: '2022-02-02', events: [] },
-  { date: '2022-02-03', events: [] },
-  {
-    date: '2022-02-04',
-    events: [{ id: 7, name: 'Cinema with friends', time: '9PM', datetime: '2022-02-04T21:00', href: '#' }],
-  },
-  { date: '2022-02-05', events: [] },
-  { date: '2022-02-06', events: [] },
-]
+/*
+  D1 sync strategy used by this calendar:
+  1) Keep availability as baseline demo data (what is currently in D1).
+  2) Track user clicks as in-memory overrides only (diffs from baseline).
+  3) On Save, send only diff rows for date+wave to your worker in one payload.
+     - available=true/false => upsert that row
+     - available=null       => delete that row (no entry)
+
+  Example D1 queries for save flow:
+  -- 1) Read baseline rows for a range
+  SELECT date, wave, available
+  FROM availability
+  WHERE person_id = ?1
+    AND date BETWEEN ?2 AND ?3;
+
+  -- 2) Upsert one changed row
+  INSERT INTO availability (person_id, date, wave, available)
+  VALUES (?1, ?2, ?3, ?4)
+  ON CONFLICT(person_id, date, wave)
+  DO UPDATE SET available = excluded.available;
+
+  -- 3) Remove row when toggled to no entry
+  DELETE FROM availability
+  WHERE person_id = ?1
+    AND date = ?2
+    AND wave = ?3;
+*/
+
+// Shape of a row returned by GET /api/calendar-info
+type CalendarInfoItem = {
+  date: string
+  nights: boolean
+  priority: boolean
+  type: string
+}
+
+type AvailabilityWave = 0 | 1
+type AvailabilityValue = boolean | null
+
+type AvailabilityItem = {
+  date: string
+  wave: AvailabilityWave
+  available: boolean
+}
+
+type AvailabilityOverride = {
+  date: string
+  wave: AvailabilityWave
+  available: AvailabilityValue
+}
+
 
 type EventItem = {
   id: number
@@ -120,6 +97,32 @@ function toDateKey(value: Date): string {
 
 function shiftMonth(month: Date, delta: number): Date {
   return new Date(month.getFullYear(), month.getMonth() + delta, 1)
+}
+
+function getAvailabilityKey(date: string, wave: AvailabilityWave): string {
+  return `${date}|${wave}`
+}
+
+function cycleAvailability(value: AvailabilityValue): AvailabilityValue {
+  if (value === null) {
+    return true
+  }
+
+  if (value === true) {
+    return false
+  }
+
+  return null
+}
+
+function buildAvailabilityMap(items: AvailabilityItem[]): Map<string, boolean> {
+  const map = new Map<string, boolean>()
+
+  for (const item of items) {
+    map.set(getAvailabilityKey(item.date, item.wave), item.available)
+  }
+
+  return map
 }
 
 function buildMonthDays(month: Date, eventsByDate: Map<string, EventItem[]>): CalendarDay[] {
@@ -150,20 +153,166 @@ function buildMonthDays(month: Date, eventsByDate: Map<string, EventItem[]>): Ca
   return result
 }
 
+// Demo user id — replace with real auth session when users are implemented.
+const DEMO_USER_ID = 1
+
 export default function Calendar() {
   const [visibleMonth, setVisibleMonth] = useState(() => {
     const now = new Date()
     return new Date(now.getFullYear(), now.getMonth(), 1)
   })
+  // User edits are stored as diffs only; unchanged dates are not duplicated in state.
+  const [availabilityOverrides, setAvailabilityOverrides] = useState<Map<string, AvailabilityOverride>>(() => new Map())
+  // Baseline starts empty; populated by the fetch effect below from D1.
+  const [baselineAvailability, setBaselineAvailability] = useState<Map<string, boolean>>(() => new Map())
+  // Day-info column data (nights/priority/type) keyed by YYYY-MM-DD.
+  const [calendarInfoMap, setCalendarInfoMap] = useState<Map<string, CalendarInfoItem>>(() => new Map())
+  const [isLoading, setIsLoading] = useState(true)
 
-  const dayEventsByDate = useMemo(() => new Map(days.map((day) => [day.date, day.events] as const)), [])
+  // Fetch availability and calendar_info from D1 once on mount.
+  useEffect(() => {
+    Promise.all([
+      fetch(`/api/availability?userId=${DEMO_USER_ID}`).then((r) => r.json() as Promise<{ ok: boolean; rows: { date: string; wave: 0 | 1; available: 0 | 1 }[] }>),
+      fetch(`/api/calendar-info?userId=${DEMO_USER_ID}`).then((r) => r.json() as Promise<{ ok: boolean; rows: { date: string; nights: 0 | 1; priority: 0 | 1; type: string }[] }>),
+    ])
+      .then(([avail, info]) => {
+        // D1 stores booleans as integers; convert to boolean before building maps.
+        const items: AvailabilityItem[] = avail.rows.map((r) => ({
+          date: r.date,
+          wave: r.wave,
+          available: Boolean(r.available),
+        }))
+        setBaselineAvailability(buildAvailabilityMap(items))
+
+        const infoMap = new Map<string, CalendarInfoItem>()
+        for (const r of info.rows) {
+          infoMap.set(r.date, {
+            date: r.date,
+            nights: Boolean(r.nights),
+            priority: Boolean(r.priority),
+            type: r.type,
+          })
+        }
+        setCalendarInfoMap(infoMap)
+      })
+      .catch((err) => console.error('Failed to load calendar data from D1:', err))
+      .finally(() => setIsLoading(false))
+  }, []) // Run once on mount
+
+  // Replace this with your custom event data source keyed by YYYY-MM-DD.
+  const dayEventsByDate = useMemo(() => new Map<string, EventItem[]>(), [])
   const visibleDays = useMemo(() => buildMonthDays(visibleMonth, dayEventsByDate), [visibleMonth, dayEventsByDate])
+  const monthEvents = useMemo(() => visibleDays.flatMap((day) => day.events), [visibleDays])
+  // This payload-ready array is what we send to the worker on Save.
+  const pendingAvailabilityChanges = useMemo(() => Array.from(availabilityOverrides.values()), [availabilityOverrides])
+  const hasPendingChanges = pendingAvailabilityChanges.length > 0
+  const [isSaving, setIsSaving] = useState(false)
 
   const monthTitle = visibleMonth.toLocaleString(undefined, { month: 'long', year: 'numeric' })
   const monthDateTime = `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, '0')}`
   const goToToday = () => {
     const now = new Date()
     setVisibleMonth(new Date(now.getFullYear(), now.getMonth(), 1))
+  }
+  const getEffectiveAvailability = (date: string, wave: AvailabilityWave): AvailabilityValue => {
+    const key = getAvailabilityKey(date, wave)
+    if (availabilityOverrides.has(key)) {
+      // Overrides win over baseline; this is what makes edits immediately visible.
+      return availabilityOverrides.get(key)!.available
+    }
+
+    const baseline = baselineAvailability.get(key)
+    return baseline === undefined ? null : baseline
+  }
+  const getAvailabilityClass = (value: AvailabilityValue): string => {
+    if (value === true) {
+      return 'bg-green-500/80 dark:bg-green-500/60'
+    }
+
+    if (value === false) {
+      return 'bg-red-500/80 dark:bg-red-500/60'
+    }
+
+    return 'bg-gray-200/60 dark:bg-gray-700/40'
+  }
+  const toggleWaveAvailability = (date: string, wave: AvailabilityWave) => {
+    setAvailabilityOverrides((current) => {
+      const next = new Map(current)
+      const key = getAvailabilityKey(date, wave)
+      // Important: when override value is null, we still want to read it as a real state.
+      // Using `has` avoids falling back to baseline and preserves the 3-state cycle.
+      const currentValue = next.has(key) ? next.get(key)!.available : (baselineAvailability.get(key) ?? null)
+      const nextValue = cycleAvailability(currentValue)
+      const baselineValue = baselineAvailability.get(key) ?? null
+
+      // If user cycles back to baseline, remove diff entry so payload stays minimal.
+      if (nextValue === baselineValue) {
+        next.delete(key)
+      } else {
+        next.set(key, { date, wave, available: nextValue })
+      }
+
+      return next
+    })
+  }
+  const saveAvailabilityChanges = async () => {
+    if (!hasPendingChanges || isSaving) {
+      return
+    }
+
+    // Frontend wiring point:
+    // Send only changed rows so one backend request can persist all edits in one go.
+    const d1SavePayload = {
+      userId: DEMO_USER_ID,
+      changes: pendingAvailabilityChanges,
+    }
+
+    try {
+      setIsSaving(true)
+
+      const response = await fetch('/api/availability/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(d1SavePayload),
+      })
+
+      if (!response.ok) {
+        const message = await response.text()
+        throw new Error(message || 'Failed to save availability changes')
+      }
+
+      // After successful save, fold diffs into baseline and clear dirty state.
+      setBaselineAvailability((current) => {
+        const next = new Map(current)
+
+        for (const change of pendingAvailabilityChanges) {
+          const key = getAvailabilityKey(change.date, change.wave)
+          if (change.available === null) {
+            next.delete(key)
+          } else {
+            next.set(key, change.available)
+          }
+        }
+
+        return next
+      })
+
+      setAvailabilityOverrides(new Map())
+    } catch (error) {
+      console.error('Availability save failed:', error)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center py-20 text-sm text-gray-500 dark:text-gray-400">
+        Loading calendar data…
+      </div>
+    )
   }
 
   return (
@@ -252,9 +401,11 @@ export default function Calendar() {
             <div className="ml-6 h-6 w-px bg-gray-300 dark:bg-white/10" />
             <button
               type="button"
-              className="ml-6 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
+              onClick={saveAvailabilityChanges}
+              disabled={!hasPendingChanges || isSaving}
+              className="ml-6 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:bg-indigo-300 disabled:hover:bg-indigo-300 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500 dark:disabled:bg-indigo-900"
             >
-              Add event
+              {isSaving ? 'Saving...' : `Save changes${hasPendingChanges ? ` (${pendingAvailabilityChanges.length})` : ''}`}
             </button>
           </div>
           <Menu as="div" className="relative ml-6 md:hidden">
@@ -373,7 +524,10 @@ export default function Calendar() {
                   {day.date.split('-')[2].replace(/^0/, '')}
                 </time>
                 {(() => {
-                  const att = calendar_info.find(a => a.date === day.date);
+                  const att = calendarInfoMap.get(day.date)
+                  const wave0 = getEffectiveAvailability(day.date, 0)
+                  const wave1 = getEffectiveAvailability(day.date, 1)
+
                   return (
                     <div className="flex mt-2">
                       <div className="flex-1 flex flex-col text-xs text-gray-900 dark:text-white">
@@ -385,32 +539,24 @@ export default function Calendar() {
                           </>
                         )}
                       </div>
-                      <div className="flex-1">
-                        {day.events.length > 0 ? (
-                          <ol className="text-xs">
-                            {day.events.slice(0, 2).map((event) => (
-                              <li key={event.id}>
-                                <a href={event.href} className="group flex">
-                                  <p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
-                                    {event.name}
-                                  </p>
-                                  <time
-                                    dateTime={event.datetime}
-                                    className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block dark:text-gray-400 dark:group-hover:text-indigo-400"
-                                  >
-                                    {event.time}
-                                  </time>
-                                </a>
-                              </li>
-                            ))}
-                            {day.events.length > 2 ? (
-                              <li className="text-gray-500 dark:text-gray-400">+ {day.events.length - 2} more</li>
-                            ) : null}
-                          </ol>
-                        ) : null}
+                      <div className="flex-1 flex flex-col gap-1 pt-0.5">
+                        <button
+                          type="button"
+                          onClick={() => toggleWaveAvailability(day.date, 0)}
+                          aria-label={`Toggle wave 0 availability for ${day.date}`}
+                          title="Wave 0"
+                          className={`h-4 w-full rounded-sm ${getAvailabilityClass(wave0)}`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => toggleWaveAvailability(day.date, 1)}
+                          aria-label={`Toggle wave 1 availability for ${day.date}`}
+                          title="Wave 1"
+                          className={`h-4 w-full rounded-sm ${getAvailabilityClass(wave1)}`}
+                        />
                       </div>
                     </div>
-                  );
+                  )
                 })()}
               </div>
             ))}
@@ -444,9 +590,53 @@ export default function Calendar() {
           </div>
         </div>
       </div>
+      <section className="border-b border-gray-200 bg-white/80 px-6 py-3 text-xs text-gray-700 dark:border-white/10 dark:bg-gray-800/40 dark:text-gray-300">
+        <div className="grid gap-3 md:grid-cols-2">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Day Info (First Column)</p>
+            <div className="mt-2 flex flex-wrap items-center gap-4">
+              <span className="inline-flex items-center gap-2">
+                <span className="font-semibold text-gray-900 dark:text-white"><NightsIcon nights={true} /></span>
+                Night shift
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <span className="font-semibold text-gray-900 dark:text-white"><NightsIcon nights={false} /></span>
+                Day shift
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <span className="font-semibold text-gray-900 dark:text-white"><PriorityIcon priority={true} /></span>
+                Priority true
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <span className="font-semibold text-gray-900 dark:text-white"><TypeIcon type="ACT" /></span>
+                Type code (example)
+              </span>
+            </div>
+            <p className="mt-2 text-[11px] text-gray-500 dark:text-gray-400">These icons are rendered from calendar_info_display.tsx using the same functions as the day cells.</p>
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Availability (Second Column)</p>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center gap-2">
+                <span className="h-3 w-5 rounded-sm bg-green-500/80 dark:bg-green-500/60" />
+                W0/W1 Available
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <span className="h-3 w-5 rounded-sm bg-red-500/80 dark:bg-red-500/60" />
+                W0/W1 Unavailable
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <span className="h-3 w-5 rounded-sm bg-gray-200/60 dark:bg-gray-700/40" />
+                No entry
+              </span>
+            </div>
+            <p className="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Top bar = Wave 0, bottom bar = Wave 1.</p>
+          </div>
+        </div>
+      </section>
       <div className="relative px-4 py-10 sm:px-6 lg:hidden dark:after:pointer-events-none dark:after:absolute dark:after:inset-x-0 dark:after:top-0 dark:after:h-px dark:after:bg-white/10">
         <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow-sm outline-1 outline-black/5 dark:divide-white/10 dark:bg-gray-800/50 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10">
-          {events.map((event) => (
+          {monthEvents.map((event) => (
             <li
               key={event.id}
               className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50 dark:focus-within:bg-white/5 dark:hover:bg-white/5"

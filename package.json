@@ -42,6 +42,8 @@
 		"build": "tsc -b && vite build",
 		"cf-typegen": "wrangler types",
 		"check": "tsc && vite build && wrangler deploy --dry-run",
+		"db:reset:local": "wrangler d1 execute DB --local --file db/bootstrap.sql",
+		"db:reset:remote": "wrangler d1 execute DB --remote --file db/bootstrap.sql",
 		"deploy": "wrangler deploy",
 		"dev": "vite",
 		"lint": "eslint .",

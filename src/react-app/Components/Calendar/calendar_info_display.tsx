@@ -7,7 +7,7 @@ export function NightsIcon({nights} : {nights: boolean}){
 
 export function PriorityIcon({priority} : {priority: boolean}){
     return(
-    <>{priority ? 'P' : '\u00A0'}</>
+    <>{priority ? 'PRIO' : '\u00A0'}</>
     );
 }
 

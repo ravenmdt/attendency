@@ -57,13 +57,13 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+    <div className="ui-page-bg flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
 
         {/* ── Header ── */}
         <div className="text-center">
           <LockClosedIcon className="mx-auto h-10 w-10 text-indigo-600" />
-          <h2 className="mt-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+          <h2 className="ui-text-primary mt-4 text-2xl font-bold tracking-tight">
             Sign in to Attendency
           </h2>
         </div>
@@ -75,7 +75,7 @@ export default function Login() {
           <div>
             <label
               htmlFor="username"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="ui-text-primary block text-sm font-medium"
             >
               Username
             </label>
@@ -99,7 +99,7 @@ export default function Login() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="ui-text-primary block text-sm font-medium"
             >
               Password
             </label>
@@ -121,7 +121,7 @@ export default function Login() {
 
           {/* Error message */}
           {status === 'error' && (
-            <p className="text-sm text-red-600 dark:text-red-400">
+            <p className="ui-danger-text text-sm">
               {errorMessage ?? 'Invalid username or password. Please try again.'}
             </p>
           )}

@@ -7,10 +7,8 @@ import {
 } from '@heroicons/react/20/solid'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { useMemo, useState } from 'react'
-import { NightsIcon, PriorityIcon, TypeIcon } from './calendar_info_display'
 import type { AvailabilityOverride, AvailabilityValue, AvailabilityWave } from './calendar.types'
 import {
-  availabilityColorClass,
   buildMonthDays,
   cycleAvailability,
   getAvailabilityKey,
@@ -18,6 +16,7 @@ import {
 } from './calendar.utils'
 import { useCalendarData } from './useCalendarData'
 import { CalendarDayCell } from './CalendarDayCell'
+import CalendarLegend from './CalendarLegend'
 import type { AvailabilitySaveRequest } from '../../../shared/calendar.types'
 
 /*
@@ -379,51 +378,8 @@ export default function Calendar() {
           </div>
         </div>
       </div>
-      <section className="border-b border-gray-200 bg-white/80 px-6 py-3 text-xs text-gray-700 dark:border-white/10 dark:bg-gray-800/40 dark:text-gray-300">
-        <div className="grid gap-3 md:grid-cols-2">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Day Info (First Column)</p>
-            <div className="mt-2 flex flex-wrap items-center gap-4">
-              <span className="inline-flex items-center gap-2">
-                <span className="font-semibold text-gray-900 dark:text-white"><NightsIcon nights={true} /></span>
-                Night shift
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <span className="font-semibold text-gray-900 dark:text-white"><NightsIcon nights={false} /></span>
-                Day shift
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <span className="font-semibold text-gray-900 dark:text-white"><PriorityIcon priority={true} /></span>
-                Priority true
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <span className="font-semibold text-gray-900 dark:text-white"><TypeIcon type="ACT" /></span>
-                Type code (example)
-              </span>
-            </div>
-            <p className="mt-2 text-[11px] text-gray-500 dark:text-gray-400">These icons are rendered from calendar_info_display.tsx using the same functions as the day cells.</p>
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Availability (Second Column)</p>
-            <div className="mt-2 flex flex-wrap items-center gap-3">
-              {/* availabilityColorClass() keeps legend colours in sync with the actual day cells */}
-              <span className="inline-flex items-center gap-2">
-                <span className={`h-3 w-5 rounded-sm ${availabilityColorClass(true)}`} />
-                W0/W1 Available
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <span className={`h-3 w-5 rounded-sm ${availabilityColorClass(false)}`} />
-                W0/W1 Unavailable
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <span className={`h-3 w-5 rounded-sm ${availabilityColorClass(null)}`} />
-                No entry
-              </span>
-            </div>
-            <p className="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Top bar = Wave 0, bottom bar = Wave 1.</p>
-          </div>
-        </div>
-      </section>
+      {/* Legend extracted into its own component for reuse across calendar views. */}
+      <CalendarLegend />
       <div className="relative px-4 py-10 sm:px-6 lg:hidden dark:after:pointer-events-none dark:after:absolute dark:after:inset-x-0 dark:after:top-0 dark:after:h-px dark:after:bg-white/10">
         <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow-sm outline-1 outline-black/5 dark:divide-white/10 dark:bg-gray-800/50 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10">
           {monthEvents.map((event) => (

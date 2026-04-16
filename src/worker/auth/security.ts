@@ -5,8 +5,9 @@ export const SESSION_COOKIE_NAME = "session_id";
 export const SESSION_TTL_SECONDS = 60 * 60 * 12; // 12 hours
 export const SESSION_TTL_MS = SESSION_TTL_SECONDS * 1000;
 
-// NIST-aligned baseline for PBKDF2-SHA256.
-export const PBKDF2_ITERATIONS = 310000;
+// Workers runtime currently caps PBKDF2 iterations at 100000 in this path.
+// Keep this value aligned with seed data and runtime compatibility.
+export const PBKDF2_ITERATIONS = 100000;
 const PBKDF2_KEY_BYTES = 32;
 
 export const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute

@@ -12,7 +12,7 @@ CREATE TABLE users (
   name TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
   password_salt TEXT NOT NULL,
-  password_iterations INTEGER NOT NULL DEFAULT 310000,
+  password_iterations INTEGER NOT NULL DEFAULT 100000,
   password_algo TEXT NOT NULL DEFAULT 'pbkdf2-sha256'
 );
 
@@ -60,9 +60,9 @@ CREATE TABLE availability (
 INSERT INTO users (name, password_hash, password_salt, password_iterations, password_algo)
 VALUES (
   'john',
-  '09e6537f3e78e32779292cc2d0802460aa62c44d696006464a279d4679e7e4c7',
+  'd8d8dd3728ad24f269051c0b3ee7e075fc2fc7b3bd859b1405125e9be23b2031',
   '01d44adafb2212bee8e3ff97361f73aa',
-  310000,
+  100000,
   'pbkdf2-sha256'
 );
 

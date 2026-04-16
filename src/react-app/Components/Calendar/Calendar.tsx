@@ -8,7 +8,7 @@ import {
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { useMemo, useState } from 'react'
 import { NightsIcon, PriorityIcon, TypeIcon } from './calendar_info_display'
-import type { AvailabilityOverride, AvailabilityValue, AvailabilityWave, EventItem } from './calendar.types'
+import type { AvailabilityOverride, AvailabilityValue, AvailabilityWave } from './calendar.types'
 import {
   availabilityColorClass,
   buildMonthDays,
@@ -18,6 +18,7 @@ import {
 } from './calendar.utils'
 import { useCalendarData } from './useCalendarData'
 import { CalendarDayCell } from './CalendarDayCell'
+import type { AvailabilitySaveRequest } from '../../../shared/calendar.types'
 
 /*
   Database reset commands:
@@ -34,22 +35,8 @@ import { CalendarDayCell } from './CalendarDayCell'
      - available=true/false → upsert the row in D1
      - available=null       → delete the row from D1 (no entry)
 
-  Worker SQL used for this (see src/worker/index.ts for the full implementation):
-
-  -- Read all rows for a user
-  SELECT date, wave, available FROM availability WHERE user_id = ?1;
-
-  -- Upsert a changed row (insert or update if it already exists)
-  INSERT INTO availability (user_id, date, wave, available)
-  VALUES (?1, ?2, ?3, ?4)
-  ON CONFLICT(user_id, date, wave) DO UPDATE SET available = excluded.available;
-
-  -- Delete a row when the user toggles it back to "no entry"
-  DELETE FROM availability WHERE user_id = ?1 AND date = ?2 AND wave = ?3;
+  Worker implementation lives in src/worker/index.ts.
 */
-
-// Placeholder user ID — replace with the real logged-in user's ID when auth is added.
-const DEMO_USER_ID = 1
 
 export default function Calendar() {
   // ── State ─────────────────────────────────────────────────────────────────
@@ -70,21 +57,15 @@ export default function Calendar() {
 
   // Custom hook that loads availability + calendar_info from D1 on first render.
   // `applyChanges` merges saved diffs into the baseline after a successful save.
-  const { baselineAvailability, calendarInfoMap, isLoading, applyChanges } = useCalendarData(DEMO_USER_ID)
+  const { baselineAvailability, calendarInfoMap, isLoading, applyChanges } = useCalendarData()
 
   // ── Derived values ─────────────────────────────────────────────────────────
 
   // useMemo caches a computed value until its dependencies change, preventing
   // expensive recalculations on every re-render caused by unrelated state updates.
 
-  // Events are not yet live; this empty Map is a placeholder until that feature is built.
-  const dayEventsByDate = useMemo(() => new Map<string, EventItem[]>(), [])
-
   // The 42 CalendarDay objects (7 columns × 6 rows) for the currently visible month.
-  const visibleDays = useMemo(
-    () => buildMonthDays(visibleMonth, dayEventsByDate),
-    [visibleMonth, dayEventsByDate]
-  )
+  const visibleDays = useMemo(() => buildMonthDays(visibleMonth), [visibleMonth])
 
   // All events across the visible month, used by the mobile event list below the grid.
   const monthEvents = useMemo(() => visibleDays.flatMap((day) => day.events), [visibleDays])
@@ -151,7 +132,9 @@ export default function Calendar() {
       const response = await fetch('/api/availability/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: DEMO_USER_ID, changes: pendingChanges }),
+        credentials: 'same-origin',
+        // userId is no longer sent. The backend uses session cookie identity.
+        body: JSON.stringify({ changes: pendingChanges } as AvailabilitySaveRequest),
       })
       if (!response.ok) {
         const message = await response.text()

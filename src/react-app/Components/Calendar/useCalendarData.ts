@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import { buildAvailabilityMap, getAvailabilityKey } from './calendar.utils'
 import type { AvailabilityItem, AvailabilityOverride, CalendarInfoItem } from './calendar.types'
+import type {
+  ApiResponse,
+  AvailabilityApiRow,
+  CalendarInfoApiRow,
+} from '../../../shared/calendar.types'
 
 // ─── API response shapes ───────────────────────────────────────────────────────
-
-// D1 stores booleans as integers (0 or 1). These types describe the raw API rows
-// before we convert them to proper JS booleans.
-type ApiAvailabilityRow = { date: string; wave: 0 | 1; available: 0 | 1 }
-type ApiCalendarInfoRow = { date: string; nights: 0 | 1; priority: 0 | 1; type: string }
-type ApiResponse<T>     = { ok: boolean; rows: T[] }
+// Raw API row contracts are now shared with the worker in src/shared.
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ type ApiResponse<T>     = { ok: boolean; rows: T[] }
 //   2. Expose the results as typed Maps so Calendar.tsx can look up any date in O(1).
 //   3. Expose `applyChanges` so Calendar.tsx can merge saved edits back into the
 //      baseline without needing direct access to `setBaselineAvailability`.
-export function useCalendarData(userId: number) {
+export function useCalendarData() {
   // The "ground truth" availability from D1. Updated after each successful save.
   // Key = "YYYY-MM-DD|wave", value = true/false.
   const [baselineAvailability, setBaselineAvailability] = useState<Map<string, boolean>>(
@@ -39,10 +39,18 @@ export function useCalendarData(userId: number) {
     // Promise.all fires both API calls at the same time (in parallel) so we only
     // wait for the slower of the two instead of waiting for them sequentially.
     Promise.all([
-      fetch(`/api/availability?userId=${userId}`)
-        .then((r) => r.json() as Promise<ApiResponse<ApiAvailabilityRow>>),
-      fetch(`/api/calendar-info?userId=${userId}`)
-        .then((r) => r.json() as Promise<ApiResponse<ApiCalendarInfoRow>>),
+      // No userId query is sent anymore. The backend reads user identity from
+      // the authenticated session cookie (HttpOnly) set at login.
+      fetch('/api/availability', { credentials: 'same-origin' })
+        .then((r) => {
+          if (!r.ok) throw new Error(`Availability request failed: ${r.status}`)
+          return r.json() as Promise<ApiResponse<AvailabilityApiRow>>
+        }),
+      fetch('/api/calendar-info', { credentials: 'same-origin' })
+        .then((r) => {
+          if (!r.ok) throw new Error(`Calendar info request failed: ${r.status}`)
+          return r.json() as Promise<ApiResponse<CalendarInfoApiRow>>
+        }),
     ])
       .then(([avail, info]) => {
         // Convert the D1 integer flags (0 / 1) to real JS booleans before storing.
@@ -67,7 +75,7 @@ export function useCalendarData(userId: number) {
       })
       .catch((err) => console.error('Failed to load calendar data:', err))
       .finally(() => setIsLoading(false))
-  }, [userId]) // Re-fetch automatically if the userId ever changes (e.g. on login switch).
+  }, [])
 
   // Merges a batch of just-saved overrides back into the baseline.
   // Called by Calendar.tsx after a successful POST to /api/availability/save

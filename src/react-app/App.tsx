@@ -17,6 +17,22 @@ import Login from "./Components/Auth/Login";
 import ProtectedRoute from "./Components/Auth/ProtectedRoute";
 import Example from "./Pages/Example";
 
+function AuthGateLoading() {
+	return (
+		<div className="flex min-h-screen items-center justify-center px-4 text-sm text-gray-500 dark:text-gray-400">
+			Checking session...
+		</div>
+	);
+}
+
+function LoginRoute() {
+	const { isAuthenticated, isCheckingSession } = useAuth();
+
+	if (isCheckingSession) return <AuthGateLoading />;
+	if (isAuthenticated) return <Navigate to="/app" replace />;
+	return <Login />;
+}
+
 // ─── CatchAllRedirect ─────────────────────────────────────────────────────────
 //
 // Handles any URL that doesn't match a defined route (e.g. /login/calendar,
@@ -29,7 +45,8 @@ import Example from "./Pages/Example";
 // This component exists separately because React hooks (like useAuth) can only
 // be called inside a component function, not directly inside JSX.
 function CatchAllRedirect() {
-	const { isAuthenticated } = useAuth();
+	const { isAuthenticated, isCheckingSession } = useAuth();
+	if (isCheckingSession) return <AuthGateLoading />;
 	return <Navigate to={isAuthenticated ? "/app" : "/login"} replace />;
 }
 
@@ -47,8 +64,12 @@ function App() {
 					{/* Default route: visiting "/" redirects straight to /login. */}
 					<Route path="/" element={<Navigate to="/login" replace />} />
 
-					{/* The login page — no authentication required to view this. */}
-					<Route path="/login" element={<Login />} />
+					{/*
+					  Login route:
+					  - If authenticated, redirect to /app.
+					  - If not authenticated, show the login page.
+					*/}
+					<Route path="/login" element={<LoginRoute />} />
 
 					{/*
 					  The main app (calendar + sidebar) is wrapped in ProtectedRoute.

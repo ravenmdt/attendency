@@ -1,6 +1,8 @@
 -- Rebuild schema and seed demo data for attendency
 PRAGMA foreign_keys = ON;
 
+DROP TABLE IF EXISTS auth_rate_limits;
+DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS availability;
 DROP TABLE IF EXISTS calendar_info;
 DROP TABLE IF EXISTS users;
@@ -8,7 +10,28 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users (
   user_id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL UNIQUE,
-  password TEXT NOT NULL
+  password_hash TEXT NOT NULL,
+  password_salt TEXT NOT NULL,
+  password_iterations INTEGER NOT NULL DEFAULT 310000,
+  password_algo TEXT NOT NULL DEFAULT 'pbkdf2-sha256'
+);
+
+CREATE TABLE sessions (
+  session_id TEXT PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  created_at INTEGER NOT NULL,
+  last_seen_at INTEGER NOT NULL,
+  expires_at INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_sessions_user_id ON sessions(user_id);
+CREATE INDEX idx_sessions_expires_at ON sessions(expires_at);
+
+CREATE TABLE auth_rate_limits (
+  key TEXT PRIMARY KEY,
+  window_start INTEGER NOT NULL,
+  attempts INTEGER NOT NULL
 );
 
 CREATE TABLE calendar_info (
@@ -30,7 +53,18 @@ CREATE TABLE availability (
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-INSERT INTO users (name, password) VALUES ('john', 'test');
+-- Demo credential:
+--   username: john
+--   password: test
+-- The plaintext password is NEVER stored. We store PBKDF2 output + per-user salt.
+INSERT INTO users (name, password_hash, password_salt, password_iterations, password_algo)
+VALUES (
+  'john',
+  '09e6537f3e78e32779292cc2d0802460aa62c44d696006464a279d4679e7e4c7',
+  '01d44adafb2212bee8e3ff97361f73aa',
+  310000,
+  'pbkdf2-sha256'
+);
 
 INSERT INTO calendar_info (user_id, date, nights, priority, type) VALUES (1, '2026-03-13', 1, 0, 'OFF');
 INSERT INTO calendar_info (user_id, date, nights, priority, type) VALUES (1, '2026-03-14', 0, 0, 'OFF');

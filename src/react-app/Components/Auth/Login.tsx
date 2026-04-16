@@ -1,0 +1,141 @@
+'use client'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { LockClosedIcon, UserIcon } from '@heroicons/react/24/outline'
+import { useAuth } from './AuthContext'
+import type { LoginFormState, LoginStatus } from './login.types'
+
+// ─── Login ─────────────────────────────────────────────────────────────────────
+//
+// The login page — the first thing users see when they visit the site.
+// It collects a username and password, and (once the backend is wired up)
+// sends them to the server to verify.
+//
+// Current state: submission is STUBBED — it calls login() immediately without
+// actually checking credentials. Replace the TODO block with a real API call.
+export default function Login() {
+  // `form` holds whatever the user has typed into the input fields.
+  const [form, setForm] = useState<LoginFormState>({ username: '', password: '' })
+
+  // `status` tracks what stage the login process is in so the UI can react.
+  // See login.types.ts for the full list of possible values.
+  const [status, setStatus] = useState<LoginStatus>('idle')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  // `login()` sends credentials to the backend and updates global auth state on success.
+  const { login } = useAuth()
+
+  // `navigate` lets us change the URL programmatically after a successful login.
+  const navigate = useNavigate()
+
+  // Called every time the user types in either input field.
+  // It updates only the field that changed and keeps the rest of the form intact.
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  // Called when the user clicks "Sign in".
+  // e.preventDefault() stops the browser from doing a full page reload (default form behaviour).
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setStatus('submitting')
+    setErrorMessage(null)
+
+    // Send credentials to the backend. If they are valid, the backend writes
+    // an HttpOnly session cookie and AuthContext becomes authenticated.
+    const result = await login(form.username, form.password)
+
+    if (!result.ok) {
+      setStatus('error')
+      setErrorMessage(result.error ?? 'Invalid username or password. Please try again.')
+      return
+    }
+
+    setStatus('success')
+    navigate('/app', { replace: true })
+  }
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+      <div className="w-full max-w-sm space-y-8">
+
+        {/* ── Header ── */}
+        <div className="text-center">
+          <LockClosedIcon className="mx-auto h-10 w-10 text-indigo-600" />
+          <h2 className="mt-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+            Sign in to Attendency
+          </h2>
+        </div>
+
+        {/* ── Form ── */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* Username */}
+          <div>
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Username
+            </label>
+            <div className="relative mt-1">
+              <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                id="username"
+                name="username"
+                type="text"
+                autoComplete="username"
+                required
+                value={form.username}
+                onChange={handleChange}
+                className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-9 pr-3 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                placeholder="your username"
+              />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Password
+            </label>
+            <div className="relative mt-1">
+              <LockClosedIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={form.password}
+                onChange={handleChange}
+                className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-9 pr-3 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                placeholder="••••••••"
+              />
+            </div>
+          </div>
+
+          {/* Error message */}
+          {status === 'error' && (
+            <p className="text-sm text-red-600 dark:text-red-400">
+              {errorMessage ?? 'Invalid username or password. Please try again.'}
+            </p>
+          )}
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={status === 'submitting'}
+            className="flex w-full justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
+          >
+            {status === 'submitting' ? 'Signing in…' : 'Sign in'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}

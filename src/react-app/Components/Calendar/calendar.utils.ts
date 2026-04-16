@@ -50,11 +50,11 @@ export function buildAvailabilityMap(items: AvailabilityItem[]): Map<string, boo
 
 // Maps an availability value to its Tailwind CSS class for coloring a wave bar.
 //   true  → green  (available)
-//   false → red    (unavailable)
+//   false → yellow    (partially available / priority / needs review)
 //   null  → gray   (no entry)
 export function availabilityColorClass(value: AvailabilityValue): string {
   if (value === true)  return 'bg-green-500/80 dark:bg-green-500/60'
-  if (value === false) return 'bg-red-500/80 dark:bg-red-500/60'
+  if (value === false) return 'bg-yellow-500/80 dark:bg-yellow-500/60'
   return 'bg-gray-200/60 dark:bg-gray-700/40'
 }
 
@@ -63,7 +63,7 @@ export function availabilityColorClass(value: AvailabilityValue): string {
 // Builds the 42-cell array (7 columns × 6 rows) for the calendar grid.
 // The grid always starts on Monday and fills in days from adjacent months
 // to complete the first and last rows.
-export function buildMonthDays(month: Date, eventsByDate: Map<string, EventItem[]>): CalendarDay[] {
+export function buildMonthDays(month: Date, eventsByDate: Map<string, EventItem[]> = new Map()): CalendarDay[] {
   const monthStart = new Date(month.getFullYear(), month.getMonth(), 1)
 
   // getDay() returns 0 for Sunday; remap so Monday = 0 by rotating the week.

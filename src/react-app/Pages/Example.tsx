@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessui/react'
 import {
+  ArrowRightOnRectangleIcon,
   Bars3Icon,
   CalendarIcon,
   ChartPieIcon,
@@ -13,8 +14,10 @@ import {
   UsersIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
+import { useNavigate } from 'react-router-dom'
 import Calendar from '../Components/Calendar/Calendar.tsx'
 import UserList from '../Components/UserList'
+import { useAuth } from '../Components/Auth/AuthContext'
 
 const navigation = [
   { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
@@ -37,6 +40,19 @@ function classNames(...classes: (string | undefined | null | false)[]): string {
 export default function Example() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [currentView, setCurrentView] = useState('Dashboard')
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const navigate = useNavigate()
+  const { logout } = useAuth()
+
+  // Shared logout handler used by both desktop and mobile buttons.
+  // This keeps the behavior consistent regardless of screen size.
+  async function handleLogout() {
+    if (isLoggingOut) return
+    setIsLoggingOut(true)
+    await logout()
+    navigate('/login', { replace: true })
+    setIsLoggingOut(false)
+  }
 
   return (
     <>
@@ -144,6 +160,25 @@ export default function Example() {
                         ))}
                       </ul>
                     </li>
+                    <li className="mt-auto">
+                      {/*
+                        Mobile sidebar logout:
+                        Keep session action inside the same navigation surface as other actions
+                        so users can always find it in one predictable place.
+                      */}
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                        className="group -mx-2 flex w-full items-center gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-700 disabled:opacity-50 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-red-300"
+                      >
+                        <ArrowRightOnRectangleIcon
+                          aria-hidden="true"
+                          className="size-6 shrink-0 text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-300"
+                        />
+                        {isLoggingOut ? 'Logging out...' : 'Log out'}
+                      </button>
+                    </li>
                   </ul>
                 </nav>
               </div>
@@ -231,6 +266,25 @@ export default function Example() {
                       </ul>
                     </li>
                   </ul>
+                </li>
+                <li>
+                  {/*
+                    Desktop sidebar logout:
+                    Session/account action is placed in the nav rail so it is reachable
+                    from every content page without scanning the main content header.
+                  */}
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="group -mx-2 flex w-full items-center gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-700 disabled:opacity-50 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-red-300"
+                  >
+                    <ArrowRightOnRectangleIcon
+                      aria-hidden="true"
+                      className="size-6 shrink-0 text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-300"
+                    />
+                    {isLoggingOut ? 'Logging out...' : 'Log out'}
+                  </button>
                 </li>
                 <li className="-mx-6 mt-auto">
                   <a

@@ -62,7 +62,7 @@ export default function Login() {
 
         {/* ── Header ── */}
         <div className="text-center">
-          <LockClosedIcon className="mx-auto h-10 w-10 text-indigo-600" />
+          <LockClosedIcon className="ui-auth-accent-icon mx-auto h-10 w-10" />
           <h2 className="ui-text-primary mt-4 text-2xl font-bold tracking-tight">
             Sign in to Attendency
           </h2>
@@ -75,12 +75,12 @@ export default function Login() {
           <div>
             <label
               htmlFor="username"
-              className="ui-text-primary block text-sm font-medium"
+              className="ui-auth-label block text-sm font-medium"
             >
               Username
             </label>
             <div className="relative mt-1">
-              <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <UserIcon className="ui-auth-input-icon pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
               <input
                 id="username"
                 name="username"
@@ -89,7 +89,7 @@ export default function Login() {
                 required
                 value={form.username}
                 onChange={handleChange}
-                className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-9 pr-3 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                className="ui-auth-input block w-full rounded-md border py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-1"
                 placeholder="your username"
               />
             </div>
@@ -99,12 +99,12 @@ export default function Login() {
           <div>
             <label
               htmlFor="password"
-              className="ui-text-primary block text-sm font-medium"
+              className="ui-auth-label block text-sm font-medium"
             >
               Password
             </label>
             <div className="relative mt-1">
-              <LockClosedIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <LockClosedIcon className="ui-auth-input-icon pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
               <input
                 id="password"
                 name="password"
@@ -113,7 +113,7 @@ export default function Login() {
                 required
                 value={form.password}
                 onChange={handleChange}
-                className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-9 pr-3 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                className="ui-auth-input block w-full rounded-md border py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-1"
                 placeholder="••••••••"
               />
             </div>
@@ -130,7 +130,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={status === 'submitting'}
-            className="flex w-full justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
+            className="ui-auth-submit ui-accent-ring flex w-full justify-center rounded-md px-4 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50"
           >
             {status === 'submitting' ? 'Signing in…' : 'Sign in'}
           </button>

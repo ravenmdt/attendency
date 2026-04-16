@@ -1,0 +1,379 @@
+/*
+  utilities.css — Tier 3: UI utility classes.
+
+  Thin mappings from class name to semantic token.
+  Never reference --theme-palette-* or raw colours here — always use a
+  --theme-* token from tokens.css.
+*/
+
+@layer utilities {
+  /* ── Global ─────────────────────────────────────────────────────── */
+
+  .ui-page-bg {
+    background-color: var(--theme-page-bg);
+  }
+
+  .ui-surface {
+    background-color: var(--theme-surface);
+  }
+
+  .ui-text-primary {
+    color: var(--theme-text-primary);
+  }
+
+  .ui-text-body {
+    color: var(--theme-text-body);
+  }
+
+  .ui-text-muted {
+    color: var(--theme-text-muted);
+  }
+
+  .ui-border {
+    border-color: var(--theme-border);
+  }
+
+  .ui-accent-bg {
+    background-color: var(--theme-accent-bg);
+  }
+  .ui-accent-bg:hover {
+    background-color: var(--theme-accent-bg-hover);
+  }
+
+  .ui-accent-ring {
+    --tw-ring-color: var(--theme-accent-ring);
+    --tw-outline-color: var(--theme-accent-outline);
+  }
+
+  .ui-danger-text {
+    color: var(--theme-danger-text);
+  }
+
+  .ui-action-link {
+    color: var(--theme-action-link);
+  }
+  .ui-action-link:hover {
+    color: var(--theme-action-link-hover);
+  }
+
+  .ui-primary-button {
+    background-color: var(--theme-accent-bg);
+    color: var(--theme-button-primary-text);
+  }
+  .ui-primary-button:hover {
+    background-color: var(--theme-accent-bg-hover);
+  }
+  .ui-primary-button:focus-visible {
+    outline-color: var(--theme-accent-outline);
+  }
+
+  .ui-table-divider > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--theme-table-header-divider);
+  }
+
+  .ui-table-row-divider > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--theme-table-row-divider);
+  }
+
+  .ui-avail-yes {
+    background-color: var(--theme-avail-yes);
+  }
+
+  .ui-avail-partial {
+    background-color: var(--theme-avail-partial);
+  }
+
+  .ui-avail-none {
+    background-color: var(--theme-avail-none);
+  }
+
+  /* ── Auth ───────────────────────────────────────────────────────── */
+
+  .ui-auth-accent-icon {
+    color: var(--theme-auth-accent-icon);
+  }
+
+  .ui-auth-label {
+    color: var(--theme-auth-label);
+  }
+
+  .ui-auth-input-icon {
+    color: var(--theme-auth-input-icon);
+  }
+
+  .ui-auth-input {
+    border-color: var(--theme-auth-input-border);
+    background-color: var(--theme-auth-input-bg);
+    color: var(--theme-auth-input-text);
+    box-shadow: var(--theme-auth-input-shadow);
+    --tw-ring-color: var(--theme-auth-input-ring);
+  }
+  .ui-auth-input::placeholder {
+    color: var(--theme-auth-input-placeholder);
+  }
+  .ui-auth-input:focus {
+    border-color: var(--theme-auth-input-focus-border);
+  }
+
+  .ui-auth-submit {
+    background-color: var(--theme-auth-submit-bg);
+    color: var(--theme-auth-submit-text);
+    box-shadow: var(--theme-auth-submit-shadow);
+  }
+  .ui-auth-submit:hover {
+    background-color: var(--theme-auth-submit-bg-hover);
+  }
+
+  /* ── Calendar frame ─────────────────────────────────────────────── */
+
+  .ui-calendar-header {
+    border-bottom-color: var(--theme-calendar-header-border);
+    background-color: var(--theme-calendar-header-bg);
+  }
+
+  .ui-calendar-frame {
+    box-shadow: var(--theme-calendar-frame-shadow);
+    --tw-ring-color: var(--theme-calendar-frame-ring);
+  }
+
+  .ui-calendar-weekdays {
+    border-bottom-color: var(--theme-calendar-weekdays-border);
+    background-color: var(--theme-calendar-weekdays-bg);
+    color: var(--theme-calendar-weekdays-text);
+  }
+
+  .ui-calendar-weekday-cell {
+    background-color: var(--theme-calendar-weekday-cell-bg);
+  }
+
+  .ui-calendar-grid-bg {
+    background-color: var(--theme-calendar-grid-bg);
+    color: var(--theme-calendar-grid-text);
+  }
+
+  .ui-calendar-legend {
+    border-bottom-color: var(--theme-calendar-legend-border);
+    background-color: var(--theme-calendar-legend-bg);
+    color: var(--theme-calendar-legend-text);
+  }
+
+  /* ── Calendar day cell ──────────────────────────────────────────── */
+
+  .ui-calendar-day-cell {
+    background-color: var(--theme-calendar-day-cell-bg);
+    color: var(--theme-calendar-day-cell-text);
+  }
+  .ui-calendar-day-cell[data-is-current-month] {
+    background-color: var(--theme-calendar-day-cell-bg-in-month);
+  }
+  .ui-calendar-day-cell:not([data-is-current-month])::before {
+    content: '';
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background-color: var(--theme-calendar-day-cell-overlay);
+  }
+
+  [data-is-today] .ui-calendar-today-circle {
+    background-color: var(--theme-calendar-today-circle-bg);
+    color: var(--theme-calendar-today-circle-text);
+  }
+
+  /* ── Calendar mobile events ─────────────────────────────────────── */
+
+  .ui-calendar-mobile-events {
+    background-color: var(--theme-calendar-mobile-events-bg);
+    box-shadow: var(--theme-calendar-mobile-events-shadow);
+    outline-color: var(--theme-calendar-mobile-events-outline);
+  }
+
+  .ui-calendar-mobile-events-divider {
+    border-color: var(--theme-calendar-mobile-events-divider);
+  }
+
+  .ui-calendar-mobile-event-row:hover,
+  .ui-calendar-mobile-event-row:focus-within {
+    background-color: var(--theme-calendar-mobile-event-row-hover);
+  }
+
+  .ui-calendar-mobile-event-title {
+    color: var(--theme-calendar-mobile-event-title);
+  }
+
+  .ui-calendar-mobile-event-meta {
+    color: var(--theme-calendar-mobile-event-meta);
+  }
+
+  .ui-calendar-mobile-event-icon {
+    color: var(--theme-calendar-mobile-event-icon);
+  }
+
+  .ui-calendar-mobile-event-action {
+    background-color: var(--theme-calendar-mobile-event-action-bg);
+    color: var(--theme-calendar-mobile-event-action-text);
+    box-shadow: var(--theme-calendar-mobile-event-action-shadow);
+    --tw-ring-color: var(--theme-calendar-mobile-event-action-ring);
+  }
+  .ui-calendar-mobile-event-action:hover {
+    background-color: var(--theme-calendar-mobile-event-action-bg-hover);
+    --tw-ring-color: var(--theme-calendar-mobile-event-action-ring);
+  }
+
+  /* ── Calendar controls ──────────────────────────────────────────── */
+
+  .ui-calendar-control-group {
+    background-color: var(--theme-calendar-control-group-bg);
+    box-shadow: var(--theme-calendar-control-group-shadow);
+    outline-color: var(--theme-calendar-control-group-outline);
+  }
+
+  .ui-calendar-control-button {
+    color: var(--theme-calendar-control-button-text);
+  }
+  .ui-calendar-control-button:hover {
+    color: var(--theme-calendar-control-button-text-hover);
+    background-color: var(--theme-calendar-control-button-bg-hover);
+  }
+
+  .ui-calendar-control-button-primary {
+    color: var(--theme-calendar-control-button-primary-text);
+  }
+  .ui-calendar-control-button-primary:hover {
+    background-color: var(--theme-calendar-control-button-primary-bg-hover);
+  }
+
+  .ui-calendar-control-divider {
+    background-color: var(--theme-calendar-control-divider);
+  }
+
+  .ui-calendar-menu-trigger {
+    background-color: var(--theme-calendar-menu-trigger-bg);
+    color: var(--theme-calendar-menu-trigger-text);
+    box-shadow: var(--theme-calendar-menu-trigger-shadow);
+    --tw-inset-ring-color: var(--theme-calendar-menu-trigger-inset-ring);
+  }
+  .ui-calendar-menu-trigger:hover {
+    background-color: var(--theme-calendar-menu-trigger-bg-hover);
+  }
+
+  .ui-calendar-menu-icon {
+    color: var(--theme-calendar-menu-icon);
+  }
+
+  .ui-calendar-menu-panel {
+    background-color: var(--theme-calendar-menu-panel-bg);
+    outline-color: var(--theme-calendar-menu-panel-outline);
+  }
+
+  .ui-calendar-mobile-menu-panel {
+    background-color: var(--theme-calendar-mobile-menu-panel-bg);
+    border-color: var(--theme-calendar-mobile-menu-panel-border);
+    outline-color: var(--theme-calendar-mobile-menu-panel-outline);
+  }
+
+  .ui-calendar-menu-item {
+    color: var(--theme-calendar-menu-item-text);
+  }
+  .ui-calendar-menu-item[data-focus] {
+    background-color: var(--theme-calendar-menu-item-focus-bg);
+    color: var(--theme-calendar-menu-item-focus-text);
+  }
+
+  .ui-calendar-mobile-menu-button {
+    color: var(--theme-calendar-mobile-menu-button-text);
+  }
+  .ui-calendar-mobile-menu-button:hover {
+    color: var(--theme-calendar-mobile-menu-button-text-hover);
+  }
+
+  .ui-calendar-save-button {
+    background-color: var(--theme-calendar-save-button-bg);
+    color: var(--theme-calendar-save-button-text);
+    box-shadow: var(--theme-calendar-save-button-shadow);
+  }
+  .ui-calendar-save-button:hover {
+    background-color: var(--theme-calendar-save-button-bg-hover);
+  }
+  .ui-calendar-save-button:disabled {
+    background-color: var(--theme-calendar-save-button-bg-disabled);
+  }
+
+  /* ── Navigation ─────────────────────────────────────────────────── */
+
+  .ui-nav-item-active {
+    background-color: var(--theme-nav-item-active-bg);
+    color: var(--theme-nav-item-active-text);
+  }
+
+  .ui-nav-item-idle {
+    color: var(--theme-nav-item-idle-text);
+  }
+  .ui-nav-item-idle:hover {
+    background-color: var(--theme-nav-item-idle-bg-hover);
+    color: var(--theme-nav-item-idle-text-hover);
+  }
+
+  .ui-nav-icon-active {
+    color: var(--theme-nav-icon-active);
+  }
+
+  .ui-nav-icon-idle {
+    color: var(--theme-nav-icon-idle);
+  }
+  .ui-nav-icon-idle.group:hover {
+    color: var(--theme-nav-icon-idle-hover);
+  }
+  .group:hover .ui-nav-icon-idle {
+    color: var(--theme-nav-icon-idle-hover);
+  }
+
+  .ui-team-badge {
+    background-color: var(--theme-team-badge-bg);
+    border-color: var(--theme-team-badge-border);
+  }
+
+  .ui-team-badge-active {
+    border-color: var(--theme-team-badge-active-border);
+    color: var(--theme-team-badge-active-text);
+  }
+
+  .ui-team-badge-idle {
+    color: var(--theme-team-badge-idle-text);
+    border-color: var(--theme-team-badge-idle-border);
+  }
+  .group:hover .ui-team-badge-idle {
+    color: var(--theme-team-badge-idle-text-hover);
+    border-color: var(--theme-team-badge-idle-border-hover);
+  }
+
+  .ui-logout-button {
+    color: var(--theme-logout-button-text);
+  }
+  .ui-logout-button:hover {
+    background-color: var(--theme-logout-button-bg-hover);
+    color: var(--theme-logout-button-text-hover);
+  }
+
+  .ui-logout-icon {
+    color: var(--theme-logout-icon);
+  }
+  .group:hover .ui-logout-icon {
+    color: var(--theme-logout-icon-hover);
+  }
+
+  .ui-profile-link {
+    color: var(--theme-profile-link-text);
+  }
+  .ui-profile-link:hover {
+    background-color: var(--theme-profile-link-bg-hover);
+  }
+
+  .ui-profile-avatar {
+    background-color: var(--theme-profile-avatar-bg);
+    outline-color: var(--theme-profile-avatar-outline);
+  }
+
+  .ui-teams-label {
+    color: var(--theme-teams-label);
+  }
+}

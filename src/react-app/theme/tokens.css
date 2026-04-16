@@ -1,0 +1,173 @@
+/*
+  tokens.css — Tier 2: semantic and component tokens.
+
+  Maps palette tokens onto named roles used by the UI.
+  Never reference raw colours here — always point to a --theme-palette-* token.
+
+  When wiring a new component: add --theme-<component>-* tokens here,
+  pointing to the appropriate palette tokens, then add a .ui-* class in
+  utilities.css.
+*/
+
+@layer base {
+  :root {
+    /* ── Global ─────────────────────────────────────────────────────── */
+    --theme-page-bg: var(--theme-palette-page-bg);
+    --theme-surface: var(--theme-palette-surface);
+    --theme-text-primary: var(--theme-palette-text-strong);
+    --theme-text-body: var(--theme-palette-text-body);
+    --theme-text-muted: var(--theme-palette-text-muted);
+    --theme-border: var(--theme-palette-border);
+    --theme-accent-bg: var(--theme-palette-accent);
+    --theme-accent-bg-hover: var(--theme-palette-accent-hover);
+    --theme-accent-ring: var(--theme-palette-accent-ring);
+    --theme-accent-outline: var(--theme-palette-accent-outline);
+    --theme-danger-text: var(--theme-palette-text-danger);
+    --theme-action-link: var(--theme-palette-link);
+    --theme-action-link-hover: var(--theme-palette-link-hover);
+    --theme-button-primary-text: var(--theme-palette-text-on-accent);
+    --theme-table-header-divider: var(--theme-palette-table-divider-header);
+    --theme-table-row-divider: var(--theme-palette-table-divider-row);
+    --theme-avail-yes: var(--theme-palette-avail-yes);
+    --theme-avail-partial: var(--theme-palette-avail-partial);
+    --theme-avail-none: var(--theme-palette-avail-none);
+
+    /* ── Auth ───────────────────────────────────────────────────────── */
+    --theme-auth-accent-icon: var(--theme-palette-accent-strong);
+    --theme-auth-label: var(--theme-palette-text-strong);
+    --theme-auth-input-icon: var(--theme-palette-text-muted);
+    --theme-auth-input-bg: var(--theme-palette-input-bg);
+    --theme-auth-input-border: var(--theme-palette-input-border);
+    --theme-auth-input-text: var(--theme-palette-input-text);
+    --theme-auth-input-placeholder: var(--theme-palette-input-placeholder);
+    --theme-auth-input-focus-border: var(--theme-palette-input-focus-border);
+    --theme-auth-input-shadow: var(--theme-palette-shadow-raised);
+    --theme-auth-input-ring: var(--theme-palette-accent-outline);
+    --theme-auth-submit-bg: var(--theme-palette-accent-strong);
+    --theme-auth-submit-bg-hover: var(--theme-palette-accent);
+    --theme-auth-submit-text: var(--theme-palette-text-on-accent);
+    --theme-auth-submit-shadow: var(--shadow-sm);
+
+    /* ── Calendar frame ─────────────────────────────────────────────── */
+    --theme-calendar-header-bg: var(--theme-palette-surface-strong);
+    --theme-calendar-header-border: var(--theme-palette-border);
+    --theme-calendar-frame-shadow: var(--theme-palette-shadow-soft);
+    --theme-calendar-frame-ring: var(--theme-palette-ring);
+    --theme-calendar-weekdays-bg: var(--theme-palette-overlay-strong);
+    --theme-calendar-weekdays-border: var(--theme-palette-border-subtle);
+    --theme-calendar-weekdays-text: var(--theme-palette-text-body);
+    --theme-calendar-weekday-cell-bg: var(--theme-palette-surface);
+    --theme-calendar-grid-bg: var(--theme-palette-overlay);
+    --theme-calendar-grid-text: var(--theme-palette-text-body);
+    --theme-calendar-legend-bg: var(--theme-palette-surface-soft);
+    --theme-calendar-legend-border: var(--theme-palette-border);
+    --theme-calendar-legend-text: var(--theme-palette-text-body);
+
+    /* ── Calendar day cell ──────────────────────────────────────────── */
+    --theme-calendar-day-cell-bg: var(--theme-palette-cell-bg-out);
+    --theme-calendar-day-cell-bg-in-month: var(--theme-palette-surface);
+    --theme-calendar-day-cell-overlay: var(--theme-palette-surface-strong);
+    --theme-calendar-day-cell-text: var(--theme-palette-text-muted);
+    --theme-calendar-today-circle-bg: var(--theme-palette-accent);
+    --theme-calendar-today-circle-text: var(--theme-palette-text-on-accent);
+
+    /* ── Calendar mobile events ─────────────────────────────────────── */
+    --theme-calendar-mobile-events-bg: var(--theme-palette-surface-strong);
+    --theme-calendar-mobile-events-shadow: var(--theme-palette-shadow-soft);
+    --theme-calendar-mobile-events-outline: var(--theme-palette-outline);
+    --theme-calendar-mobile-events-divider: var(--theme-palette-panel-divider);
+    --theme-calendar-mobile-event-row-hover: var(--theme-palette-overlay-soft);
+    --theme-calendar-mobile-event-title: var(--theme-palette-text-strong);
+    --theme-calendar-mobile-event-meta: var(--theme-palette-text-body);
+    --theme-calendar-mobile-event-icon: var(--theme-palette-text-icon);
+    --theme-calendar-mobile-event-action-bg: var(--theme-palette-control-bg);
+    --theme-calendar-mobile-event-action-bg-hover: var(--theme-palette-control-bg-hover);
+    --theme-calendar-mobile-event-action-text: var(--theme-palette-text-strong);
+    --theme-calendar-mobile-event-action-shadow: var(--theme-palette-shadow-soft);
+    --theme-calendar-mobile-event-action-ring: var(--theme-palette-ring);
+
+    /* ── Calendar controls ──────────────────────────────────────────── */
+    --theme-calendar-control-group-bg: var(--theme-palette-control-bg);
+    --theme-calendar-control-group-shadow: var(--theme-palette-shadow-soft);
+    --theme-calendar-control-group-outline: var(--theme-palette-ring);
+    --theme-calendar-control-button-text: var(--theme-palette-control-text-muted);
+    --theme-calendar-control-button-text-hover: var(--theme-palette-control-text-hover);
+    --theme-calendar-control-button-bg-hover: var(--theme-palette-overlay);
+    --theme-calendar-control-button-primary-text: var(--theme-palette-control-text);
+    --theme-calendar-control-button-primary-bg-hover: var(--theme-palette-overlay);
+    --theme-calendar-control-divider: var(--theme-palette-panel-divider);
+    --theme-calendar-menu-trigger-bg: var(--theme-palette-control-bg);
+    --theme-calendar-menu-trigger-bg-hover: var(--theme-palette-control-bg-hover);
+    --theme-calendar-menu-trigger-text: var(--theme-palette-control-text);
+    --theme-calendar-menu-trigger-shadow: var(--theme-palette-shadow-soft);
+    --theme-calendar-menu-trigger-inset-ring: var(--theme-palette-ring);
+    --theme-calendar-menu-icon: var(--theme-palette-text-icon);
+    --theme-calendar-menu-panel-bg: var(--theme-palette-surface-raised);
+    --theme-calendar-menu-panel-outline: var(--theme-palette-outline);
+    --theme-calendar-mobile-menu-panel-bg: var(--theme-palette-surface-raised);
+    --theme-calendar-mobile-menu-panel-border: var(--theme-palette-panel-divider);
+    --theme-calendar-mobile-menu-panel-outline: var(--theme-palette-outline);
+    --theme-calendar-menu-item-text: var(--theme-palette-text-body);
+    --theme-calendar-menu-item-focus-bg: var(--theme-palette-overlay-soft);
+    --theme-calendar-menu-item-focus-text: var(--theme-palette-text-strong);
+    --theme-calendar-mobile-menu-button-text: var(--theme-palette-text-muted);
+    --theme-calendar-mobile-menu-button-text-hover: var(--theme-palette-text-strong);
+    --theme-calendar-save-button-bg: var(--theme-palette-accent);
+    --theme-calendar-save-button-bg-hover: var(--theme-palette-accent-hover);
+    --theme-calendar-save-button-bg-disabled: var(--theme-palette-accent-disabled);
+    --theme-calendar-save-button-text: var(--theme-palette-text-strong);
+    --theme-calendar-save-button-shadow: var(--theme-palette-shadow-soft);
+
+    /* ── Navigation ─────────────────────────────────────────────────── */
+    --theme-nav-item-active-bg: var(--theme-palette-overlay-soft);
+    --theme-nav-item-active-text: var(--theme-palette-text-strong);
+    --theme-nav-item-idle-text: var(--theme-palette-text-muted);
+    --theme-nav-item-idle-bg-hover: var(--theme-palette-overlay-soft);
+    --theme-nav-item-idle-text-hover: var(--theme-palette-text-strong);
+    --theme-nav-icon-active: var(--theme-palette-text-strong);
+    --theme-nav-icon-idle: var(--theme-palette-text-muted);
+    --theme-nav-icon-idle-hover: var(--theme-palette-text-strong);
+    --theme-team-badge-bg: var(--theme-palette-overlay-soft);
+    --theme-team-badge-border: var(--theme-palette-border);
+    --theme-team-badge-active-border: var(--theme-palette-border-strong);
+    --theme-team-badge-active-text: var(--theme-palette-text-strong);
+    --theme-team-badge-idle-border: var(--theme-palette-border);
+    --theme-team-badge-idle-text: var(--theme-palette-text-muted);
+    --theme-team-badge-idle-border-hover: var(--theme-palette-border-strong);
+    --theme-team-badge-idle-text-hover: var(--theme-palette-text-strong);
+    --theme-logout-button-text: var(--theme-palette-text-body);
+    --theme-logout-button-bg-hover: var(--theme-palette-overlay-soft);
+    --theme-logout-button-text-hover: var(--theme-palette-text-danger-strong);
+    --theme-logout-icon: var(--theme-palette-text-muted);
+    --theme-logout-icon-hover: var(--theme-palette-text-danger-strong);
+    --theme-profile-link-text: var(--theme-palette-text-strong);
+    --theme-profile-link-bg-hover: var(--theme-palette-overlay-soft);
+    --theme-profile-avatar-bg: var(--theme-palette-avatar-bg);
+    --theme-profile-avatar-outline: var(--theme-palette-outline);
+    --theme-teams-label: var(--theme-palette-text-muted);
+  }
+
+  /*
+    Light-mode semantic overrides.
+    Only add a token here when it needs a different palette mapping in light
+    mode — not just because the palette token changed (that's handled in
+    palette.css already).
+  */
+  .light {
+    --theme-auth-accent-icon: var(--theme-palette-accent-strong);
+    --theme-calendar-save-button-bg-hover: var(--theme-palette-accent-hover);
+    --theme-calendar-menu-panel-bg: var(--theme-palette-surface);
+    --theme-calendar-mobile-menu-panel-bg: var(--theme-palette-surface);
+    --theme-nav-item-active-text: var(--theme-palette-accent);
+    --theme-nav-item-idle-text: var(--theme-palette-text-body);
+    --theme-nav-item-idle-text-hover: var(--theme-palette-accent);
+    --theme-nav-icon-active: var(--theme-palette-accent);
+    --theme-nav-icon-idle-hover: var(--theme-palette-accent);
+    --theme-team-badge-active-text: var(--theme-palette-accent);
+    --theme-team-badge-idle-border: var(--theme-palette-border);
+    --theme-team-badge-idle-text-hover: var(--theme-palette-accent);
+    --theme-logout-button-text: var(--theme-palette-text-body);
+    --theme-logout-button-text-hover: var(--theme-palette-text-danger-strong);
+    --theme-logout-icon-hover: var(--theme-palette-text-danger);
+  }
+}

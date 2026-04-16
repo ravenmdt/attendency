@@ -12,15 +12,15 @@ export default function UserList() {
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold text-gray-900 dark:text-white">Users</h1>
-          <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+          <h1 className="text-base font-semibold ui-text-primary">Users</h1>
+          <p className="mt-2 text-sm ui-text-body">
             A list of all the users in your account including their name, title, email and role.
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <button
             type="button"
-            className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
+            className="block rounded-md ui-primary-button px-3 py-2 text-center text-sm font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             Add user
           </button>
@@ -29,22 +29,22 @@ export default function UserList() {
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-            <table className="relative min-w-full divide-y divide-gray-300 dark:divide-white/15">
+            <table className="relative min-w-full divide-y ui-table-divider">
               <thead>
                 <tr>
                   <th
                     scope="col"
-                    className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 sm:pl-0 dark:text-white"
+                    className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold ui-text-primary sm:pl-0"
                   >
                     Name
                   </th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold ui-text-primary">
                     Title
                   </th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold ui-text-primary">
                     Email
                   </th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold ui-text-primary">
                     Role
                   </th>
                   <th scope="col" className="py-3.5 pr-4 pl-3 sm:pr-0">
@@ -52,25 +52,25 @@ export default function UserList() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-white/10">
+              <tbody className="divide-y ui-table-row-divider">
                 {people.map((person) => (
                   <tr key={person.email}>
-                    <td className="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-0 dark:text-white">
+                    <td className="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap ui-text-primary sm:pl-0">
                       {person.name}
                     </td>
-                    <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                    <td className="px-3 py-4 text-sm whitespace-nowrap ui-text-muted">
                       {person.title}
                     </td>
-                    <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                    <td className="px-3 py-4 text-sm whitespace-nowrap ui-text-muted">
                       {person.email}
                     </td>
-                    <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                    <td className="px-3 py-4 text-sm whitespace-nowrap ui-text-muted">
                       {person.role}
                     </td>
                     <td className="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
                       <a
                         href="#"
-                        className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                        className="ui-action-link"
                       >
                         Edit<span className="sr-only">, {person.name}</span>
                       </a>

@@ -28,12 +28,12 @@ export function CalendarDayCell({ day, info, wave0, wave1, onToggle }: CalendarD
     <div
       data-is-today={day.isToday ? '' : undefined}
       data-is-current-month={day.isCurrentMonth ? '' : undefined}
-      className="group relative bg-gray-50 px-3 py-2 text-gray-500 data-is-current-month:bg-white dark:bg-gray-900 dark:text-gray-400 dark:not-data-is-current-month:before:pointer-events-none dark:not-data-is-current-month:before:absolute dark:not-data-is-current-month:before:inset-0 dark:not-data-is-current-month:before:bg-gray-800/50 dark:data-is-current-month:bg-gray-900"
+      className="group relative ui-calendar-day-cell px-3 py-2"
     >
       {/* Date number in the top-left corner. Today's date gets an indigo circle. */}
       <time
         dateTime={day.date}
-        className="relative group-not-data-is-current-month:opacity-75 in-data-is-today:flex in-data-is-today:size-6 in-data-is-today:items-center in-data-is-today:justify-center in-data-is-today:rounded-full in-data-is-today:bg-indigo-600 in-data-is-today:font-semibold in-data-is-today:text-white dark:in-data-is-today:bg-indigo-500"
+        className="relative group-not-data-is-current-month:opacity-75 in-data-is-today:flex in-data-is-today:size-6 in-data-is-today:items-center in-data-is-today:justify-center in-data-is-today:rounded-full in-data-is-today:font-semibold ui-calendar-today-circle"
       >
         {dayNumber}
       </time>
@@ -45,7 +45,7 @@ export function CalendarDayCell({ day, info, wave0, wave1, onToggle }: CalendarD
       */}
       <div className="mt-2 flex">
         {/* Left column: icons rendered from calendar_info_display.tsx. Empty if no entry. */}
-        <div className="flex-1 flex flex-col text-xs text-gray-900 dark:text-white">
+        <div className="flex-1 flex flex-col text-xs ui-text-primary">
           {info && (
             <>
               <div><NightsIcon nights={info.nights} /></div>

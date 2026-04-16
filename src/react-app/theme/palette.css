@@ -1,0 +1,114 @@
+/*
+  palette.css — Tier 1: raw colour tokens.
+
+  This is the ONLY file that references Tailwind colour variables or hard-coded
+  colour values. To retheme the entire project, edit the values here.
+
+  :root    — dark mode (default)
+  .light   — light mode overrides (swap these values for a light palette)
+*/
+
+@layer base {
+  :root {
+    --theme-palette-page-bg: var(--color-gray-900);
+    --theme-palette-surface: var(--color-gray-900);
+    --theme-palette-surface-raised: var(--color-gray-800);
+    --theme-palette-surface-strong: color-mix(in oklab, var(--color-gray-800) 50%, transparent);
+    --theme-palette-surface-soft: color-mix(in oklab, var(--color-gray-800) 40%, transparent);
+    --theme-palette-overlay-soft: color-mix(in oklab, var(--color-white) 5%, transparent);
+    --theme-palette-overlay: color-mix(in oklab, var(--color-white) 10%, transparent);
+    --theme-palette-overlay-strong: color-mix(in oklab, var(--color-white) 15%, transparent);
+    --theme-palette-text-strong: var(--color-white);
+    --theme-palette-text-body: var(--color-gray-300);
+    --theme-palette-text-muted: var(--color-gray-400);
+    --theme-palette-text-icon: var(--color-gray-500);
+    --theme-palette-text-danger: var(--color-red-400);
+    --theme-palette-text-danger-strong: var(--color-red-300);
+    --theme-palette-text-on-accent: var(--color-white);
+    --theme-palette-border: color-mix(in oklab, var(--color-white) 10%, transparent);
+    --theme-palette-border-subtle: color-mix(in oklab, var(--color-white) 5%, transparent);
+    --theme-palette-border-strong: color-mix(in oklab, var(--color-white) 20%, transparent);
+    --theme-palette-outline: color-mix(in oklab, var(--color-white) 10%, transparent);
+    --theme-palette-ring: color-mix(in oklab, var(--color-white) 5%, transparent);
+    --theme-palette-shadow-soft: var(--shadow-none);
+    --theme-palette-shadow-raised: var(--shadow-none);
+    --theme-palette-accent: var(--color-indigo-500);
+    --theme-palette-accent-strong: var(--color-indigo-600);
+    --theme-palette-accent-hover: var(--color-indigo-400);
+    --theme-palette-accent-outline: var(--color-indigo-500);
+    --theme-palette-accent-ring: var(--color-indigo-400);
+    --theme-palette-accent-disabled: var(--color-indigo-900);
+    --theme-palette-control-bg: color-mix(in oklab, var(--color-white) 10%, transparent);
+    --theme-palette-control-bg-hover: color-mix(in oklab, var(--color-white) 20%, transparent);
+    --theme-palette-control-text: var(--color-white);
+    --theme-palette-control-text-muted: var(--color-gray-400);
+    --theme-palette-control-text-hover: var(--color-white);
+    --theme-palette-control-icon: var(--color-gray-500);
+    --theme-palette-input-bg: var(--color-gray-800);
+    --theme-palette-input-border: var(--color-gray-600);
+    --theme-palette-input-text: var(--color-white);
+    --theme-palette-input-placeholder: var(--color-gray-400);
+    --theme-palette-input-focus-border: var(--color-indigo-500);
+    --theme-palette-panel-divider: color-mix(in oklab, var(--color-white) 10%, transparent);
+    --theme-palette-avatar-bg: var(--color-gray-800);
+    --theme-palette-cell-bg-out: var(--color-gray-900);
+    --theme-palette-avail-yes: color-mix(in oklab, var(--color-green-500) 60%, transparent);
+    --theme-palette-avail-partial: color-mix(in oklab, var(--color-yellow-500) 60%, transparent);
+    --theme-palette-avail-none: color-mix(in oklab, var(--color-gray-700) 40%, transparent);
+    --theme-palette-link: var(--color-indigo-400);
+    --theme-palette-link-hover: var(--color-indigo-300);
+    --theme-palette-table-divider-header: color-mix(in oklab, var(--color-white) 15%, transparent);
+    --theme-palette-table-divider-row: color-mix(in oklab, var(--color-white) 10%, transparent);
+  }
+
+  .light {
+    --theme-palette-page-bg: var(--color-gray-50);
+    --theme-palette-surface: var(--color-white);
+    --theme-palette-surface-raised: var(--color-white);
+    --theme-palette-surface-strong: transparent;
+    --theme-palette-surface-soft: color-mix(in oklab, var(--color-white) 80%, transparent);
+    --theme-palette-overlay-soft: var(--color-gray-50);
+    --theme-palette-overlay: var(--color-gray-100);
+    --theme-palette-overlay-strong: var(--color-gray-200);
+    --theme-palette-text-strong: var(--color-gray-900);
+    --theme-palette-text-body: var(--color-gray-700);
+    --theme-palette-text-muted: var(--color-gray-500);
+    --theme-palette-text-icon: var(--color-gray-400);
+    --theme-palette-text-danger: var(--color-red-600);
+    --theme-palette-text-danger-strong: var(--color-red-700);
+    --theme-palette-border: var(--color-gray-300);
+    --theme-palette-border-subtle: color-mix(in oklab, var(--color-black) 5%, transparent);
+    --theme-palette-border-strong: var(--color-indigo-600);
+    --theme-palette-outline: color-mix(in oklab, var(--color-black) 5%, transparent);
+    --theme-palette-ring: var(--color-gray-300);
+    --theme-palette-shadow-soft: var(--shadow-sm);
+    --theme-palette-shadow-raised: var(--shadow-xs);
+    --theme-palette-accent: var(--color-indigo-600);
+    --theme-palette-accent-strong: var(--color-indigo-600);
+    --theme-palette-accent-hover: var(--color-indigo-500);
+    --theme-palette-accent-outline: var(--color-indigo-600);
+    --theme-palette-accent-ring: var(--color-indigo-500);
+    --theme-palette-accent-disabled: var(--color-indigo-300);
+    --theme-palette-control-bg: var(--color-white);
+    --theme-palette-control-bg-hover: var(--color-gray-50);
+    --theme-palette-control-text: var(--color-gray-900);
+    --theme-palette-control-text-muted: var(--color-gray-400);
+    --theme-palette-control-text-hover: var(--color-gray-500);
+    --theme-palette-control-icon: var(--color-gray-400);
+    --theme-palette-input-bg: var(--color-white);
+    --theme-palette-input-border: var(--color-gray-300);
+    --theme-palette-input-text: var(--color-gray-900);
+    --theme-palette-input-placeholder: var(--color-gray-400);
+    --theme-palette-input-focus-border: var(--color-indigo-500);
+    --theme-palette-panel-divider: var(--color-gray-100);
+    --theme-palette-avatar-bg: var(--color-gray-50);
+    --theme-palette-cell-bg-out: var(--color-gray-50);
+    --theme-palette-avail-yes: color-mix(in oklab, var(--color-green-500) 80%, transparent);
+    --theme-palette-avail-partial: color-mix(in oklab, var(--color-yellow-500) 80%, transparent);
+    --theme-palette-avail-none: color-mix(in oklab, var(--color-gray-200) 60%, transparent);
+    --theme-palette-link: var(--color-indigo-600);
+    --theme-palette-link-hover: var(--color-indigo-900);
+    --theme-palette-table-divider-header: var(--color-gray-300);
+    --theme-palette-table-divider-row: var(--color-gray-200);
+  }
+}

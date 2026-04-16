@@ -163,16 +163,24 @@ export default function Calendar() {
 
   return (
     <div className="lg:flex lg:h-full lg:flex-col">
-      <header className="flex items-center justify-between border-b border-gray-200 px-6 py-4 lg:flex-none dark:border-white/10 dark:bg-gray-800/50">
+      {/*
+        Calendar header shell colors now come from the shared theme tokens.
+        The semantic class below preserves the existing visual appearance.
+      */}
+      <header className="ui-calendar-header flex items-center justify-between border-b px-6 py-4 lg:flex-none">
         <h1 className="text-base font-semibold text-gray-900 dark:text-white">
           <time dateTime={monthDateTime}>{monthTitle}</time>
         </h1>
         <div className="flex items-center">
-          <div className="relative flex items-center rounded-md bg-white shadow-xs outline -outline-offset-1 outline-gray-300 md:items-stretch dark:bg-white/10 dark:shadow-none dark:outline-white/5">
+          {/*
+            These control classes mirror the current calendar toolbar styling so
+            future theme updates can happen in one place.
+          */}
+          <div className="ui-calendar-control-group relative flex items-center rounded-md outline -outline-offset-1 md:items-stretch">
             <button
               type="button"
               onClick={() => setVisibleMonth((m) => shiftMonth(m, -1))}
-              className="flex h-9 w-12 items-center justify-center rounded-l-md pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50 dark:hover:text-white dark:md:hover:bg-white/10"
+              className="ui-calendar-control-button flex h-9 w-12 items-center justify-center rounded-l-md pr-1 focus:relative md:w-9 md:pr-0"
             >
               <span className="sr-only">Previous month</span>
               <ChevronLeftIcon aria-hidden="true" className="size-5" />
@@ -180,15 +188,15 @@ export default function Calendar() {
             <button
               type="button"
               onClick={goToToday}
-              className="hidden px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:relative md:block dark:text-white dark:hover:bg-white/10"
+              className="ui-calendar-control-button-primary hidden px-3.5 text-sm font-semibold focus:relative md:block"
             >
               Today
             </button>
-            <span className="relative -mx-px h-5 w-px bg-gray-300 md:hidden dark:bg-white/10" />
+            <span className="ui-calendar-control-divider relative -mx-px h-5 w-px md:hidden" />
             <button
               type="button"
               onClick={() => setVisibleMonth((m) => shiftMonth(m, 1))}
-              className="flex h-9 w-12 items-center justify-center rounded-r-md pl-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pl-0 md:hover:bg-gray-50 dark:hover:text-white dark:md:hover:bg-white/10"
+              className="ui-calendar-control-button flex h-9 w-12 items-center justify-center rounded-r-md pl-1 focus:relative md:w-9 md:pl-0"
             >
               <span className="sr-only">Next month</span>
               <ChevronRightIcon aria-hidden="true" className="size-5" />
@@ -198,21 +206,21 @@ export default function Calendar() {
             <Menu as="div" className="relative">
               <MenuButton
                 type="button"
-                className="flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
+                className="ui-calendar-menu-trigger flex items-center gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold inset-ring"
               >
                 Month view
-                <ChevronDownIcon aria-hidden="true" className="-mr-1 size-5 text-gray-400 dark:text-gray-500" />
+                <ChevronDownIcon aria-hidden="true" className="ui-calendar-menu-icon -mr-1 size-5" />
               </MenuButton>
 
               <MenuItems
                 transition
-                className="absolute right-0 z-10 mt-3 w-36 origin-top-right overflow-hidden rounded-md bg-white shadow-lg outline-1 outline-black/5 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in dark:bg-gray-800 dark:-outline-offset-1 dark:outline-white/10"
+                className="ui-calendar-menu-panel absolute right-0 z-10 mt-3 w-36 origin-top-right overflow-hidden rounded-md shadow-lg outline-1 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in dark:-outline-offset-1"
               >
                 <div className="py-1">
                   <MenuItem>
                     <a
                       href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden dark:text-gray-300 dark:data-focus:bg-white/5 dark:data-focus:text-white"
+                      className="ui-calendar-menu-item block px-4 py-2 text-sm data-focus:outline-hidden"
                     >
                       Day view
                     </a>
@@ -220,7 +228,7 @@ export default function Calendar() {
                   <MenuItem>
                     <a
                       href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden dark:text-gray-300 dark:data-focus:bg-white/5 dark:data-focus:text-white"
+                      className="ui-calendar-menu-item block px-4 py-2 text-sm data-focus:outline-hidden"
                     >
                       Week view
                     </a>
@@ -228,7 +236,7 @@ export default function Calendar() {
                   <MenuItem>
                     <a
                       href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden dark:text-gray-300 dark:data-focus:bg-white/5 dark:data-focus:text-white"
+                      className="ui-calendar-menu-item block px-4 py-2 text-sm data-focus:outline-hidden"
                     >
                       Month view
                     </a>
@@ -236,7 +244,7 @@ export default function Calendar() {
                   <MenuItem>
                     <a
                       href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden dark:text-gray-300 dark:data-focus:bg-white/5 dark:data-focus:text-white"
+                      className="ui-calendar-menu-item block px-4 py-2 text-sm data-focus:outline-hidden"
                     >
                       Year view
                     </a>
@@ -244,31 +252,31 @@ export default function Calendar() {
                 </div>
               </MenuItems>
             </Menu>
-            <div className="ml-6 h-6 w-px bg-gray-300 dark:bg-white/10" />
+            <div className="ui-calendar-control-divider ml-6 h-6 w-px" />
             <button
               type="button"
               onClick={saveAvailabilityChanges}
               disabled={!hasPendingChanges || isSaving}
-              className="ml-6 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:bg-indigo-300 disabled:hover:bg-indigo-300 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500 dark:disabled:bg-indigo-900"
+              className="ui-calendar-save-button ui-accent-ring ml-6 rounded-md px-3 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed"
             >
               {isSaving ? 'Saving...' : `Save changes${hasPendingChanges ? ` (${pendingChanges.length})` : ''}`}
             </button>
           </div>
           <Menu as="div" className="relative ml-6 md:hidden">
-            <MenuButton className="-mx-2 flex items-center rounded-full border border-transparent p-2 text-gray-400 hover:text-gray-500 dark:text-gray-400 dark:hover:text-white">
+            <MenuButton className="ui-calendar-mobile-menu-button -mx-2 flex items-center rounded-full border border-transparent p-2">
               <span className="sr-only">Open menu</span>
               <EllipsisHorizontalIcon aria-hidden="true" className="size-5" />
             </MenuButton>
 
             <MenuItems
               transition
-              className="absolute right-0 z-10 mt-3 w-36 origin-top-right divide-y divide-gray-100 overflow-hidden rounded-md bg-white shadow-lg outline-1 outline-black/5 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in dark:divide-white/10 dark:bg-gray-800 dark:-outline-offset-1 dark:outline-white/10"
+              className="ui-calendar-mobile-menu-panel absolute right-0 z-10 mt-3 w-36 origin-top-right divide-y overflow-hidden rounded-md shadow-lg outline-1 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in dark:-outline-offset-1"
             >
               <div className="py-1">
                 <MenuItem>
                   <a
                     href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden dark:text-gray-300 dark:data-focus:bg-white/5 dark:data-focus:text-white"
+                    className="ui-calendar-menu-item block px-4 py-2 text-sm data-focus:outline-hidden"
                   >
                     Create event
                   </a>
@@ -279,7 +287,7 @@ export default function Calendar() {
                   <button
                     type="button"
                     onClick={goToToday}
-                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden dark:text-gray-300 dark:data-focus:bg-white/5 dark:data-focus:text-white"
+                    className="ui-calendar-menu-item block w-full px-4 py-2 text-left text-sm data-focus:outline-hidden"
                   >
                     Go to today
                   </button>
@@ -289,7 +297,7 @@ export default function Calendar() {
                 <MenuItem>
                   <a
                     href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden dark:text-gray-300 dark:data-focus:bg-white/5 dark:data-focus:text-white"
+                    className="ui-calendar-menu-item block px-4 py-2 text-sm data-focus:outline-hidden"
                   >
                     Day view
                   </a>
@@ -297,7 +305,7 @@ export default function Calendar() {
                 <MenuItem>
                   <a
                     href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden dark:text-gray-300 dark:data-focus:bg-white/5 dark:data-focus:text-white"
+                    className="ui-calendar-menu-item block px-4 py-2 text-sm data-focus:outline-hidden"
                   >
                     Week view
                   </a>
@@ -305,7 +313,7 @@ export default function Calendar() {
                 <MenuItem>
                   <a
                     href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden dark:text-gray-300 dark:data-focus:bg-white/5 dark:data-focus:text-white"
+                    className="ui-calendar-menu-item block px-4 py-2 text-sm data-focus:outline-hidden"
                   >
                     Month view
                   </a>
@@ -313,7 +321,7 @@ export default function Calendar() {
                 <MenuItem>
                   <a
                     href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden dark:text-gray-300 dark:data-focus:bg-white/5 dark:data-focus:text-white"
+                    className="ui-calendar-menu-item block px-4 py-2 text-sm data-focus:outline-hidden"
                   >
                     Year view
                   </a>
@@ -323,17 +331,17 @@ export default function Calendar() {
           </Menu>
         </div>
       </header>
-      <div className="shadow-sm ring-1 ring-black/5 lg:flex lg:flex-auto lg:flex-col dark:shadow-none dark:ring-white/5">
-        <div className="grid grid-cols-7 gap-px border-b border-gray-300 bg-gray-200 text-center text-xs/6 font-semibold text-gray-700 lg:flex-none dark:border-white/5 dark:bg-white/15 dark:text-gray-300">
+      <div className="ui-calendar-frame ring-1 lg:flex lg:flex-auto lg:flex-col">
+        <div className="ui-calendar-weekdays grid grid-cols-7 gap-px border-b text-center text-xs/6 font-semibold lg:flex-none">
           {/* sr-only = visible to screen readers but hidden on mobile; shown in full on sm+ */}
           {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
-            <div key={day} className="flex justify-center bg-white py-2 dark:bg-gray-900">
+            <div key={day} className="ui-calendar-weekday-cell flex justify-center py-2">
               <span>{day[0]}</span>
               <span className="sr-only sm:not-sr-only">{day.slice(1)}</span>
             </div>
           ))}
         </div>
-        <div className="flex bg-gray-200 text-xs/6 text-gray-700 lg:flex-auto dark:bg-white/10 dark:text-gray-300">
+        <div className="ui-calendar-grid-bg flex text-xs/6 lg:flex-auto">
           {/* Desktop grid: full cells with day info + availability bars (lg screens and up) */}
           <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
             {visibleDays.map((day) => (
@@ -381,22 +389,22 @@ export default function Calendar() {
       {/* Legend extracted into its own component for reuse across calendar views. */}
       <CalendarLegend />
       <div className="relative px-4 py-10 sm:px-6 lg:hidden dark:after:pointer-events-none dark:after:absolute dark:after:inset-x-0 dark:after:top-0 dark:after:h-px dark:after:bg-white/10">
-        <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow-sm outline-1 outline-black/5 dark:divide-white/10 dark:bg-gray-800/50 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10">
+        <ol className="ui-calendar-mobile-events ui-calendar-mobile-events-divider divide-y overflow-hidden rounded-lg text-sm outline-1 dark:-outline-offset-1">
           {monthEvents.map((event) => (
             <li
               key={event.id}
-              className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50 dark:focus-within:bg-white/5 dark:hover:bg-white/5"
+              className="ui-calendar-mobile-event-row group flex p-4 pr-6"
             >
               <div className="flex-auto">
-                <p className="font-semibold text-gray-900 dark:text-white">{event.name}</p>
-                <time dateTime={event.datetime} className="mt-2 flex items-center text-gray-700 dark:text-gray-300">
-                  <ClockIcon aria-hidden="true" className="mr-2 size-5 text-gray-400 dark:text-gray-500" />
+                <p className="ui-calendar-mobile-event-title font-semibold">{event.name}</p>
+                <time dateTime={event.datetime} className="ui-calendar-mobile-event-meta mt-2 flex items-center">
+                  <ClockIcon aria-hidden="true" className="ui-calendar-mobile-event-icon mr-2 size-5" />
                   {event.time}
                 </time>
               </div>
               <a
                 href={event.href}
-                className="ml-6 flex-none self-center rounded-md bg-white px-3 py-2 font-semibold text-gray-900 opacity-0 shadow-xs ring-1 ring-gray-300 ring-inset group-hover:opacity-100 hover:ring-gray-400 focus:opacity-100 dark:bg-white/10 dark:text-white dark:shadow-none dark:ring-white/5 dark:hover:bg-white/20 dark:hover:ring-white/5"
+                className="ui-calendar-mobile-event-action ml-6 flex-none self-center rounded-md px-3 py-2 font-semibold opacity-0 ring-1 ring-inset group-hover:opacity-100 focus:opacity-100"
               >
                 Edit<span className="sr-only">, {event.name}</span>
               </a>

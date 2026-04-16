@@ -53,9 +53,9 @@ export function buildAvailabilityMap(items: AvailabilityItem[]): Map<string, boo
 //   false → yellow    (partially available / priority / needs review)
 //   null  → gray   (no entry)
 export function availabilityColorClass(value: AvailabilityValue): string {
-  if (value === true)  return 'bg-green-500/80 dark:bg-green-500/60'
-  if (value === false) return 'bg-yellow-500/80 dark:bg-yellow-500/60'
-  return 'bg-gray-200/60 dark:bg-gray-700/40'
+  if (value === true)  return 'ui-avail-yes'
+  if (value === false) return 'ui-avail-partial'
+  return 'ui-avail-none'
 }
 
 // ─── Calendar grid builder ─────────────────────────────────────────────────────

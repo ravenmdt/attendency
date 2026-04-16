@@ -11,32 +11,32 @@ import { availabilityColorClass } from './calendar.utils'
 //    stays in sync with what users see in the grid.
 export default function CalendarLegend() {
   return (
-    <section className="border-b border-gray-200 bg-white/80 px-6 py-3 text-xs text-gray-700 dark:border-white/10 dark:bg-gray-800/40 dark:text-gray-300">
+    <section className="ui-calendar-legend border-b px-6 py-3 text-xs">
       <div className="grid gap-3 md:grid-cols-2">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Day Info (First Column)</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide ui-text-muted">Day Info (First Column)</p>
           <div className="mt-2 flex flex-wrap items-center gap-4">
             <span className="inline-flex items-center gap-2">
-              <span className="font-semibold text-gray-900 dark:text-white"><NightsIcon nights={true} /></span>
+              <span className="font-semibold ui-text-primary"><NightsIcon nights={true} /></span>
               Night shift
             </span>
             <span className="inline-flex items-center gap-2">
-              <span className="font-semibold text-gray-900 dark:text-white"><NightsIcon nights={false} /></span>
+              <span className="font-semibold ui-text-primary"><NightsIcon nights={false} /></span>
               Day shift
             </span>
             <span className="inline-flex items-center gap-2">
-              <span className="font-semibold text-gray-900 dark:text-white"><PriorityIcon priority={true} /></span>
+              <span className="font-semibold ui-text-primary"><PriorityIcon priority={true} /></span>
               Priority true
             </span>
             <span className="inline-flex items-center gap-2">
-              <span className="font-semibold text-gray-900 dark:text-white"><TypeIcon type="ACT" /></span>
+              <span className="font-semibold ui-text-primary"><TypeIcon type="ACT" /></span>
               Type code (example)
             </span>
           </div>
-          <p className="mt-2 text-[11px] text-gray-500 dark:text-gray-400">These icons are rendered from calendar_info_display.tsx using the same functions as the day cells.</p>
+          <p className="mt-2 text-[11px] ui-text-muted">These icons are rendered from calendar_info_display.tsx using the same functions as the day cells.</p>
         </div>
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Availability (Second Column)</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide ui-text-muted">Availability (Second Column)</p>
           <div className="mt-2 flex flex-wrap items-center gap-3">
             {/* availabilityColorClass() keeps legend colours in sync with the actual day cells */}
             <span className="inline-flex items-center gap-2">
@@ -52,7 +52,7 @@ export default function CalendarLegend() {
               W1/W2 Unavailable
             </span>
           </div>
-          <p className="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Top bar = Wave 1, bottom bar = Wave 2.</p>
+          <p className="mt-2 text-[11px] ui-text-muted">Top bar = Wave 1, bottom bar = Wave 2.</p>
         </div>
       </div>
     </section>

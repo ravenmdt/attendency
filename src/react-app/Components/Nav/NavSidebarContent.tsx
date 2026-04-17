@@ -41,18 +41,11 @@ export default function NavSidebarContent({
 
   return (
     <>
-      {/* Brand / logo area shown at the top of the sidebar. */}
+      {/* Brand area shown at the top of the sidebar. */}
       <div className="flex h-16 shrink-0 items-center">
-        <img
-          alt={sidebarBrand.name}
-          src={sidebarBrand.logoLight}
-          className="h-8 w-auto dark:hidden"
-        />
-        <img
-          alt={sidebarBrand.name}
-          src={sidebarBrand.logoDark}
-          className="h-8 w-auto not-dark:hidden"
-        />
+        <span className="ui-text-primary text-lg font-semibold tracking-tight">
+          {sidebarBrand.name}
+        </span>
       </div>
 
       <nav className="flex flex-1 flex-col">

@@ -30,8 +30,4 @@ export const navigationItems: NavigationItem[] = [
 
 export const sidebarBrand = {
   name: "Attendency",
-  logoLight:
-    "https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600",
-  logoDark:
-    "https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500",
 };

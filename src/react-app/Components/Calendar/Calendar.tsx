@@ -4,20 +4,25 @@ import {
   ChevronRightIcon,
   ClockIcon,
   EllipsisHorizontalIcon,
-} from '@heroicons/react/20/solid'
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { useMemo, useState } from 'react'
-import type { AvailabilityOverride, AvailabilityValue, AvailabilityWave } from './calendar.types'
+} from "@heroicons/react/20/solid";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { useMemo, useState } from "react";
+import { useAuth } from "../Auth/AuthContext";
+import type {
+  AvailabilityOverride,
+  AvailabilityValue,
+  AvailabilityWave,
+} from "./calendar.types";
 import {
   buildMonthDays,
   cycleAvailability,
   getAvailabilityKey,
   shiftMonth,
-} from './calendar.utils'
-import { useCalendarData } from './useCalendarData'
-import { CalendarDayCell } from './CalendarDayCell'
-import CalendarLegend from './CalendarLegend'
-import type { AvailabilitySaveRequest } from '../../../shared/calendar.types'
+} from "./calendar.utils";
+import { useCalendarData } from "./useCalendarData";
+import { CalendarDayCell } from "./CalendarDayCell";
+import CalendarLegend from "./CalendarLegend";
+import type { AvailabilitySaveRequest } from "../../../shared/calendar.types";
 
 /*
   Database reset commands:
@@ -38,25 +43,28 @@ import type { AvailabilitySaveRequest } from '../../../shared/calendar.types'
 */
 
 export default function Calendar() {
+  const { authenticatedFetch } = useAuth();
+
   // ── State ─────────────────────────────────────────────────────────────────
 
   // The first day of whichever month is currently displayed in the grid.
   const [visibleMonth, setVisibleMonth] = useState(() => {
-    const now = new Date()
-    return new Date(now.getFullYear(), now.getMonth(), 1)
-  })
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
 
   // Only stores cells the user has changed since the last save.
   // Key = "YYYY-MM-DD|wave". Map gives O(1) lookups per cell during rendering.
-  const [availabilityOverrides, setAvailabilityOverrides] = useState<Map<string, AvailabilityOverride>>(
-    () => new Map()
-  )
+  const [availabilityOverrides, setAvailabilityOverrides] = useState<
+    Map<string, AvailabilityOverride>
+  >(() => new Map());
 
-  const [isSaving, setIsSaving] = useState(false)
+  const [isSaving, setIsSaving] = useState(false);
 
   // Custom hook that loads availability + calendar_info from D1 on first render.
   // `applyChanges` merges saved diffs into the baseline after a successful save.
-  const { baselineAvailability, calendarInfoMap, isLoading, applyChanges } = useCalendarData()
+  const { baselineAvailability, calendarInfoMap, isLoading, applyChanges } =
+    useCalendarData();
 
   // ── Derived values ─────────────────────────────────────────────────────────
 
@@ -64,89 +72,102 @@ export default function Calendar() {
   // expensive recalculations on every re-render caused by unrelated state updates.
 
   // The 42 CalendarDay objects (7 columns × 6 rows) for the currently visible month.
-  const visibleDays = useMemo(() => buildMonthDays(visibleMonth), [visibleMonth])
+  const visibleDays = useMemo(
+    () => buildMonthDays(visibleMonth),
+    [visibleMonth],
+  );
 
   // All events across the visible month, used by the mobile event list below the grid.
-  const monthEvents = useMemo(() => visibleDays.flatMap((day) => day.events), [visibleDays])
+  const monthEvents = useMemo(
+    () => visibleDays.flatMap((day) => day.events),
+    [visibleDays],
+  );
 
   // Flat array of override entries, ready to be sent as the save payload.
   const pendingChanges = useMemo(
     () => Array.from(availabilityOverrides.values()),
-    [availabilityOverrides]
-  )
+    [availabilityOverrides],
+  );
 
-  const hasPendingChanges = pendingChanges.length > 0
+  const hasPendingChanges = pendingChanges.length > 0;
 
-  const monthTitle = visibleMonth.toLocaleString(undefined, { month: 'long', year: 'numeric' })
-  const monthDateTime = `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, '0')}`
+  const monthTitle = visibleMonth.toLocaleString(undefined, {
+    month: "long",
+    year: "numeric",
+  });
+  const monthDateTime = `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, "0")}`;
 
   // ── Handlers ───────────────────────────────────────────────────────────────
 
   // Jump the visible month back to the user's current month.
   function goToToday() {
-    const now = new Date()
-    setVisibleMonth(new Date(now.getFullYear(), now.getMonth(), 1))
+    const now = new Date();
+    setVisibleMonth(new Date(now.getFullYear(), now.getMonth(), 1));
   }
 
   // Returns what to display for a wave cell — an unsaved edit wins over the D1 baseline.
   // This is what makes edits feel instant even before they are saved.
-  function getEffectiveAvailability(date: string, wave: AvailabilityWave): AvailabilityValue {
-    const key = getAvailabilityKey(date, wave)
+  function getEffectiveAvailability(
+    date: string,
+    wave: AvailabilityWave,
+  ): AvailabilityValue {
+    const key = getAvailabilityKey(date, wave);
     // `has` must be used here (not `??`) because null is a valid override value
     // that means "delete this row". Using ?? would confuse null with "no override at all".
     if (availabilityOverrides.has(key)) {
-      return availabilityOverrides.get(key)!.available
+      return availabilityOverrides.get(key)!.available;
     }
-    const baseline = baselineAvailability.get(key)
-    return baseline === undefined ? null : baseline
+    const baseline = baselineAvailability.get(key);
+    return baseline === undefined ? null : baseline;
   }
 
   // Cycles the availability state for one wave on one date when the user clicks a bar.
   function toggleWaveAvailability(date: string, wave: AvailabilityWave) {
     setAvailabilityOverrides((current) => {
-      const next = new Map(current)
-      const key  = getAvailabilityKey(date, wave)
+      const next = new Map(current);
+      const key = getAvailabilityKey(date, wave);
       // Read current value: prefer override (use `has` not `??`), then fall back to baseline.
       const currentValue: AvailabilityValue = next.has(key)
         ? next.get(key)!.available
-        : (baselineAvailability.get(key) ?? null)
-      const nextValue     = cycleAvailability(currentValue)
-      const baselineValue = baselineAvailability.get(key) ?? null
+        : (baselineAvailability.get(key) ?? null);
+      const nextValue = cycleAvailability(currentValue);
+      const baselineValue = baselineAvailability.get(key) ?? null;
       if (nextValue === baselineValue) {
         // User cycled back to the saved value — drop the override so the
         // save payload only contains genuinely changed rows.
-        next.delete(key)
+        next.delete(key);
       } else {
-        next.set(key, { date, wave, available: nextValue })
+        next.set(key, { date, wave, available: nextValue });
       }
-      return next
-    })
+      return next;
+    });
   }
 
   // POSTs all pending overrides to the worker, which writes them to D1 in one batch.
   async function saveAvailabilityChanges() {
-    if (!hasPendingChanges || isSaving) return
+    if (!hasPendingChanges || isSaving) return;
     try {
-      setIsSaving(true)
-      const response = await fetch('/api/availability/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
+      setIsSaving(true);
+      const response = await authenticatedFetch("/api/availability/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         // userId is no longer sent. The backend uses session cookie identity.
-        body: JSON.stringify({ changes: pendingChanges } as AvailabilitySaveRequest),
-      })
+        body: JSON.stringify({
+          changes: pendingChanges,
+        } as AvailabilitySaveRequest),
+      });
       if (!response.ok) {
-        const message = await response.text()
-        throw new Error(message || 'Save failed')
+        const message = await response.text();
+        throw new Error(message || "Save failed");
       }
       // Merge the saved overrides into the baseline — they are now persisted in D1.
-      applyChanges(pendingChanges)
+      applyChanges(pendingChanges);
       // Clear the override map — there are no longer any unsaved edits.
-      setAvailabilityOverrides(new Map())
+      setAvailabilityOverrides(new Map());
     } catch (error) {
-      console.error('Availability save failed:', error)
+      console.error("Availability save failed:", error);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
   }
 
@@ -158,7 +179,7 @@ export default function Calendar() {
       <div className="flex h-full items-center justify-center py-20 text-sm text-gray-500 dark:text-gray-400">
         Loading calendar data…
       </div>
-    )
+    );
   }
 
   return (
@@ -209,7 +230,10 @@ export default function Calendar() {
                 className="ui-calendar-menu-trigger flex items-center gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold inset-ring"
               >
                 Month view
-                <ChevronDownIcon aria-hidden="true" className="ui-calendar-menu-icon -mr-1 size-5" />
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className="ui-calendar-menu-icon -mr-1 size-5"
+                />
               </MenuButton>
 
               <MenuItems
@@ -259,7 +283,9 @@ export default function Calendar() {
               disabled={!hasPendingChanges || isSaving}
               className="ui-calendar-save-button ui-accent-ring ml-6 rounded-md px-3 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed"
             >
-              {isSaving ? 'Saving...' : `Save changes${hasPendingChanges ? ` (${pendingChanges.length})` : ''}`}
+              {isSaving
+                ? "Saving..."
+                : `Save changes${hasPendingChanges ? ` (${pendingChanges.length})` : ""}`}
             </button>
           </div>
           <Menu as="div" className="relative ml-6 md:hidden">
@@ -334,8 +360,11 @@ export default function Calendar() {
       <div className="ui-calendar-frame ring-1 lg:flex lg:flex-auto lg:flex-col">
         <div className="ui-calendar-weekdays grid grid-cols-7 gap-px border-b text-center text-xs/6 font-semibold lg:flex-none">
           {/* sr-only = visible to screen readers but hidden on mobile; shown in full on sm+ */}
-          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
-            <div key={day} className="ui-calendar-weekday-cell flex justify-center py-2">
+          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+            <div
+              key={day}
+              className="ui-calendar-weekday-cell flex justify-center py-2"
+            >
               <span>{day[0]}</span>
               <span className="sr-only sm:not-sr-only">{day.slice(1)}</span>
             </div>
@@ -361,23 +390,26 @@ export default function Calendar() {
               <button
                 key={day.date}
                 type="button"
-                data-is-today={day.isToday ? '' : undefined}
-                data-is-selected={day.isSelected ? '' : undefined}
-                data-is-current-month={day.isCurrentMonth ? '' : undefined}
+                data-is-today={day.isToday ? "" : undefined}
+                data-is-selected={day.isSelected ? "" : undefined}
+                data-is-current-month={day.isCurrentMonth ? "" : undefined}
                 className="group relative flex h-14 flex-col px-3 py-2 not-data-is-current-month:bg-gray-50 not-data-is-selected:not-data-is-current-month:not-data-is-today:text-gray-500 hover:bg-gray-100 focus:z-10 data-is-current-month:bg-white not-data-is-selected:data-is-current-month:not-data-is-today:text-gray-900 data-is-current-month:hover:bg-gray-100 data-is-selected:font-semibold data-is-selected:text-white data-is-today:font-semibold not-data-is-selected:data-is-today:text-indigo-600 dark:not-data-is-current-month:bg-gray-900 dark:not-data-is-selected:not-data-is-current-month:not-data-is-today:text-gray-400 dark:not-data-is-current-month:before:pointer-events-none dark:not-data-is-current-month:before:absolute dark:not-data-is-current-month:before:inset-0 dark:not-data-is-current-month:before:bg-gray-800/50 dark:hover:bg-gray-900/50 dark:data-is-current-month:bg-gray-900 dark:not-data-is-selected:data-is-current-month:not-data-is-today:text-white dark:data-is-current-month:hover:bg-gray-900/50 dark:not-data-is-selected:data-is-today:text-indigo-400"
               >
                 <time
                   dateTime={day.date}
                   className="ml-auto group-not-data-is-current-month:opacity-75 in-data-is-selected:flex in-data-is-selected:size-6 in-data-is-selected:items-center in-data-is-selected:justify-center in-data-is-selected:rounded-full in-data-is-selected:not-in-data-is-today:bg-gray-900 in-data-is-selected:in-data-is-today:bg-indigo-600 dark:in-data-is-selected:not-in-data-is-today:bg-white dark:in-data-is-selected:not-in-data-is-today:text-gray-900 dark:in-data-is-selected:in-data-is-today:bg-indigo-500"
                 >
-                  {day.date.split('-')[2].replace(/^0/, '')}
+                  {day.date.split("-")[2].replace(/^0/, "")}
                 </time>
                 <span className="sr-only">{day.events.length} events</span>
                 {/* Use && instead of ternary — React renders nothing for `false` */}
                 {day.events.length > 0 && (
                   <span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
                     {day.events.map((event) => (
-                      <span key={event.id} className="mx-0.5 mb-1 size-1.5 rounded-full bg-gray-400 dark:bg-gray-500" />
+                      <span
+                        key={event.id}
+                        className="mx-0.5 mb-1 size-1.5 rounded-full bg-gray-400 dark:bg-gray-500"
+                      />
                     ))}
                   </span>
                 )}
@@ -396,9 +428,17 @@ export default function Calendar() {
               className="ui-calendar-mobile-event-row group flex p-4 pr-6"
             >
               <div className="flex-auto">
-                <p className="ui-calendar-mobile-event-title font-semibold">{event.name}</p>
-                <time dateTime={event.datetime} className="ui-calendar-mobile-event-meta mt-2 flex items-center">
-                  <ClockIcon aria-hidden="true" className="ui-calendar-mobile-event-icon mr-2 size-5" />
+                <p className="ui-calendar-mobile-event-title font-semibold">
+                  {event.name}
+                </p>
+                <time
+                  dateTime={event.datetime}
+                  className="ui-calendar-mobile-event-meta mt-2 flex items-center"
+                >
+                  <ClockIcon
+                    aria-hidden="true"
+                    className="ui-calendar-mobile-event-icon mr-2 size-5"
+                  />
                   {event.time}
                 </time>
               </div>
@@ -413,5 +453,5 @@ export default function Calendar() {
         </ol>
       </div>
     </div>
-  )
+  );
 }

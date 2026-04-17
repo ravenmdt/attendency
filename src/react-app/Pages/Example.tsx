@@ -21,6 +21,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 import Calendar from "../Components/Calendar/Calendar.tsx";
+import UserEdit from "../Components/Users/UserEdit";
 import UserList from "../Components/Users/UserList";
 import { useAuth } from "../Components/Auth/AuthContext";
 
@@ -45,6 +46,11 @@ function classNames(...classes: (string | undefined | null | false)[]): string {
 export default function Example() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentView, setCurrentView] = useState("Dashboard");
+  const [isEditingUser, setIsEditingUser] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [userEditorMode, setUserEditorMode] = useState<"edit" | "create">(
+    "edit",
+  );
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -57,6 +63,32 @@ export default function Example() {
     await logout();
     navigate("/login", { replace: true });
     setIsLoggingOut(false);
+  }
+
+  function handleStartUserEdit(userId: number) {
+    setSelectedUserId(userId);
+    setUserEditorMode("edit");
+    setCurrentView("Team");
+    setIsEditingUser(true);
+  }
+
+  function handleStartUserCreate() {
+    setSelectedUserId(null);
+    setUserEditorMode("create");
+    setCurrentView("Team");
+    setIsEditingUser(true);
+  }
+
+  function handleCancelUserEdit() {
+    setIsEditingUser(false);
+    setSelectedUserId(null);
+    setUserEditorMode("edit");
+  }
+
+  function handleUserSaveComplete() {
+    setIsEditingUser(false);
+    setSelectedUserId(null);
+    setUserEditorMode("edit");
   }
 
   return (
@@ -125,6 +157,7 @@ export default function Example() {
                               type="button"
                               onClick={() => {
                                 setCurrentView(item.name);
+                                setIsEditingUser(false);
                                 setSidebarOpen(false);
                               }}
                               className={classNames(
@@ -233,7 +266,10 @@ export default function Example() {
                           <li key={item.name}>
                             <button
                               type="button"
-                              onClick={() => setCurrentView(item.name)}
+                              onClick={() => {
+                                setCurrentView(item.name);
+                                setIsEditingUser(false);
+                              }}
                               className={classNames(
                                 currentView === item.name
                                   ? "ui-nav-item-active"
@@ -353,7 +389,20 @@ export default function Example() {
         <main className="py-10 lg:pl-72">
           <div className="px-4 sm:px-6 lg:px-8">
             {currentView === "Dashboard" && <div>Welcome to Dashboard</div>}
-            {currentView === "Team" && <UserList />}
+            {currentView === "Team" &&
+              (isEditingUser ? (
+                <UserEdit
+                  mode={userEditorMode}
+                  userId={selectedUserId}
+                  onCancel={handleCancelUserEdit}
+                  onSaveComplete={handleUserSaveComplete}
+                />
+              ) : (
+                <UserList
+                  onEditUser={handleStartUserEdit}
+                  onAddUser={handleStartUserCreate}
+                />
+              ))}
             {currentView === "Calendar" && <Calendar />}
             {currentView === "Projects" && <div>Projects content</div>}
             {currentView === "Documents" && <div>Documents content</div>}

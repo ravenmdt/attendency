@@ -12,24 +12,34 @@
 //   3. When the real backend is ready, only the `login` and `logout` functions
 //      below need to be updated — everything else stays the same.
 
-import { createContext, useContext, useEffect, useState } from 'react'
-import type { LoginResponse, SessionResponse } from '../../../shared/auth.types'
+import { createContext, useContext, useEffect, useState } from "react";
+import type {
+  LoginResponse,
+  SessionResponse,
+} from "../../../shared/auth.types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 // Describes what the auth context exposes to the rest of the app.
 type AuthContextValue = {
-  isAuthenticated: boolean
-  isCheckingSession: boolean
-  login: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
-  logout: () => Promise<void>
-}
+  isAuthenticated: boolean;
+  isCheckingSession: boolean;
+  login: (
+    username: string,
+    password: string,
+  ) => Promise<{ ok: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  authenticatedFetch: (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ) => Promise<Response>;
+};
 
 // ─── Context creation ─────────────────────────────────────────────────────────
 
 // Creates the context object. The `null` default is intentional — it lets
 // `useAuth()` detect when a component is used outside of AuthProvider.
-const AuthContext = createContext<AuthContextValue | null>(null)
+const AuthContext = createContext<AuthContextValue | null>(null);
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
@@ -37,76 +47,116 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 // (in App.tsx) so every child can access auth state via useAuth().
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Tracks whether the current browser session has an authenticated server cookie.
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   // While true, the app is checking /api/auth/session on first load.
-  const [isCheckingSession, setIsCheckingSession] = useState(true)
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
 
   // On app start, ask the backend if the current cookie maps to a valid session.
   // This keeps frontend route guards and backend truth in sync.
   useEffect(() => {
-    fetch('/api/auth/session', { credentials: 'same-origin' })
+    fetch("/api/auth/session", { credentials: "same-origin" })
       .then(async (res) => {
         // Shared SessionResponse type keeps frontend in sync with worker response shape.
-        const body = (await res.json().catch(() => null)) as SessionResponse | null
-        setIsAuthenticated(Boolean(res.ok && body?.ok))
+        const body = (await res
+          .json()
+          .catch(() => null)) as SessionResponse | null;
+        setIsAuthenticated(Boolean(res.ok && body?.ok));
       })
       .catch(() => {
-        setIsAuthenticated(false)
+        setIsAuthenticated(false);
       })
       .finally(() => {
-        setIsCheckingSession(false)
-      })
-  }, [])
+        setIsCheckingSession(false);
+      });
+  }, []);
+
+  function handleUnauthorized() {
+    setIsAuthenticated(false);
+    setIsCheckingSession(false);
+
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname !== "/login"
+    ) {
+      window.location.replace("/login");
+    }
+  }
+
+  async function authenticatedFetch(
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ) {
+    const response = await fetch(input, {
+      credentials: "same-origin",
+      ...init,
+    });
+
+    if (response.status === 401) {
+      handleUnauthorized();
+    }
+
+    return response;
+  }
 
   // Sends credentials to the backend login endpoint.
   // If the backend accepts them, it sets an HttpOnly session cookie and we
   // mark the frontend auth state as true.
   async function login(username: string, password: string) {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({ username, password }),
-      })
+      });
 
       if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as LoginResponse | null
-        setIsAuthenticated(false)
+        const body = (await response
+          .json()
+          .catch(() => null)) as LoginResponse | null;
+        setIsAuthenticated(false);
         return {
           ok: false as const,
-          error: body && !body.ok ? body.error : 'Login failed',
-        }
+          error: body && !body.ok ? body.error : "Login failed",
+        };
       }
 
-      setIsAuthenticated(true)
-      return { ok: true as const }
+      setIsAuthenticated(true);
+      return { ok: true as const };
     } catch {
-      setIsAuthenticated(false)
-      return { ok: false as const, error: 'Network error while signing in' }
+      setIsAuthenticated(false);
+      return { ok: false as const, error: "Network error while signing in" };
     }
   }
 
   // Logs out from the backend and clears local auth state regardless of API result.
   async function logout() {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'same-origin',
-      })
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "same-origin",
+      });
     } catch {
       // Intentionally ignored: even if logout API fails, we still clear local state.
     }
-    setIsAuthenticated(false)
+    setIsAuthenticated(false);
   }
 
   // The Provider makes `isAuthenticated`, `login`, and `logout` available
   // to every component nested inside it.
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isCheckingSession, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        isCheckingSession,
+        login,
+        logout,
+        authenticatedFetch,
+      }}
+    >
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -115,13 +165,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 // Example usage inside a component:
 //   const { isAuthenticated, login, logout } = useAuth()
 export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext)
+  const ctx = useContext(AuthContext);
 
   // Guard: if someone accidentally uses useAuth() outside of AuthProvider,
   // this throws a clear error instead of a confusing crash elsewhere.
   if (!ctx) {
-    throw new Error('useAuth must be used inside an <AuthProvider>')
+    throw new Error("useAuth must be used inside an <AuthProvider>");
   }
 
-  return ctx
+  return ctx;
 }

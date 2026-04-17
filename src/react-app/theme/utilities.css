@@ -138,6 +138,42 @@
     background-color: var(--theme-user-list-online-dot);
   }
 
+  /* ── User edit ──────────────────────────────────────────────────── */
+
+  .ui-user-edit-cancel {
+    color: var(--theme-user-edit-cancel-text);
+  }
+  .ui-user-edit-cancel:hover {
+    background-color: var(--theme-user-edit-cancel-bg-hover);
+    color: var(--theme-user-edit-cancel-text-hover);
+  }
+
+  .ui-user-edit-save {
+    background-color: var(--theme-user-edit-save-bg);
+    color: var(--theme-user-edit-save-text);
+    box-shadow: var(--theme-user-edit-save-shadow);
+  }
+  .ui-user-edit-save:hover {
+    background-color: var(--theme-user-edit-save-bg-hover);
+  }
+  .ui-user-edit-save:focus-visible {
+    outline-color: var(--theme-user-edit-save-outline);
+  }
+
+  .ui-user-edit-delete {
+    background-color: var(--theme-user-edit-delete-bg);
+    color: var(--theme-user-edit-delete-text);
+    box-shadow: var(--theme-user-edit-delete-shadow);
+    border: 1px solid var(--theme-user-edit-delete-border);
+  }
+  .ui-user-edit-delete:hover {
+    background-color: var(--theme-user-edit-delete-bg-hover);
+    color: var(--theme-user-edit-delete-text);
+  }
+  .ui-user-edit-delete:focus-visible {
+    outline-color: var(--theme-user-edit-delete-outline);
+  }
+
   /* ── Auth ───────────────────────────────────────────────────────── */
 
   .ui-auth-accent-icon {

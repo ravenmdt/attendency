@@ -44,6 +44,22 @@
     --theme-user-list-online-pill: var(--theme-palette-user-list-online-pill);
     --theme-user-list-online-dot: var(--theme-palette-user-list-online-dot);
 
+    /* ── User edit ──────────────────────────────────────────────────── */
+    --theme-user-edit-cancel-text: var(--theme-palette-text-body);
+    --theme-user-edit-cancel-bg-hover: var(--theme-palette-overlay-soft);
+    --theme-user-edit-cancel-text-hover: var(--theme-palette-text-strong);
+    --theme-user-edit-save-bg: var(--theme-palette-accent-strong);
+    --theme-user-edit-save-bg-hover: var(--theme-palette-accent);
+    --theme-user-edit-save-text: var(--theme-palette-text-on-accent);
+    --theme-user-edit-save-shadow: var(--theme-palette-shadow-soft);
+    --theme-user-edit-save-outline: var(--theme-palette-accent-outline);
+    --theme-user-edit-delete-bg: var(--theme-palette-text-danger);
+    --theme-user-edit-delete-bg-hover: var(--theme-palette-text-danger-strong);
+    --theme-user-edit-delete-text: var(--theme-palette-text-on-accent);
+    --theme-user-edit-delete-shadow: var(--theme-palette-shadow-soft);
+    --theme-user-edit-delete-outline: var(--theme-palette-text-danger);
+    --theme-user-edit-delete-border: transparent;
+
     /* ── Auth ───────────────────────────────────────────────────────── */
     --theme-auth-accent-icon: var(--theme-palette-accent-strong);
     --theme-auth-label: var(--theme-palette-text-strong);

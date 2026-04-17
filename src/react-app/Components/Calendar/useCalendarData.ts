@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useAuth } from '../Auth/AuthContext'
 import { buildAvailabilityMap, getAvailabilityKey } from './calendar.utils'
 import type { AvailabilityItem, AvailabilityOverride, CalendarInfoItem } from './calendar.types'
 import type {
@@ -21,6 +22,8 @@ import type {
 //   3. Expose `applyChanges` so Calendar.tsx can merge saved edits back into the
 //      baseline without needing direct access to `setBaselineAvailability`.
 export function useCalendarData() {
+  const { authenticatedFetch } = useAuth()
+
   // The "ground truth" availability from D1. Updated after each successful save.
   // Key = "YYYY-MM-DD|wave", value = true/false.
   const [baselineAvailability, setBaselineAvailability] = useState<Map<string, boolean>>(
@@ -41,12 +44,12 @@ export function useCalendarData() {
     Promise.all([
       // No userId query is sent anymore. The backend reads user identity from
       // the authenticated session cookie (HttpOnly) set at login.
-      fetch('/api/availability', { credentials: 'same-origin' })
+      authenticatedFetch('/api/availability')
         .then((r) => {
           if (!r.ok) throw new Error(`Availability request failed: ${r.status}`)
           return r.json() as Promise<ApiResponse<AvailabilityApiRow>>
         }),
-      fetch('/api/calendar-info', { credentials: 'same-origin' })
+      authenticatedFetch('/api/calendar-info')
         .then((r) => {
           if (!r.ok) throw new Error(`Calendar info request failed: ${r.status}`)
           return r.json() as Promise<ApiResponse<CalendarInfoApiRow>>

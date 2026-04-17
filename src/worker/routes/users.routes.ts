@@ -107,8 +107,10 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 		const db = c.env.DB;
 		if (!db) return c.json({ ok: false, error: "D1 binding DB is not configured" }, 500);
 
-		const nowMs = Date.now();
 		const currentUserId = c.get("authUserId");
+		const nowMs = Date.now();
+		// 10 minutes expressed in milliseconds — used to determine who is "online".
+		const onlineWindowMs = 10 * 60 * 1000;
 		const result = await db
 			.prepare(
 				`SELECT
@@ -118,24 +120,45 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 					u.role AS role,
 					u.image_url AS imageUrl,
 					u.last_login_at AS lastLoginAt,
+					-- A user is considered "online" if they have any active session
+					-- where their last API activity was within the past 10 minutes.
+					-- This is more accurate than checking session expiry alone,
+					-- which can stay valid for hours even after the user has left.
 					CASE
 						WHEN EXISTS (
-							SELECT 1
-							FROM sessions s
-							WHERE s.user_id = u.user_id AND s.expires_at > ?1
+							SELECT 1 FROM sessions s
+							WHERE s.user_id = u.user_id
+							  AND s.expires_at > ?1
+							  AND s.last_seen_at > ?2
 						) THEN 1
 						ELSE 0
 					END AS isOnline
 				FROM users u
 				ORDER BY
-					-- Keep the currently signed-in user pinned to the top.
-					CASE WHEN u.user_id = ?2 THEN 0 ELSE 1 END,
-					-- For everyone else, show Admin users before User users.
+					-- 1. Keep the currently signed-in user pinned to the top.
+					CASE WHEN u.user_id = ?3 THEN 0 ELSE 1 END,
+					-- 2. Online users before offline users.
+					--    We repeat the same CASE as the isOnline column because SQLite
+					--    does not allow ORDER BY to reference a SELECT alias directly.
+					CASE
+						WHEN EXISTS (
+							SELECT 1 FROM sessions s
+							WHERE s.user_id = u.user_id
+							  AND s.expires_at > ?1
+							  AND s.last_seen_at > ?2
+						) THEN 0
+						ELSE 1
+					END,
+					-- 3. Within each online/offline group, Admin users before User users.
 					CASE WHEN u.role = 'Admin' THEN 0 ELSE 1 END,
-					-- Within each role group, sort names alphabetically.
+					-- 4. Within each role group, sort names alphabetically.
 					LOWER(u.name) ASC`
 			)
-			.bind(nowMs, currentUserId)
+			.bind(
+				nowMs,                      // ?1 — current time, used to filter out expired sessions
+				nowMs - onlineWindowMs,     // ?2 — 10 minutes ago, the cutoff for "recently active"
+				currentUserId,              // ?3 — pinned user at the top of the list
+			)
 			.all<UserListDbRow>();
 
 		const rows: UserListApiRow[] = result.results.map(mapUserRow);

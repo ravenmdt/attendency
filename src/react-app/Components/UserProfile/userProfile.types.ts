@@ -1,8 +1,12 @@
-import type { UserRole } from "../../../shared/users.types";
+import type {
+  UserQualification,
+  UserRole,
+} from "../../../shared/users.types";
 
 export type CurrentUserProfile = {
   id: number;
   name: string;
+  qualification: UserQualification;
   role: UserRole;
   imageUrl: string | null;
   lastLoginAt: number | null;
@@ -21,6 +25,7 @@ export type UserProfileResponse =
 
 export type SaveUserProfilePayload = {
   name: string;
+  qualification: UserQualification;
   imageUrl: string;
   currentPassword: string;
   newPassword: string;

@@ -24,7 +24,32 @@ export default function Dashboard() {
         <h1 className="text-xl font-semibold">
           {currentUser ? `Welcome ${currentUser.name}` : "Welcome"}
         </h1>
-        <p className="ui-text-muted mt-2 text-sm/6">Welcoming touch</p>
+        <p className="ui-text-muted mt-2 text-sm/6">
+          You can use this tool to pass your attendance data efficiently to ops.
+        </p>
+        <p className="ui-text-muted mt-2 text-sm/6">
+          A quick tour, in the navigation menu you can find:{" "}
+        </p>
+        <ul className="ui-text-muted mt-2 ml-4 list-disc text-sm/6">
+          <li>
+            <span className="ui-text-muted">
+              Team, which lists all the current accounts and their
+              qualifications, and allows Admins to manage account permissions.
+            </span>
+          </li>
+          <li>
+            <span className="ui-text-muted">
+              Calendar, which allows you to mark your availability for each day
+              and wave.
+            </span>
+          </li>
+          <li>
+            <span className="ui-text-muted">
+              Reports, which shows the attendance data that has been saved for
+              each day.
+            </span>
+          </li>
+        </ul>
       </section>
     </div>
   );

@@ -23,8 +23,10 @@ export default function UserProfile() {
       <div className="space-y-12">
         <UserProfileAccountSection
           username={profile.username}
+          qualification={profile.qualification}
           roleLabel={profile.roleLabel}
           onUsernameChange={profile.setUsername}
+          onQualificationChange={profile.setQualification}
         />
 
         <UserProfilePasswordSection

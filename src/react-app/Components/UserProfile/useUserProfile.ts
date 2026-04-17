@@ -18,6 +18,7 @@ export function useUserProfile() {
 
   const [initialProfile, setInitialProfile] = useState<CurrentUserProfile | null>(null);
   const [username, setUsername] = useState("");
+  const [qualification, setQualification] = useState<CurrentUserProfile["qualification"]>("NONE");
   const [imageUrl, setImageUrl] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -42,6 +43,7 @@ export function useUserProfile() {
 
       setInitialProfile(body.user);
       setUsername(body.user.name);
+      setQualification(body.user.qualification);
       setImageUrl(body.user.imageUrl ?? "");
     } catch {
       setError("Network error while loading your profile");
@@ -52,6 +54,7 @@ export function useUserProfile() {
 
   function handleResetForm() {
     setUsername(initialProfile?.name ?? "");
+    setQualification(initialProfile?.qualification ?? "NONE");
     setImageUrl(initialProfile?.imageUrl ?? "");
     setCurrentPassword("");
     setNewPassword("");
@@ -132,6 +135,7 @@ export function useUserProfile() {
 
     const payload: SaveUserProfilePayload = {
       name: username.trim(),
+      qualification,
       imageUrl: imageUrl.trim(),
       currentPassword,
       newPassword,
@@ -156,6 +160,7 @@ export function useUserProfile() {
 
       setInitialProfile(body.user);
       setUsername(body.user.name);
+      setQualification(body.user.qualification);
       setImageUrl(body.user.imageUrl ?? "");
       setCurrentPassword("");
       setNewPassword("");
@@ -181,6 +186,7 @@ export function useUserProfile() {
     error,
     statusMessage,
     username,
+    qualification,
     imageUrl,
     currentPassword,
     newPassword,
@@ -188,6 +194,7 @@ export function useUserProfile() {
     roleLabel: initialProfile?.role ?? "User",
     isSaveDisabled,
     setUsername,
+    setQualification,
     setCurrentPassword,
     setNewPassword,
     setConfirmNewPassword,

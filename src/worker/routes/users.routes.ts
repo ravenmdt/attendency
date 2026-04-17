@@ -45,6 +45,7 @@ const USER_ROLES: UserRole[] = ["User", "Admin"];
 
 type SaveCurrentUserProfileRequest = {
 	name?: string;
+	qualification?: UserQualification;
 	imageUrl?: string | null;
 	currentPassword?: string;
 	newPassword?: string;
@@ -240,15 +241,19 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 		}
 
 		const currentStoredUser = await db
-			.prepare("SELECT image_url AS imageUrl FROM users WHERE user_id = ?1")
+			.prepare("SELECT image_url AS imageUrl, qualification AS qualification FROM users WHERE user_id = ?1")
 			.bind(authUserId)
-			.first<{ imageUrl: string | null }>();
+			.first<{ imageUrl: string | null; qualification: UserQualification }>();
 
 		if (!currentStoredUser) {
 			return c.json({ ok: false, error: "User not found" }, 404);
 		}
 
 		const normalizedName = payload.name.trim();
+		if (payload.qualification && !USER_QUALIFICATIONS.includes(payload.qualification)) {
+			return c.json({ ok: false, error: "Invalid qualification" }, 400);
+		}
+		const nextQualification = payload.qualification ?? currentStoredUser.qualification;
 		const normalizedImageUrl =
 			typeof payload.imageUrl === "string" && payload.imageUrl.trim().length > 0
 				? payload.imageUrl.trim()
@@ -350,10 +355,11 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 			if (wantsPasswordChange && nextPasswordHash && nextPasswordSalt && nextPasswordIterations) {
 				await db
 					.prepare(
-						"UPDATE users SET name = ?1, image_url = ?2, password_hash = ?3, password_salt = ?4, password_iterations = ?5, password_algo = ?6 WHERE user_id = ?7"
+						"UPDATE users SET name = ?1, qualification = ?2, image_url = ?3, password_hash = ?4, password_salt = ?5, password_iterations = ?6, password_algo = ?7 WHERE user_id = ?8"
 					)
 					.bind(
 						normalizedName,
+						nextQualification,
 						nextStoredImageValue,
 						nextPasswordHash,
 						nextPasswordSalt,
@@ -364,8 +370,8 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 					.run();
 			} else {
 				await db
-					.prepare("UPDATE users SET name = ?1, image_url = ?2 WHERE user_id = ?3")
-					.bind(normalizedName, nextStoredImageValue, authUserId)
+					.prepare("UPDATE users SET name = ?1, qualification = ?2, image_url = ?3 WHERE user_id = ?4")
+					.bind(normalizedName, nextQualification, nextStoredImageValue, authUserId)
 					.run();
 			}
 		} catch (error) {

@@ -1,13 +1,20 @@
+import type { UserQualification } from "../../../shared/users.types";
+import { qualificationOptions } from "../Users/userEdit.config";
+
 type UserProfileAccountSectionProps = {
   username: string;
+  qualification: UserQualification;
   roleLabel: string;
   onUsernameChange: (nextValue: string) => void;
+  onQualificationChange: (nextValue: UserQualification) => void;
 };
 
 export default function UserProfileAccountSection({
   username,
+  qualification,
   roleLabel,
   onUsernameChange,
+  onQualificationChange,
 }: UserProfileAccountSectionProps) {
   return (
     <div className="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3 dark:border-white/10">
@@ -49,6 +56,32 @@ export default function UserProfileAccountSection({
           </label>
           <div className="mt-2 rounded-md bg-white px-3 py-2 text-sm text-gray-700 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-gray-200 dark:outline-white/10">
             {roleLabel}
+          </div>
+        </div>
+
+        <div className="sm:col-span-3">
+          <label
+            htmlFor="profile-qualification"
+            className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+          >
+            Qualification
+          </label>
+          <div className="mt-2">
+            <select
+              id="profile-qualification"
+              name="profile-qualification"
+              value={qualification}
+              onChange={(event) =>
+                onQualificationChange(event.target.value as UserQualification)
+              }
+              className="block w-full rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500"
+            >
+              {qualificationOptions.map((option) => (
+                <option key={option.id} value={option.name}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { registerAdminRoutes } from "./routes/admin.routes";
 import { registerAuthRoutes } from "./routes/auth.routes";
 import { registerCalendarRoutes } from "./routes/calendar.routes";
+import { registerReportsRoutes } from "./routes/reports.routes";
 import { registerUserRoutes } from "./routes/users.routes";
 import type { AppEnv } from "./types";
 
@@ -14,6 +15,7 @@ app.get("/api/", (c) => c.json({ name: "Cloudflare" }));
 registerAuthRoutes(app);
 registerCalendarRoutes(app);
 registerUserRoutes(app);
+registerReportsRoutes(app);
 registerAdminRoutes(app);
 
 export default app;

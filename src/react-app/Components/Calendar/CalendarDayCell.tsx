@@ -3,31 +3,42 @@
 // This is a "presentational" component — it only renders what it receives via
 // props and calls back to the parent (Calendar) when the user interacts.
 // Keeping display logic here lets Calendar.tsx stay focused on state management.
-import { NightsIcon, PriorityIcon, TypeIcon } from './calendar_info_display'
-import { availabilityColorClass } from './calendar.utils'
-import type { AvailabilityValue, AvailabilityWave, CalendarDay, CalendarInfoItem } from './calendar.types'
+import { NightsIcon, PriorityIcon, TypeIcon } from "./calendar_info_display";
+import { availabilityColorClass } from "./calendar.utils";
+import type {
+  AvailabilityValue,
+  AvailabilityWave,
+  CalendarDay,
+  CalendarInfoItem,
+} from "./calendar.types";
 
 type CalendarDayCellProps = {
-  day: CalendarDay
+  day: CalendarDay;
   // Metadata for the left column. Undefined when D1 has no calendar_info row for that date.
-  info: CalendarInfoItem | undefined
+  info: CalendarInfoItem | undefined;
   // Current effective availability for each wave, after applying any unsaved edits.
-  wave0: AvailabilityValue
-  wave1: AvailabilityValue
+  wave0: AvailabilityValue;
+  wave1: AvailabilityValue;
   // Called when the user clicks a wave bar to cycle its state.
-  onToggle: (date: string, wave: AvailabilityWave) => void
-}
+  onToggle: (date: string, wave: AvailabilityWave) => void;
+};
 
-export function CalendarDayCell({ day, info, wave0, wave1, onToggle }: CalendarDayCellProps) {
+export function CalendarDayCell({
+  day,
+  info,
+  wave0,
+  wave1,
+  onToggle,
+}: CalendarDayCellProps) {
   // Strip the leading zero from the day number ("08" → "8") for compact display.
-  const dayNumber = day.date.split('-')[2].replace(/^0/, '')
+  const dayNumber = day.date.split("-")[2].replace(/^0/, "");
 
   return (
     // data-* attributes are plain HTML that Tailwind reads to apply conditional styles.
     // e.g. `data-is-current-month:bg-white` means "white background only if this attribute is present".
     <div
-      data-is-today={day.isToday ? '' : undefined}
-      data-is-current-month={day.isCurrentMonth ? '' : undefined}
+      data-is-today={day.isToday ? "" : undefined}
+      data-is-current-month={day.isCurrentMonth ? "" : undefined}
       className="group relative ui-calendar-day-cell px-3 py-2"
     >
       {/* Date number in the top-left corner. Today's date gets an indigo circle. */}
@@ -48,16 +59,22 @@ export function CalendarDayCell({ day, info, wave0, wave1, onToggle }: CalendarD
         <div className="flex-1 flex flex-col text-xs ui-text-primary">
           {info && (
             <>
-              <div><NightsIcon nights={info.nights} /></div>
-              <div><PriorityIcon priority={info.priority} /></div>
-              <div><TypeIcon type={info.type} /></div>
+              <div>
+                <NightsIcon nights={info.nights} />
+              </div>
+              <div>
+                <PriorityIcon priority={info.priority} />
+              </div>
+              <div>
+                <TypeIcon type={info.type} />
+              </div>
             </>
           )}
         </div>
 
         {/*
           Right column: two clickable color bars, one per wave.
-          Each click cycles: gray (no entry) → green (available) → red (unavailable) → gray.
+          Each click cycles: gray (no entry / not available) → green (available) → yellow (partially available) → gray.
         */}
         <div className="flex-1 flex flex-col gap-1 pt-0.5">
           <button
@@ -77,5 +94,5 @@ export function CalendarDayCell({ day, info, wave0, wave1, onToggle }: CalendarD
         </div>
       </div>
     </div>
-  )
+  );
 }

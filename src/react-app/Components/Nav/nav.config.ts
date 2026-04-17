@@ -6,15 +6,14 @@ import {
   HomeIcon,
   UsersIcon,
 } from "@heroicons/react/24/outline";
-import type { NavigationItem, TeamLink } from "./nav.types";
+import type { NavigationItem } from "./nav.types";
 
 /*
   nav.config.ts
 
   This file contains the static data for the sidebar:
   - the main navigation items
-  - the sample team links
-  - the profile info shown in the layout
+  - the profile/brand info shown in the layout
 
   Separating configuration from UI makes the sidebar easier to update later.
 */
@@ -26,12 +25,6 @@ export const navigationItems: NavigationItem[] = [
   { name: "Calendar", href: "#", icon: CalendarIcon },
   { name: "Documents", href: "#", icon: DocumentDuplicateIcon },
   { name: "Reports", href: "#", icon: ChartPieIcon },
-];
-
-export const teamLinks: TeamLink[] = [
-  { id: 1, name: "Heroicons", href: "#", initial: "H", current: false },
-  { id: 2, name: "Tailwind Labs", href: "#", initial: "T", current: false },
-  { id: 3, name: "Workcation", href: "#", initial: "W", current: false },
 ];
 
 

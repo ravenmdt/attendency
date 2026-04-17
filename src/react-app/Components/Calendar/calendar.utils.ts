@@ -28,7 +28,7 @@ export function getAvailabilityKey(date: string, wave: AvailabilityWave): string
 }
 
 // Returns the next state in the three-state toggle cycle:
-//   null (no entry) → true (available) → false (unavailable) → null (remove)
+//   null (no entry / not available) → true (available) → false (partially available) → null (remove)
 export function cycleAvailability(value: AvailabilityValue): AvailabilityValue {
   if (value === null)  return true
   if (value === true)  return false
@@ -48,10 +48,10 @@ export function buildAvailabilityMap(items: AvailabilityItem[]): Map<string, boo
 
 // ─── Availability color ────────────────────────────────────────────────────────
 
-// Maps an availability value to its Tailwind CSS class for coloring a wave bar.
-//   true  → green  (available)
-//   false → yellow    (partially available / priority / needs review)
-//   null  → gray   (no entry)
+// Maps an attendance value to its colour in the wave bar.
+//   true  → green  (fully available)
+//   false → yellow (partially available)
+//   null  → gray   (no entry / not available)
 export function availabilityColorClass(value: AvailabilityValue): string {
   if (value === true)  return 'ui-avail-yes'
   if (value === false) return 'ui-avail-partial'

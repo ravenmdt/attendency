@@ -1,6 +1,7 @@
 import { ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
+import { UserCircleIcon } from "@heroicons/react/24/solid";
 import { useAuth } from "../Auth/AuthContext";
-import { navigationItems, sidebarBrand, teamLinks } from "./nav.config";
+import { navigationItems, sidebarBrand } from "./nav.config";
 import type { AppView } from "./nav.types";
 import { classNames } from "./nav.utils";
 
@@ -30,9 +31,7 @@ export default function NavSidebarContent({
   const { canAccessAdminControls, currentUser } = useAuth();
 
   const profileName = currentUser?.name ?? "Signed-in user";
-  const profileImageUrl =
-    currentUser?.imageUrl ??
-    "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
+  const profileImageUrl = currentUser?.imageUrl ?? null;
 
   // The server tells the UI whether the current signed-in person may see
   // the Admin Controls entry. Hiding it here keeps the navigation honest.
@@ -90,40 +89,6 @@ export default function NavSidebarContent({
                   ))}
                 </ul>
               </li>
-
-              <li>
-                {/* Secondary list for team shortcuts or future grouped areas. */}
-                <div className="ui-teams-label text-xs/6 font-semibold">
-                  Your teams
-                </div>
-                <ul role="list" className="-mx-2 mt-2 space-y-1">
-                  {teamLinks.map((team) => (
-                    <li key={team.name}>
-                      <a
-                        href={team.href}
-                        className={classNames(
-                          team.current
-                            ? "ui-nav-item-active"
-                            : "ui-nav-item-idle",
-                          "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold",
-                        )}
-                      >
-                        <span
-                          className={classNames(
-                            team.current
-                              ? "ui-team-badge-active"
-                              : "ui-team-badge-idle",
-                            "ui-team-badge flex size-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium",
-                          )}
-                        >
-                          {team.initial}
-                        </span>
-                        <span className="truncate">{team.name}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </li>
             </ul>
           </li>
 
@@ -158,11 +123,18 @@ export default function NavSidebarContent({
                   "flex w-full items-center gap-x-4 px-6 py-3 text-left text-sm/6 font-semibold",
                 )}
               >
-                <img
-                  alt={profileName}
-                  src={profileImageUrl}
-                  className="ui-profile-avatar size-8 rounded-full outline -outline-offset-1"
-                />
+                {profileImageUrl ? (
+                  <img
+                    alt={profileName}
+                    src={profileImageUrl}
+                    className="ui-profile-avatar size-8 rounded-full object-cover outline -outline-offset-1"
+                  />
+                ) : (
+                  <UserCircleIcon
+                    aria-hidden="true"
+                    className="size-8 text-gray-300 dark:text-gray-500"
+                  />
+                )}
                 <span className="sr-only">Current user profile</span>
                 <span aria-hidden="true">{profileName}</span>
               </button>

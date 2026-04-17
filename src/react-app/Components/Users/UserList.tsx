@@ -1,13 +1,11 @@
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
+import { UserCircleIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import { useAuth } from "../Auth/AuthContext";
 import type {
   UserListApiRow,
   UsersListResponse,
 } from "../../../shared/users.types";
-
-const FALLBACK_AVATAR_URL =
-  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
 
 type UserListProps = {
   onEditUser?: (userId: number) => void;
@@ -132,11 +130,18 @@ export default function UserList({ onEditUser, onAddUser }: UserListProps) {
             className="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6 lg:px-8 dark:hover:bg-white/2.5"
           >
             <div className="flex min-w-0 gap-x-4">
-              <img
-                alt={person.name}
-                src={person.imageUrl ?? FALLBACK_AVATAR_URL}
-                className="ui-user-list-avatar size-12 flex-none rounded-full dark:outline dark:-outline-offset-1"
-              />
+              {person.imageUrl ? (
+                <img
+                  alt={person.name}
+                  src={person.imageUrl}
+                  className="ui-user-list-avatar size-12 flex-none rounded-full object-cover dark:outline dark:-outline-offset-1"
+                />
+              ) : (
+                <UserCircleIcon
+                  aria-hidden="true"
+                  className="size-12 flex-none text-gray-300 dark:text-gray-500"
+                />
+              )}
               <div className="min-w-0 flex-auto">
                 <p className="ui-user-list-name text-sm/6 font-semibold">
                   <span className="block truncate">{person.name}</span>

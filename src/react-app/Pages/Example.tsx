@@ -10,6 +10,7 @@ import NavTopBar from "../Components/Nav/NavTopBar";
 import { useAuth } from "../Components/Auth/AuthContext";
 import type { AppView } from "../Components/Nav/nav.types";
 import { useAppNavigation } from "../Components/Nav/useAppNavigation";
+import Reports from "../Components/Reports/Reports";
 import UserProfile from "../Components/UserProfile/UserProfile";
 import UserEdit from "../Components/Users/UserEdit";
 import UserList from "../Components/Users/UserList";
@@ -135,7 +136,7 @@ export default function Example() {
         return <div>Documents content</div>;
 
       case "Reports":
-        return <div>Reports content</div>;
+        return <Reports />;
 
       default:
         return null;

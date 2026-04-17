@@ -5,9 +5,9 @@
 export type AvailabilityWave = 0 | 1
 
 // Three possible states for one wave on one day:
-//   true  = person is available
-//   false = person is NOT available
-//   null  = no entry (neither available nor unavailable has been recorded)
+//   true  = person is fully available
+//   false = person is partially available
+//   null  = no entry exists, which the UI treats as not available
 export type AvailabilityValue = boolean | null
 
 // Matches one row in the availability table in D1.

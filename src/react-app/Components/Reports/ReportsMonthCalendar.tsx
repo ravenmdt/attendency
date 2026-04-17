@@ -112,26 +112,32 @@ export default function ReportsMonthCalendar({
               </time>
 
               <div className="mt-1 flex items-center gap-1">
-                <span
-                  className={[
-                    "inline-flex items-center rounded-full px-1.5 text-[10px] font-semibold",
-                    isSelected
-                      ? "bg-white/20 text-white"
-                      : "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
-                  ].join(" ")}
-                >
-                  {availableCount}
-                </span>
-                <span
-                  className={[
-                    "inline-flex items-center rounded-full px-1.5 text-[10px] font-semibold",
-                    isSelected
-                      ? "bg-white/20 text-white"
-                      : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-                  ].join(" ")}
-                >
-                  {partialCount}
-                </span>
+                {/* Only show the full-availability badge if at least one user is fully available */}
+                {availableCount > 0 && (
+                  <span
+                    className={[
+                      "inline-flex items-center rounded-full px-1.5 text-[10px] font-semibold",
+                      isSelected
+                        ? "bg-white/20 text-white"
+                        : "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+                    ].join(" ")}
+                  >
+                    {availableCount}
+                  </span>
+                )}
+                {/* Only show the partial-availability badge if at least one user is partially available */}
+                {partialCount > 0 && (
+                  <span
+                    className={[
+                      "inline-flex items-center rounded-full px-1.5 text-[10px] font-semibold",
+                      isSelected
+                        ? "bg-white/20 text-white"
+                        : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+                    ].join(" ")}
+                  >
+                    {partialCount}
+                  </span>
+                )}
               </div>
             </button>
           );

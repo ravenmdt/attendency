@@ -5,16 +5,20 @@ type UserProfileAccountSectionProps = {
   username: string;
   qualification: UserQualification;
   roleLabel: string;
+  specialInstructions: string;
   onUsernameChange: (nextValue: string) => void;
   onQualificationChange: (nextValue: UserQualification) => void;
+  onSpecialInstructionsChange: (value: string) => void;
 };
 
 export default function UserProfileAccountSection({
   username,
   qualification,
   roleLabel,
+  specialInstructions,
   onUsernameChange,
   onQualificationChange,
+  onSpecialInstructionsChange,
 }: UserProfileAccountSectionProps) {
   return (
     <div className="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3 dark:border-white/10">
@@ -83,6 +87,33 @@ export default function UserProfileAccountSection({
               ))}
             </select>
           </div>
+        </div>
+
+        {/*
+          Special instructions: optional free-text notes shown as a tooltip
+          next to this user's name in the Reports panel.
+        */}
+        <div className="col-span-full">
+          <label
+            htmlFor="profile-special-instructions"
+            className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+          >
+            Special Instructions
+          </label>
+          <div className="mt-2">
+            <textarea
+              id="profile-special-instructions"
+              name="profile-special-instructions"
+              rows={3}
+              value={specialInstructions}
+              onChange={(e) => onSpecialInstructionsChange(e.target.value)}
+              placeholder="E.g. Partial available 2 days means, pick only 1 please"
+              className="block w-full resize-none rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500"
+            />
+          </div>
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            Leave blank to show no tooltip in Reports.
+          </p>
         </div>
       </div>
     </div>

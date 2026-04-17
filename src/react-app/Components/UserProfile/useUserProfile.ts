@@ -20,6 +20,8 @@ export function useUserProfile() {
   const [username, setUsername] = useState("");
   const [qualification, setQualification] = useState<CurrentUserProfile["qualification"]>("NONE");
   const [imageUrl, setImageUrl] = useState("");
+  // Free-text notes shown as a tooltip in Reports. Empty string = no instructions set.
+  const [specialInstructions, setSpecialInstructions] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -56,6 +58,7 @@ export function useUserProfile() {
     setUsername(initialProfile?.name ?? "");
     setQualification(initialProfile?.qualification ?? "NONE");
     setImageUrl(initialProfile?.imageUrl ?? "");
+    setSpecialInstructions(initialProfile?.specialInstructions ?? "");
     setCurrentPassword("");
     setNewPassword("");
     setConfirmNewPassword("");
@@ -140,6 +143,8 @@ export function useUserProfile() {
       currentPassword,
       newPassword,
       confirmNewPassword,
+      // Send current textarea value; the worker trims and stores null if blank.
+      specialInstructions: specialInstructions.trim(),
     };
 
     try {
@@ -162,6 +167,7 @@ export function useUserProfile() {
       setUsername(body.user.name);
       setQualification(body.user.qualification);
       setImageUrl(body.user.imageUrl ?? "");
+      setSpecialInstructions(body.user.specialInstructions ?? "");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
@@ -195,6 +201,8 @@ export function useUserProfile() {
     isSaveDisabled,
     setUsername,
     setQualification,
+    specialInstructions,
+    setSpecialInstructions,
     setCurrentPassword,
     setNewPassword,
     setConfirmNewPassword,

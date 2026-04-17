@@ -10,6 +10,8 @@ export type ReportAvailabilityApiRow = {
   name: string;
   qualification: UserQualification;
   imageUrl: string | null;
+  // Nullable because users are not required to set special instructions.
+  specialInstructions: string | null;
 };
 
 export type ReportsMonthSuccessResponse = {

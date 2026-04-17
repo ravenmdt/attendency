@@ -27,6 +27,9 @@ CREATE TABLE users (
   qualification TEXT NOT NULL DEFAULT 'NONE' CHECK (qualification IN ('NONE', 'PTT', 'ACT', 'PTT TO ACT')),
   role TEXT NOT NULL DEFAULT 'User' CHECK (role IN ('User', 'Admin')),
   image_url TEXT,
+  -- Free-text notes the user writes about themselves (e.g. shift caveats).
+  -- Shown as a hover tooltip in the Reports view. NULL means no notes set.
+  special_instructions TEXT,
   last_login_at INTEGER,
   password_hash TEXT NOT NULL,
   password_salt TEXT NOT NULL,

@@ -1,3 +1,4 @@
+import { InformationCircleIcon } from "@heroicons/react/20/solid";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 import type { ReportsWavePanelProps } from "./reports.types";
 import { countUsersByStatus } from "./reports.utils";
@@ -68,6 +69,25 @@ export default function ReportsWavePanel({
                   {user.qualification}
                 </p>
               </div>
+
+              {/*
+                Only show the info icon when this user has saved special
+                instructions. The tooltip uses a named Tailwind group
+                (group/info) so it appears only when hovering the icon
+                itself, not the whole row.
+              */}
+              {user.specialInstructions ? (
+                <span className="group/info relative flex-none">
+                  <InformationCircleIcon
+                    aria-label="Special instructions"
+                    className="size-4 cursor-help text-indigo-400 dark:text-indigo-300"
+                  />
+                  {/* Tooltip: absolutely positioned above the icon */}
+                  <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden w-56 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-left text-xs leading-relaxed text-white shadow-lg group-hover/info:block dark:bg-gray-700">
+                    {user.specialInstructions}
+                  </span>
+                </span>
+              ) : null}
 
               <span
                 className={[

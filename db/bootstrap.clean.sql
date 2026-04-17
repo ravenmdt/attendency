@@ -17,6 +17,7 @@ DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS availability;
 DROP TABLE IF EXISTS calendar_info;
 DROP TABLE IF EXISTS admin_settings;
+DROP TABLE IF EXISTS feedback;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
@@ -80,6 +81,17 @@ CREATE TABLE availability (
   PRIMARY KEY (user_id, date, wave),
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
+
+CREATE TABLE feedback (
+  feedback_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id     INTEGER NOT NULL,
+  text        TEXT NOT NULL,
+  created_at  INTEGER NOT NULL,
+  accepted    INTEGER NOT NULL DEFAULT 0 CHECK (accepted IN (0, 1)),
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_feedback_created_at ON feedback(created_at);
 
 -- Seed one clean admin account.
 -- Plaintext password = test

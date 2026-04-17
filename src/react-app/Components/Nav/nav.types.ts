@@ -15,8 +15,8 @@ export type AppView =
   | "Profile"
   | "Admin Controls"
   | "Calendar"
-  | "Documents"
-  | "Reports";
+  | "Reports"
+  | "Feedback";
 
 // Heroicons are React components, so we describe their shape once here.
 export type NavIcon = ComponentType<SVGProps<SVGSVGElement>>;
@@ -25,14 +25,6 @@ export type NavigationItem = {
   name: AppView;
   href: string;
   icon: NavIcon;
-};
-
-export type TeamLink = {
-  id: number;
-  name: string;
-  href: string;
-  initial: string;
-  current: boolean;
 };
 
 export type SidebarProfile = {

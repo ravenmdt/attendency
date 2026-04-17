@@ -23,8 +23,8 @@ export const navigationItems: NavigationItem[] = [
   { name: "Team", href: "#", icon: UsersIcon },
   { name: "Admin Controls", href: "#", icon: Cog6ToothIcon },
   { name: "Calendar", href: "#", icon: CalendarIcon },
-  { name: "Documents", href: "#", icon: DocumentDuplicateIcon },
   { name: "Reports", href: "#", icon: ChartPieIcon },
+  { name: "Feedback", href: "#", icon: DocumentDuplicateIcon },
 ];
 
 

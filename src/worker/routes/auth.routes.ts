@@ -81,12 +81,14 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 
 		const sessionId = randomHex(32);
 		const expiresAt = nowMs + SESSION_TTL_MS;
-		await db
-			.prepare(
-				"INSERT INTO sessions (session_id, user_id, created_at, last_seen_at, expires_at) VALUES (?1, ?2, ?3, ?4, ?5)"
-			)
-			.bind(sessionId, user.user_id, nowMs, nowMs, expiresAt)
-			.run();
+		await db.batch([
+			db
+				.prepare(
+					"INSERT INTO sessions (session_id, user_id, created_at, last_seen_at, expires_at) VALUES (?1, ?2, ?3, ?4, ?5)"
+				)
+				.bind(sessionId, user.user_id, nowMs, nowMs, expiresAt),
+			db.prepare("UPDATE users SET last_login_at = ?2 WHERE user_id = ?1").bind(user.user_id, nowMs),
+		]);
 
 		setCookie(c, SESSION_COOKIE_NAME, sessionId, {
 			httpOnly: true,

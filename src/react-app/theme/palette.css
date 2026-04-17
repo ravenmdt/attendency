@@ -59,6 +59,10 @@
     --theme-palette-link-hover: var(--color-indigo-300);
     --theme-palette-table-divider-header: color-mix(in oklab, var(--color-white) 15%, transparent);
     --theme-palette-table-divider-row: color-mix(in oklab, var(--color-white) 10%, transparent);
+    --theme-palette-user-list-divider: color-mix(in oklab, var(--color-white) 5%, transparent);
+    --theme-palette-user-list-row-hover: color-mix(in oklab, var(--color-white) 2.5%, transparent);
+    --theme-palette-user-list-online-pill: color-mix(in oklab, var(--color-emerald-500) 30%, transparent);
+    --theme-palette-user-list-online-dot: var(--color-emerald-500);
   }
 
   .light {
@@ -110,5 +114,9 @@
     --theme-palette-link-hover: var(--color-indigo-900);
     --theme-palette-table-divider-header: var(--color-gray-300);
     --theme-palette-table-divider-row: var(--color-gray-200);
+    --theme-palette-user-list-divider: var(--color-gray-100);
+    --theme-palette-user-list-row-hover: var(--color-gray-50);
+    --theme-palette-user-list-online-pill: color-mix(in oklab, var(--color-emerald-500) 20%, transparent);
+    --theme-palette-user-list-online-dot: var(--color-emerald-500);
   }
 }

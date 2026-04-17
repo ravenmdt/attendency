@@ -1,8 +1,13 @@
-'use client'
+"use client";
 //import { HashRouter as Router, Routes, Route } from "react-router-dom";
 // https://www.youtube.com/watch?v=qi32YwjoN2U
-import { useState } from 'react'
-import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessui/react'
+import { useState } from "react";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  TransitionChild,
+} from "@headlessui/react";
 import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
@@ -13,45 +18,45 @@ import {
   HomeIcon,
   UsersIcon,
   XMarkIcon,
-} from '@heroicons/react/24/outline'
-import { useNavigate } from 'react-router-dom'
-import Calendar from '../Components/Calendar/Calendar.tsx'
-import UserList from '../Components/UserList'
-import { useAuth } from '../Components/Auth/AuthContext'
+} from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
+import Calendar from "../Components/Calendar/Calendar.tsx";
+import UserList from "../Components/Users/UserList";
+import { useAuth } from "../Components/Auth/AuthContext";
 
 const navigation = [
-  { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
-  { name: 'Team', href: '#', icon: UsersIcon, current: false },
-  { name: 'Projects', href: '#', icon: FolderIcon, current: false },
-  { name: 'Calendar', href: '#', icon: CalendarIcon, current: false },
-  { name: 'Documents', href: '#', icon: DocumentDuplicateIcon, current: false },
-  { name: 'Reports', href: '#', icon: ChartPieIcon, current: false },
-]
+  { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
+  { name: "Team", href: "#", icon: UsersIcon, current: false },
+  { name: "Projects", href: "#", icon: FolderIcon, current: false },
+  { name: "Calendar", href: "#", icon: CalendarIcon, current: false },
+  { name: "Documents", href: "#", icon: DocumentDuplicateIcon, current: false },
+  { name: "Reports", href: "#", icon: ChartPieIcon, current: false },
+];
 const teams = [
-  { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
-  { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-  { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
-]
+  { id: 1, name: "Heroicons", href: "#", initial: "H", current: false },
+  { id: 2, name: "Tailwind Labs", href: "#", initial: "T", current: false },
+  { id: 3, name: "Workcation", href: "#", initial: "W", current: false },
+];
 
 function classNames(...classes: (string | undefined | null | false)[]): string {
-    return classes.filter(Boolean).join(' ')
+  return classes.filter(Boolean).join(" ");
 }
 
 export default function Example() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [currentView, setCurrentView] = useState('Dashboard')
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const navigate = useNavigate()
-  const { logout } = useAuth()
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentView, setCurrentView] = useState("Dashboard");
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   // Shared logout handler used by both desktop and mobile buttons.
   // This keeps the behavior consistent regardless of screen size.
   async function handleLogout() {
-    if (isLoggingOut) return
-    setIsLoggingOut(true)
-    await logout()
-    navigate('/login', { replace: true })
-    setIsLoggingOut(false)
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    await logout();
+    navigate("/login", { replace: true });
+    setIsLoggingOut(false);
   }
 
   return (
@@ -65,7 +70,11 @@ export default function Example() {
         ```
       */}
       <div className="ui-text-primary">
-        <Dialog open={sidebarOpen} onClose={setSidebarOpen} className="relative z-50 lg:hidden">
+        <Dialog
+          open={sidebarOpen}
+          onClose={setSidebarOpen}
+          className="relative z-50 lg:hidden"
+        >
           <DialogBackdrop
             transition
             className="fixed inset-0 bg-gray-900/80 transition-opacity duration-300 ease-linear data-closed:opacity-0"
@@ -78,9 +87,16 @@ export default function Example() {
             >
               <TransitionChild>
                 <div className="absolute top-0 left-full flex w-16 justify-center pt-5 duration-300 ease-in-out data-closed:opacity-0">
-                  <button type="button" onClick={() => setSidebarOpen(false)} className="-m-2.5 p-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setSidebarOpen(false)}
+                    className="-m-2.5 p-2.5"
+                  >
                     <span className="sr-only">Close sidebar</span>
-                    <XMarkIcon aria-hidden="true" className="size-6 text-white" />
+                    <XMarkIcon
+                      aria-hidden="true"
+                      className="size-6 text-white"
+                    />
                   </button>
                 </div>
               </TransitionChild>
@@ -107,21 +123,24 @@ export default function Example() {
                           <li key={item.name}>
                             <button
                               type="button"
-                              onClick={() => { setCurrentView(item.name); setSidebarOpen(false) }}
+                              onClick={() => {
+                                setCurrentView(item.name);
+                                setSidebarOpen(false);
+                              }}
                               className={classNames(
                                 currentView === item.name
-                                  ? 'ui-nav-item-active'
-                                  : 'ui-nav-item-idle',
-                                'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold w-full text-left',
+                                  ? "ui-nav-item-active"
+                                  : "ui-nav-item-idle",
+                                "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold w-full text-left",
                               )}
                             >
                               <item.icon
                                 aria-hidden="true"
                                 className={classNames(
                                   currentView === item.name
-                                    ? 'ui-nav-icon-active'
-                                    : 'ui-nav-icon-idle',
-                                  'size-6 shrink-0',
+                                    ? "ui-nav-icon-active"
+                                    : "ui-nav-icon-idle",
+                                  "size-6 shrink-0",
                                 )}
                               />
                               {item.name}
@@ -131,7 +150,9 @@ export default function Example() {
                       </ul>
                     </li>
                     <li>
-                      <div className="ui-teams-label text-xs/6 font-semibold">Your teams</div>
+                      <div className="ui-teams-label text-xs/6 font-semibold">
+                        Your teams
+                      </div>
                       <ul role="list" className="-mx-2 mt-2 space-y-1">
                         {teams.map((team) => (
                           <li key={team.name}>
@@ -139,17 +160,17 @@ export default function Example() {
                               href={team.href}
                               className={classNames(
                                 team.current
-                                  ? 'ui-nav-item-active'
-                                  : 'ui-nav-item-idle',
-                                'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
+                                  ? "ui-nav-item-active"
+                                  : "ui-nav-item-idle",
+                                "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold",
                               )}
                             >
                               <span
                                 className={classNames(
                                   team.current
-                                    ? 'ui-team-badge-active'
-                                    : 'ui-team-badge-idle',
-                                  'ui-team-badge flex size-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium',
+                                    ? "ui-team-badge-active"
+                                    : "ui-team-badge-idle",
+                                  "ui-team-badge flex size-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium",
                                 )}
                               >
                                 {team.initial}
@@ -176,7 +197,7 @@ export default function Example() {
                           aria-hidden="true"
                           className="ui-logout-icon size-6 shrink-0"
                         />
-                        {isLoggingOut ? 'Logging out...' : 'Log out'}
+                        {isLoggingOut ? "Logging out..." : "Log out"}
                       </button>
                     </li>
                   </ul>
@@ -215,18 +236,18 @@ export default function Example() {
                               onClick={() => setCurrentView(item.name)}
                               className={classNames(
                                 currentView === item.name
-                                  ? 'ui-nav-item-active'
-                                  : 'ui-nav-item-idle',
-                                'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold w-full text-left',
+                                  ? "ui-nav-item-active"
+                                  : "ui-nav-item-idle",
+                                "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold w-full text-left",
                               )}
                             >
                               <item.icon
                                 aria-hidden="true"
                                 className={classNames(
                                   currentView === item.name
-                                    ? 'ui-nav-icon-active'
-                                    : 'ui-nav-icon-idle',
-                                  'size-6 shrink-0',
+                                    ? "ui-nav-icon-active"
+                                    : "ui-nav-icon-idle",
+                                  "size-6 shrink-0",
                                 )}
                               />
                               {item.name}
@@ -236,7 +257,9 @@ export default function Example() {
                       </ul>
                     </li>
                     <li>
-                      <div className="ui-teams-label text-xs/6 font-semibold">Your teams</div>
+                      <div className="ui-teams-label text-xs/6 font-semibold">
+                        Your teams
+                      </div>
                       <ul role="list" className="-mx-2 mt-2 space-y-1">
                         {teams.map((team) => (
                           <li key={team.name}>
@@ -244,17 +267,17 @@ export default function Example() {
                               href={team.href}
                               className={classNames(
                                 team.current
-                                  ? 'ui-nav-item-active'
-                                  : 'ui-nav-item-idle',
-                                'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
+                                  ? "ui-nav-item-active"
+                                  : "ui-nav-item-idle",
+                                "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold",
                               )}
                             >
                               <span
                                 className={classNames(
                                   team.current
-                                    ? 'ui-team-badge-active'
-                                    : 'ui-team-badge-idle',
-                                  'ui-team-badge flex size-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium',
+                                    ? "ui-team-badge-active"
+                                    : "ui-team-badge-idle",
+                                  "ui-team-badge flex size-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium",
                                 )}
                               >
                                 {team.initial}
@@ -283,7 +306,7 @@ export default function Example() {
                       aria-hidden="true"
                       className="ui-logout-icon size-6 shrink-0"
                     />
-                    {isLoggingOut ? 'Logging out...' : 'Log out'}
+                    {isLoggingOut ? "Logging out..." : "Log out"}
                   </button>
                 </li>
                 <li className="-mx-6 mt-auto">
@@ -314,7 +337,9 @@ export default function Example() {
             <span className="sr-only">Open sidebar</span>
             <Bars3Icon aria-hidden="true" className="size-6" />
           </button>
-          <div className="ui-text-primary flex-1 text-sm/6 font-semibold">{currentView}</div>
+          <div className="ui-text-primary flex-1 text-sm/6 font-semibold">
+            {currentView}
+          </div>
           <a href="#">
             <span className="sr-only">Your profile</span>
             <img
@@ -327,17 +352,17 @@ export default function Example() {
 
         <main className="py-10 lg:pl-72">
           <div className="px-4 sm:px-6 lg:px-8">
-            {currentView === 'Dashboard' && <div>Welcome to Dashboard</div>}
-            {currentView === 'Team' && <UserList />}
-            {currentView === 'Calendar' && <Calendar />}
-            {currentView === 'Projects' && <div>Projects content</div>}
-            {currentView === 'Documents' && <div>Documents content</div>}
-            {currentView === 'Reports' && <div>Reports content</div>}
+            {currentView === "Dashboard" && <div>Welcome to Dashboard</div>}
+            {currentView === "Team" && <UserList />}
+            {currentView === "Calendar" && <Calendar />}
+            {currentView === "Projects" && <div>Projects content</div>}
+            {currentView === "Documents" && <div>Documents content</div>}
+            {currentView === "Reports" && <div>Reports content</div>}
           </div>
         </main>
       </div>
     </>
-  )
+  );
 }
 
 /*The technique I used is called conditional rendering in React. It involves using component state (like currentView) to dynamically show or hide different UI elements or components based on user interactions, without navigating to new pages. This creates a single-page application (SPA) experience where content changes in place.

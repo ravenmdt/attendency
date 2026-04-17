@@ -87,6 +87,57 @@
     background-color: var(--theme-avail-none);
   }
 
+  /* ── Users list ─────────────────────────────────────────────────── */
+
+  .ui-user-list > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--theme-user-list-divider);
+  }
+
+  .ui-user-list-row {
+    background-color: transparent;
+  }
+
+  .ui-user-list-row:hover {
+    background-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 1px,
+      var(--theme-user-list-row-hover) 1px,
+      var(--theme-user-list-row-hover) calc(100% - 1px),
+      transparent calc(100% - 1px),
+      transparent 100%
+    );
+  }
+
+  .ui-user-list-avatar {
+    background-color: var(--theme-user-list-avatar-bg);
+    outline-color: var(--theme-user-list-avatar-outline);
+  }
+
+  .ui-user-list-name {
+    color: var(--theme-user-list-name);
+  }
+
+  .ui-user-list-meta {
+    color: var(--theme-user-list-meta);
+  }
+
+  .ui-user-list-role {
+    color: var(--theme-user-list-role);
+  }
+
+  .ui-user-list-chevron {
+    color: var(--theme-user-list-chevron);
+  }
+
+  .ui-user-list-online-pill {
+    background-color: var(--theme-user-list-online-pill);
+  }
+
+  .ui-user-list-online-dot {
+    background-color: var(--theme-user-list-online-dot);
+  }
+
   /* ── Auth ───────────────────────────────────────────────────────── */
 
   .ui-auth-accent-icon {

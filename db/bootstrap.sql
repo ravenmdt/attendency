@@ -1,4 +1,14 @@
 -- Rebuild schema and seed demo data for attendency
+--
+-- Relevant terminal commands:
+--   npm run db:reset:local
+--     Rebuilds the local D1 database from this file.
+--
+--   npm run db:reset:remote
+--     Applies the same reset to the remote Cloudflare D1 database.
+--
+--   npx wrangler d1 execute DB --local --command "SELECT name FROM sqlite_master WHERE type='table';"
+--     Quick check that the local tables were recreated.
 PRAGMA foreign_keys = ON;
 
 DROP TABLE IF EXISTS auth_rate_limits;
@@ -10,6 +20,10 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users (
   user_id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL UNIQUE,
+  qualification TEXT NOT NULL DEFAULT 'NONE' CHECK (qualification IN ('NONE', 'PTT', 'ACT', 'PTT TO ACT')),
+  role TEXT NOT NULL DEFAULT 'User' CHECK (role IN ('User', 'Admin')),
+  image_url TEXT,
+  last_login_at INTEGER,
   password_hash TEXT NOT NULL,
   password_salt TEXT NOT NULL,
   password_iterations INTEGER NOT NULL DEFAULT 100000,
@@ -53,18 +67,56 @@ CREATE TABLE availability (
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Demo credential:
---   username: john
---   password: test
+-- Demo credentials:
+--   usernames: john, boy, ladder, neushoorn
+--   password for all demo users: test
 -- The plaintext password is NEVER stored. We store PBKDF2 output + per-user salt.
-INSERT INTO users (name, password_hash, password_salt, password_iterations, password_algo)
-VALUES (
-  'john',
-  'd8d8dd3728ad24f269051c0b3ee7e075fc2fc7b3bd859b1405125e9be23b2031',
-  '01d44adafb2212bee8e3ff97361f73aa',
-  100000,
-  'pbkdf2-sha256'
-);
+INSERT INTO users (name, qualification, role, image_url, last_login_at, password_hash, password_salt, password_iterations, password_algo)
+VALUES
+  (
+    'john',
+    'NONE',
+    'Admin',
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    1776412800000,
+    'd8d8dd3728ad24f269051c0b3ee7e075fc2fc7b3bd859b1405125e9be23b2031',
+    '01d44adafb2212bee8e3ff97361f73aa',
+    100000,
+    'pbkdf2-sha256'
+  ),
+  (
+    'boy',
+    'PTT',
+    'User',
+    'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    1776405600000,
+    'bd6dbce6ab9eb7d193c405bd90b9657da8e518f984932b2de8f6370680cb1214',
+    '92d719c27a9107e46b63f186717e7fa0',
+    100000,
+    'pbkdf2-sha256'
+  ),
+  (
+    'ladder',
+    'ACT',
+    'User',
+    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    1776330000000,
+    '05485177e2dd4900e201e15aaf422f1fa84ecfc594e56b8f3f552f12622f3545',
+    '6bd8db3943ba36690430d50ad7fe0cec',
+    100000,
+    'pbkdf2-sha256'
+  ),
+  (
+    'neushoorn',
+    'PTT TO ACT',
+    'User',
+    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    1776254400000,
+    '1ea837f423151fd02fc0167ba9c7ea091f4fef855ef4519dcc058792c6604331',
+    '51cfa36b8cff8828bf592ebe3dab1491',
+    100000,
+    'pbkdf2-sha256'
+  );
 
 INSERT INTO calendar_info (user_id, date, nights, priority, type) VALUES (1, '2026-03-13', 1, 0, 'OFF');
 INSERT INTO calendar_info (user_id, date, nights, priority, type) VALUES (1, '2026-03-14', 0, 0, 'OFF');

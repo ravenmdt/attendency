@@ -21,7 +21,9 @@ DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
   user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL UNIQUE,
+  -- Username uniqueness is case-insensitive by convention.
+  -- This prevents separate accounts like "Sniff" and "sniff".
+  name TEXT NOT NULL COLLATE NOCASE UNIQUE,
   qualification TEXT NOT NULL DEFAULT 'NONE' CHECK (qualification IN ('NONE', 'PTT', 'ACT', 'PTT TO ACT')),
   role TEXT NOT NULL DEFAULT 'User' CHECK (role IN ('User', 'Admin')),
   image_url TEXT,

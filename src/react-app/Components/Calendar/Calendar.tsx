@@ -14,6 +14,7 @@ import type {
   AvailabilityWave,
 } from "./calendar.types";
 import {
+  availabilityColorClass,
   buildMonthDays,
   cycleAvailability,
   getAvailabilityKey,
@@ -384,36 +385,41 @@ export default function Calendar() {
               />
             ))}
           </div>
-          {/* Mobile grid: compact buttons, one per day (hidden on lg screens) */}
+          {/* Mobile grid: compact cards with embedded wave toggles (hidden on lg screens). */}
           <div className="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
             {visibleDays.map((day) => (
-              <button
+              <div
                 key={day.date}
-                type="button"
                 data-is-today={day.isToday ? "" : undefined}
                 data-is-selected={day.isSelected ? "" : undefined}
                 data-is-current-month={day.isCurrentMonth ? "" : undefined}
-                className="group relative flex h-14 flex-col px-3 py-2 not-data-is-current-month:bg-gray-50 not-data-is-selected:not-data-is-current-month:not-data-is-today:text-gray-500 hover:bg-gray-100 focus:z-10 data-is-current-month:bg-white not-data-is-selected:data-is-current-month:not-data-is-today:text-gray-900 data-is-current-month:hover:bg-gray-100 data-is-selected:font-semibold data-is-selected:text-white data-is-today:font-semibold not-data-is-selected:data-is-today:text-indigo-600 dark:not-data-is-current-month:bg-gray-900 dark:not-data-is-selected:not-data-is-current-month:not-data-is-today:text-gray-400 dark:not-data-is-current-month:before:pointer-events-none dark:not-data-is-current-month:before:absolute dark:not-data-is-current-month:before:inset-0 dark:not-data-is-current-month:before:bg-gray-800/50 dark:hover:bg-gray-900/50 dark:data-is-current-month:bg-gray-900 dark:not-data-is-selected:data-is-current-month:not-data-is-today:text-white dark:data-is-current-month:hover:bg-gray-900/50 dark:not-data-is-selected:data-is-today:text-indigo-400"
+                className="group relative flex h-16 flex-col px-2 py-1.5 not-data-is-current-month:bg-gray-50 not-data-is-selected:not-data-is-current-month:not-data-is-today:text-gray-500 data-is-current-month:bg-white not-data-is-selected:data-is-current-month:not-data-is-today:text-gray-900 data-is-selected:font-semibold data-is-selected:text-white data-is-today:font-semibold not-data-is-selected:data-is-today:text-indigo-600 dark:not-data-is-current-month:bg-gray-900 dark:not-data-is-selected:not-data-is-current-month:not-data-is-today:text-gray-400 dark:not-data-is-current-month:before:pointer-events-none dark:not-data-is-current-month:before:absolute dark:not-data-is-current-month:before:inset-0 dark:not-data-is-current-month:before:bg-gray-800/50 dark:data-is-current-month:bg-gray-900 dark:not-data-is-selected:data-is-current-month:not-data-is-today:text-white dark:not-data-is-selected:data-is-today:text-indigo-400"
               >
                 <time
                   dateTime={day.date}
-                  className="ml-auto group-not-data-is-current-month:opacity-75 in-data-is-selected:flex in-data-is-selected:size-6 in-data-is-selected:items-center in-data-is-selected:justify-center in-data-is-selected:rounded-full in-data-is-selected:not-in-data-is-today:bg-gray-900 in-data-is-selected:in-data-is-today:bg-indigo-600 dark:in-data-is-selected:not-in-data-is-today:bg-white dark:in-data-is-selected:not-in-data-is-today:text-gray-900 dark:in-data-is-selected:in-data-is-today:bg-indigo-500"
+                  className="ml-auto text-[0.7rem] leading-none group-not-data-is-current-month:opacity-75 in-data-is-selected:flex in-data-is-selected:size-6 in-data-is-selected:items-center in-data-is-selected:justify-center in-data-is-selected:rounded-full in-data-is-selected:not-in-data-is-today:bg-gray-900 in-data-is-selected:in-data-is-today:bg-indigo-600 dark:in-data-is-selected:not-in-data-is-today:bg-white dark:in-data-is-selected:not-in-data-is-today:text-gray-900 dark:in-data-is-selected:in-data-is-today:bg-indigo-500"
                 >
                   {day.date.split("-")[2].replace(/^0/, "")}
                 </time>
-                <span className="sr-only">{day.events.length} events</span>
-                {/* Use && instead of ternary — React renders nothing for `false` */}
-                {day.events.length > 0 && (
-                  <span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
-                    {day.events.map((event) => (
-                      <span
-                        key={event.id}
-                        className="mx-0.5 mb-1 size-1.5 rounded-full bg-gray-400 dark:bg-gray-500"
-                      />
-                    ))}
-                  </span>
-                )}
-              </button>
+                {/* Keep wave toggles available on small screens so attendance can still be edited. */}
+                {/* Stack mobile wave toggles vertically to increase tap area on narrow phones. */}
+                <div className="mt-auto grid grid-cols-1 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleWaveAvailability(day.date, 0)}
+                    aria-label={`Toggle wave 0 availability for ${day.date}`}
+                    title="Wave 0"
+                    className={`h-3.5 w-full rounded-sm ${availabilityColorClass(getEffectiveAvailability(day.date, 0))}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => toggleWaveAvailability(day.date, 1)}
+                    aria-label={`Toggle wave 1 availability for ${day.date}`}
+                    title="Wave 1"
+                    className={`h-3.5 w-full rounded-sm ${availabilityColorClass(getEffectiveAvailability(day.date, 1))}`}
+                  />
+                </div>
+              </div>
             ))}
           </div>
         </div>

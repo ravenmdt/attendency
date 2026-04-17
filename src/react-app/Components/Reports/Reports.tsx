@@ -86,13 +86,13 @@ export default function Reports() {
                   </time>
                 </h2>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Names and profile photos are loaded from the real user
-                  records.
+                  {`Shows a summary of the day's availability, with a breakdown of how many users are fully vs partially available. 
+                  Partial availability means the user is available for one of the partially available days this week.`}
                 </p>
               </div>
 
               <div className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-white/5 dark:text-gray-300">
-                {totalMarkedUsersForDay} marked • {availableCount} available •{" "}
+                {totalMarkedUsersForDay} total • {availableCount} available •{" "}
                 {partialCount} partial
               </div>
             </div>

@@ -98,7 +98,7 @@ export default function UserProfileAccountSection({
             htmlFor="profile-special-instructions"
             className="block text-sm/6 font-medium text-gray-900 dark:text-white"
           >
-            Special Instructions
+            Specials
           </label>
           <div className="mt-2">
             <textarea

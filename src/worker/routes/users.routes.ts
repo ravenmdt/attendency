@@ -127,7 +127,13 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 						ELSE 0
 					END AS isOnline
 				FROM users u
-				ORDER BY CASE WHEN u.user_id = ?2 THEN 0 ELSE 1 END, LOWER(u.name) ASC`
+				ORDER BY
+					-- Keep the currently signed-in user pinned to the top.
+					CASE WHEN u.user_id = ?2 THEN 0 ELSE 1 END,
+					-- For everyone else, show Admin users before User users.
+					CASE WHEN u.role = 'Admin' THEN 0 ELSE 1 END,
+					-- Within each role group, sort names alphabetically.
+					LOWER(u.name) ASC`
 			)
 			.bind(nowMs, currentUserId)
 			.all<UserListDbRow>();

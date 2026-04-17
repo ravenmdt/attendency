@@ -30,8 +30,9 @@ function formatLastSeen(lastLoginAt: number | null): string {
 }
 
 export default function UserList({ onEditUser, onAddUser }: UserListProps) {
-  const { authenticatedFetch } = useAuth();
+  const { authenticatedFetch, currentUser } = useAuth();
   const [people, setPeople] = useState<UserListApiRow[]>([]);
+  const isAdmin = currentUser?.role === "Admin";
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,10 +96,12 @@ export default function UserList({ onEditUser, onAddUser }: UserListProps) {
             Team users
           </h2>
           <p className="ui-user-list-meta text-sm/6">
-            Manage the current user profiles and access defaults.
+            {isAdmin
+              ? "Manage the current user profiles and access defaults."
+              : "View the current user profiles. Editing is reserved for Admin users."}
           </p>
         </div>
-        {onAddUser ? (
+        {isAdmin && onAddUser ? (
           <button
             type="button"
             onClick={onAddUser}
@@ -113,15 +116,19 @@ export default function UserList({ onEditUser, onAddUser }: UserListProps) {
         {people.map((person) => (
           <li
             key={person.id}
-            onClick={() => onEditUser?.(person.id)}
+            onClick={() => {
+              if (!isAdmin) return;
+              onEditUser?.(person.id);
+            }}
             onKeyDown={(event) => {
+              if (!isAdmin) return;
               if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
                 onEditUser?.(person.id);
               }
             }}
-            role={onEditUser ? "button" : undefined}
-            tabIndex={onEditUser ? 0 : undefined}
+            role={isAdmin && onEditUser ? "button" : undefined}
+            tabIndex={isAdmin && onEditUser ? 0 : undefined}
             className="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6 lg:px-8 dark:hover:bg-white/2.5"
           >
             <div className="flex min-w-0 gap-x-4">
@@ -164,10 +171,12 @@ export default function UserList({ onEditUser, onAddUser }: UserListProps) {
                   </p>
                 )}
               </div>
-              <ChevronRightIcon
-                aria-hidden="true"
-                className="ui-user-list-chevron size-5 flex-none"
-              />
+              {isAdmin ? (
+                <ChevronRightIcon
+                  aria-hidden="true"
+                  className="ui-user-list-chevron size-5 flex-none"
+                />
+              ) : null}
             </div>
           </li>
         ))}

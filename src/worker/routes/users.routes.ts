@@ -1,5 +1,6 @@
 import type { Hono } from "hono";
 import { deleteCookie } from "hono/cookie";
+import { getAdminSettingsRow } from "./admin.routes";
 import type {
 	UserCreateRequest,
 	UserDetailApiRow,
@@ -8,13 +9,7 @@ import type {
 	UserRole,
 	UserUpdateRequest,
 } from "../../shared/users.types";
-import {
-	PBKDF2_ITERATIONS,
-	SESSION_COOKIE_NAME,
-	isValidUsername,
-	pbkdf2HashHex,
-	randomHex,
-} from "../auth/security";
+import { SESSION_COOKIE_NAME, isValidUsername } from "../auth/security";
 import { requireAuth } from "../middleware/requireAuth";
 import type { AppEnv } from "../types";
 
@@ -30,7 +25,6 @@ type UserListDbRow = {
 
 const USER_QUALIFICATIONS: UserQualification[] = ["NONE", "PTT", "ACT", "PTT TO ACT"];
 const USER_ROLES: UserRole[] = ["User", "Admin"];
-const TEMP_RESET_PASSWORD = "TigerTiger313#!#";
 
 function parseUserId(rawValue: string): number | null {
 	const userId = Number.parseInt(rawValue, 10);
@@ -118,6 +112,11 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 		const db = c.env.DB;
 		if (!db) return c.json({ ok: false, error: "D1 binding DB is not configured" }, 500);
 
+		// Creating users changes project data, so it is limited to Admin users.
+		if (c.get("authUserRole") !== "Admin") {
+			return c.json({ ok: false, error: "Only Admin users can create users" }, 403);
+		}
+
 		let payload: Partial<UserCreateRequest>;
 		try {
 			payload = (await c.req.json()) as Partial<UserCreateRequest>;
@@ -134,14 +133,8 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 		if (!payload.role || !USER_ROLES.includes(payload.role)) {
 			return c.json({ ok: false, error: "Invalid role" }, 400);
 		}
-		if (typeof payload.password !== "string" || payload.password.trim().length === 0) {
-			return c.json({ ok: false, error: "Password is required" }, 400);
-		}
-
 		const normalizedName = payload.name.trim();
-		const normalizedPassword = payload.password.trim();
-		const saltHex = randomHex(16);
-		const passwordHash = await pbkdf2HashHex(normalizedPassword, saltHex, PBKDF2_ITERATIONS);
+		const adminSettings = await getAdminSettingsRow(db);
 
 		let insertedUserId: number | null = null;
 		try {
@@ -161,9 +154,9 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 				)
 				.bind(
 					normalizedName,
-					passwordHash,
-					saltHex,
-					PBKDF2_ITERATIONS,
+					adminSettings.default_password_hash,
+					adminSettings.default_password_salt,
+					adminSettings.default_password_iterations,
 					payload.qualification,
 					payload.role
 				)
@@ -194,6 +187,11 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 		const db = c.env.DB;
 		if (!db) return c.json({ ok: false, error: "D1 binding DB is not configured" }, 500);
 
+		// The detailed editor view is reserved for Admin users.
+		if (c.get("authUserRole") !== "Admin") {
+			return c.json({ ok: false, error: "Only Admin users can view the edit form" }, 403);
+		}
+
 		const userId = parseUserId(c.req.param("id"));
 		if (userId === null) {
 			return c.json({ ok: false, error: "Invalid user id" }, 400);
@@ -210,6 +208,10 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 	app.post("/api/users/:id", async (c) => {
 		const db = c.env.DB;
 		if (!db) return c.json({ ok: false, error: "D1 binding DB is not configured" }, 500);
+
+		if (c.get("authUserRole") !== "Admin") {
+			return c.json({ ok: false, error: "Only Admin users can edit users" }, 403);
+		}
 
 		const userId = parseUserId(c.req.param("id"));
 		if (userId === null) {
@@ -264,6 +266,10 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 		const db = c.env.DB;
 		if (!db) return c.json({ ok: false, error: "D1 binding DB is not configured" }, 500);
 
+		if (c.get("authUserRole") !== "Admin") {
+			return c.json({ ok: false, error: "Only Admin users can delete users" }, 403);
+		}
+
 		const userId = parseUserId(c.req.param("id"));
 		if (userId === null) {
 			return c.json({ ok: false, error: "Invalid user id" }, 400);
@@ -290,24 +296,36 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 		const db = c.env.DB;
 		if (!db) return c.json({ ok: false, error: "D1 binding DB is not configured" }, 500);
 
+		if (c.get("authUserRole") !== "Admin") {
+			return c.json({ ok: false, error: "Only Admin users can reset passwords" }, 403);
+		}
+
 		const userId = parseUserId(c.req.param("id"));
 		if (userId === null) {
 			return c.json({ ok: false, error: "Invalid user id" }, 400);
 		}
 
-		const saltHex = randomHex(16);
-		const passwordHash = await pbkdf2HashHex(TEMP_RESET_PASSWORD, saltHex, PBKDF2_ITERATIONS);
+		const adminSettings = await getAdminSettingsRow(db);
 		const result = await db
 			.prepare(
-				"UPDATE users SET password_hash = ?1, password_salt = ?2, password_iterations = ?3, password_algo = 'pbkdf2-sha256' WHERE user_id = ?4"
+				"UPDATE users SET password_hash = ?1, password_salt = ?2, password_iterations = ?3, password_algo = ?4 WHERE user_id = ?5"
 			)
-			.bind(passwordHash, saltHex, PBKDF2_ITERATIONS, userId)
+			.bind(
+				adminSettings.default_password_hash,
+				adminSettings.default_password_salt,
+				adminSettings.default_password_iterations,
+				adminSettings.default_password_algo,
+				userId
+			)
 			.run();
 
 		if (!result.meta.changes) {
 			return c.json({ ok: false, error: "User not found" }, 404);
 		}
 
-		return c.json({ ok: true, password: TEMP_RESET_PASSWORD });
+		return c.json({
+			ok: true,
+			message: "Password reset to the current admin default password.",
+		});
 	});
 }

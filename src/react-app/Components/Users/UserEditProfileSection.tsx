@@ -12,10 +12,8 @@ type UserEditProfileSectionProps = {
   isCreateMode: boolean;
   username: string;
   imageUrl: string | null;
-  password: string;
   isResettingPassword: boolean;
   onUsernameChange: (nextValue: string) => void;
-  onPasswordChange: (nextValue: string) => void;
   onResetPassword: () => void;
 };
 
@@ -23,10 +21,8 @@ export function UserEditProfileSection({
   isCreateMode,
   username,
   imageUrl,
-  password,
   isResettingPassword,
   onUsernameChange,
-  onPasswordChange,
   onResetPassword,
 }: UserEditProfileSectionProps) {
   return (
@@ -71,31 +67,29 @@ export function UserEditProfileSection({
             htmlFor="password"
             className="block text-sm/6 font-medium text-gray-900 dark:text-white"
           >
-            {isCreateMode ? "Password" : "Reset Password (TigerTiger313#!#)"}
+            {isCreateMode ? "Initial password" : "Reset password"}
           </label>
 
           {isCreateMode ? (
-            <div className="mt-2">
-              <div className="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600 dark:bg-white/5 dark:outline-white/10 dark:focus-within:outline-indigo-500">
-                <input
-                  id="password"
-                  name="password"
-                  type="text"
-                  value={password}
-                  onChange={(event) => onPasswordChange(event.target.value)}
-                  className="block min-w-0 grow bg-white py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6 dark:bg-transparent dark:text-white dark:placeholder:text-gray-500"
-                />
-              </div>
+            <div className="mt-2 rounded-md bg-white px-3 py-2 text-sm text-gray-700 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-gray-200 dark:outline-white/10">
+              New users will start with the current default password managed in
+              Admin Controls.
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={onResetPassword}
-              disabled={isResettingPassword}
-              className="ui-user-edit-delete rounded-md px-3 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isResettingPassword ? "Resetting..." : "Reset Password"}
-            </button>
+            <>
+              <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                Resetting a password applies the current default from Admin
+                Controls.
+              </p>
+              <button
+                type="button"
+                onClick={onResetPassword}
+                disabled={isResettingPassword}
+                className="ui-user-edit-delete rounded-md px-3 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isResettingPassword ? "Resetting..." : "Reset Password"}
+              </button>
+            </>
           )}
         </div>
 

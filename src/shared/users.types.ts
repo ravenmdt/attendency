@@ -24,7 +24,7 @@ export type UserCreateRequest = {
   name: string
   qualification: UserQualification
   role: UserRole
-  password: string
+  password?: string
 }
 
 export type UsersListSuccessResponse = {
@@ -54,7 +54,7 @@ export type UserCreateSuccessResponse = {
 
 export type UserPasswordResetSuccessResponse = {
   ok: true
-  password: string
+  message: string
 }
 
 export type UserDeleteSuccessResponse = {

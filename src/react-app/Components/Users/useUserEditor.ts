@@ -10,7 +10,6 @@ import type {
   UserSaveResponse,
 } from "../../../shared/users.types";
 import {
-  DEFAULT_NEW_USER_PASSWORD,
   DEFAULT_QUALIFICATION,
   DEFAULT_ROLE,
   qualificationOptions,
@@ -52,7 +51,6 @@ export function useUserEditor({
   // Form field state.
   const [username, setUsername] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [password, setPassword] = useState(DEFAULT_NEW_USER_PASSWORD);
   const [selectedQualification, setSelectedQualification] =
     useState<QualificationOption | null>(DEFAULT_QUALIFICATION);
   const [selectedRole, setSelectedRole] = useState<RoleOption | null>(
@@ -73,7 +71,6 @@ export function useUserEditor({
     useState<OriginalFormState | null>(null);
 
   const normalizedUsername = username.trim();
-  const normalizedPassword = password.trim();
 
   const hasChanges =
     !isCreateMode &&
@@ -87,7 +84,7 @@ export function useUserEditor({
     !selectedQualification ||
     !selectedRole ||
     normalizedUsername.length === 0 ||
-    (isCreateMode ? normalizedPassword.length === 0 : !hasChanges);
+    (!isCreateMode && !hasChanges);
 
   useEffect(() => {
     let isMounted = true;
@@ -101,7 +98,6 @@ export function useUserEditor({
         setStatusMessage(null);
         setUsername("");
         setImageUrl(null);
-        setPassword(DEFAULT_NEW_USER_PASSWORD);
         setSelectedQualification(DEFAULT_QUALIFICATION);
         setSelectedRole(DEFAULT_ROLE);
         setOriginalFormState(null);
@@ -134,7 +130,6 @@ export function useUserEditor({
         const user: UserListApiRow = body.user;
         setUsername(user.name);
         setImageUrl(user.imageUrl ?? null);
-        setPassword(DEFAULT_NEW_USER_PASSWORD);
         setOriginalFormState({
           name: user.name.trim(),
           qualification: user.qualification,
@@ -169,9 +164,6 @@ export function useUserEditor({
     if (!selectedQualification || !selectedRole || normalizedUsername.length === 0) {
       return;
     }
-    if (isCreateMode && normalizedPassword.length === 0) {
-      return;
-    }
     if (!isCreateMode && (userId === null || !hasChanges)) {
       return;
     }
@@ -193,7 +185,6 @@ export function useUserEditor({
                   name: normalizedUsername,
                   qualification: selectedQualification.name,
                   role: selectedRole.name,
-                  password: normalizedPassword,
                 }
               : {
                   name: normalizedUsername,
@@ -256,7 +247,7 @@ export function useUserEditor({
         throw new Error(body && !body.ok ? body.error : "Failed to reset password");
       }
 
-      setStatusMessage(`Password reset to ${body.password}`);
+      setStatusMessage(body.message);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to reset password");
     } finally {
@@ -305,8 +296,6 @@ export function useUserEditor({
     username,
     setUsername,
     imageUrl,
-    password,
-    setPassword,
     selectedQualification,
     setSelectedQualification,
     selectedRole,

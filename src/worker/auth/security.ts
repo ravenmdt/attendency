@@ -1,3 +1,4 @@
+import type { UserRole } from "../../shared/users.types";
 import type { AppContext } from "../types";
 
 // Auth/security constants are centralized here to avoid magic numbers.
@@ -16,6 +17,7 @@ export const RATE_LIMIT_MAX_FAILURES = 10;
 export type UserAuthRow = {
 	user_id: number;
 	name: string;
+	role: UserRole;
 	password_hash: string;
 	password_salt: string;
 	password_iterations: number;

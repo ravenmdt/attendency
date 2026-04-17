@@ -14,6 +14,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import type {
+  AuthUser,
   LoginResponse,
   SessionResponse,
 } from "../../../shared/auth.types";
@@ -24,6 +25,8 @@ import type {
 type AuthContextValue = {
   isAuthenticated: boolean;
   isCheckingSession: boolean;
+  currentUser: AuthUser | null;
+  canAccessAdminControls: boolean;
   login: (
     username: string,
     password: string,
@@ -48,6 +51,8 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Tracks whether the current browser session has an authenticated server cookie.
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [canAccessAdminControls, setCanAccessAdminControls] = useState(false);
   // While true, the app is checking /api/auth/session on first load.
   const [isCheckingSession, setIsCheckingSession] = useState(true);
 
@@ -60,10 +65,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const body = (await res
           .json()
           .catch(() => null)) as SessionResponse | null;
-        setIsAuthenticated(Boolean(res.ok && body?.ok));
+
+        if (res.ok && body?.ok) {
+          setIsAuthenticated(true);
+          setCurrentUser(body.user);
+          setCanAccessAdminControls(body.permissions.canAccessAdminControls);
+          return;
+        }
+
+        setIsAuthenticated(false);
+        setCurrentUser(null);
+        setCanAccessAdminControls(false);
       })
       .catch(() => {
         setIsAuthenticated(false);
+        setCurrentUser(null);
+        setCanAccessAdminControls(false);
       })
       .finally(() => {
         setIsCheckingSession(false);
@@ -72,6 +89,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   function handleUnauthorized() {
     setIsAuthenticated(false);
+    setCurrentUser(null);
+    setCanAccessAdminControls(false);
     setIsCheckingSession(false);
 
     if (
@@ -110,11 +129,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ username, password }),
       });
 
-      if (!response.ok) {
-        const body = (await response
-          .json()
-          .catch(() => null)) as LoginResponse | null;
+      const body = (await response
+        .json()
+        .catch(() => null)) as LoginResponse | null;
+
+      if (!response.ok || !body?.ok) {
         setIsAuthenticated(false);
+        setCurrentUser(null);
+        setCanAccessAdminControls(false);
         return {
           ok: false as const,
           error: body && !body.ok ? body.error : "Login failed",
@@ -122,9 +144,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setIsAuthenticated(true);
+      setCurrentUser(body.user);
+      setCanAccessAdminControls(body.permissions.canAccessAdminControls);
       return { ok: true as const };
     } catch {
       setIsAuthenticated(false);
+      setCurrentUser(null);
+      setCanAccessAdminControls(false);
       return { ok: false as const, error: "Network error while signing in" };
     }
   }
@@ -140,6 +166,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Intentionally ignored: even if logout API fails, we still clear local state.
     }
     setIsAuthenticated(false);
+    setCurrentUser(null);
+    setCanAccessAdminControls(false);
   }
 
   // The Provider makes `isAuthenticated`, `login`, and `logout` available
@@ -149,6 +177,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         isAuthenticated,
         isCheckingSession,
+        currentUser,
+        canAccessAdminControls,
         login,
         logout,
         authenticatedFetch,

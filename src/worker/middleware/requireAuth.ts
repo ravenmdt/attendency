@@ -1,7 +1,15 @@
 import type { Next } from "hono";
 import { deleteCookie, getCookie } from "hono/cookie";
+import type { UserRole } from "../../shared/users.types";
 import type { AppContext } from "../types";
-import { SESSION_COOKIE_NAME, type SessionRow } from "../auth/security";
+import { SESSION_COOKIE_NAME } from "../auth/security";
+
+type SessionWithUserRow = {
+	session_id: string;
+	user_id: number;
+	expires_at: number;
+	role: UserRole;
+};
 
 // Middleware that validates the session cookie and exposes user identity
 // to all downstream route handlers.
@@ -15,9 +23,14 @@ export async function requireAuth(c: AppContext, next: Next) {
 	}
 
 	const session = await db
-		.prepare("SELECT session_id, user_id, expires_at FROM sessions WHERE session_id = ?1")
+		.prepare(
+			`SELECT s.session_id, s.user_id, s.expires_at, u.role AS role
+			 FROM sessions s
+			 JOIN users u ON u.user_id = s.user_id
+			 WHERE s.session_id = ?1`
+		)
 		.bind(sessionId)
-		.first<SessionRow>();
+		.first<SessionWithUserRow>();
 
 	if (!session) {
 		deleteCookie(c, SESSION_COOKIE_NAME, { path: "/" });
@@ -39,5 +52,6 @@ export async function requireAuth(c: AppContext, next: Next) {
 
 	c.set("authUserId", session.user_id);
 	c.set("authSessionId", session.session_id);
+	c.set("authUserRole", session.role);
 	await next();
 }

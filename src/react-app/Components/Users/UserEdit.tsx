@@ -47,10 +47,8 @@ export default function UserEdit({
             isCreateMode={editor.isCreateMode}
             username={editor.username}
             imageUrl={editor.imageUrl}
-            password={editor.password}
             isResettingPassword={editor.isResettingPassword}
             onUsernameChange={editor.setUsername}
-            onPasswordChange={editor.setPassword}
             onResetPassword={editor.handleResetPassword}
           />
 

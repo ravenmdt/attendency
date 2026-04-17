@@ -1,9 +1,16 @@
 // Shared auth API contracts used by both frontend and worker.
 // Keeping these in one place prevents type drift across layers.
 
+import type { UserRole } from './users.types'
+
 export type AuthUser = {
   id: number
   name: string
+  role: UserRole
+}
+
+export type AuthPermissions = {
+  canAccessAdminControls: boolean
 }
 
 export type LoginRequest = {
@@ -14,6 +21,7 @@ export type LoginRequest = {
 export type AuthSuccessResponse = {
   ok: true
   user: AuthUser
+  permissions: AuthPermissions
 }
 
 export type AuthErrorResponse = {

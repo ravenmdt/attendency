@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS auth_rate_limits;
 DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS availability;
 DROP TABLE IF EXISTS calendar_info;
+DROP TABLE IF EXISTS admin_settings;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
@@ -28,6 +29,18 @@ CREATE TABLE users (
   password_salt TEXT NOT NULL,
   password_iterations INTEGER NOT NULL DEFAULT 100000,
   password_algo TEXT NOT NULL DEFAULT 'pbkdf2-sha256'
+);
+
+CREATE TABLE admin_settings (
+  settings_id INTEGER PRIMARY KEY CHECK (settings_id = 1),
+  default_password_hash TEXT NOT NULL,
+  default_password_salt TEXT NOT NULL,
+  default_password_iterations INTEGER NOT NULL DEFAULT 100000,
+  default_password_algo TEXT NOT NULL DEFAULT 'pbkdf2-sha256',
+  allow_user_role_admin_controls INTEGER NOT NULL DEFAULT 0 CHECK (allow_user_role_admin_controls IN (0, 1)),
+  updated_at INTEGER,
+  updated_by_user_id INTEGER,
+  FOREIGN KEY (updated_by_user_id) REFERENCES users(user_id) ON DELETE SET NULL
 );
 
 CREATE TABLE sessions (
@@ -117,6 +130,29 @@ VALUES
     100000,
     'pbkdf2-sha256'
   );
+
+-- Admin settings are stored once for the whole project.
+-- The default password below starts as TigerTiger313#!# but only the hash and salt are saved.
+INSERT INTO admin_settings (
+  settings_id,
+  default_password_hash,
+  default_password_salt,
+  default_password_iterations,
+  default_password_algo,
+  allow_user_role_admin_controls,
+  updated_at,
+  updated_by_user_id
+)
+VALUES (
+  1,
+  '3c1f49ff8070b2c0bbb75822663140a84a0ea0c9248161a6d74155203627c22a',
+  '8f3d5c2b9a7041e6d8c1f0ab37de9245',
+  100000,
+  'pbkdf2-sha256',
+  0,
+  1776420000000,
+  1
+);
 
 INSERT INTO calendar_info (user_id, date, nights, priority, type) VALUES (1, '2026-03-13', 1, 0, 'OFF');
 INSERT INTO calendar_info (user_id, date, nights, priority, type) VALUES (1, '2026-03-14', 0, 0, 'OFF');

@@ -1,6 +1,7 @@
 import type { Hono } from "hono";
 import { deleteCookie, setCookie } from "hono/cookie";
 import type { LoginRequest } from "../../shared/auth.types";
+import { canAccessAdminControls, getAdminSettingsRow } from "./admin.routes";
 import {
 	PBKDF2_ITERATIONS,
 	SESSION_COOKIE_NAME,
@@ -52,7 +53,7 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 
 		const user = await db
 			.prepare(
-				"SELECT user_id, name, password_hash, password_salt, password_iterations, password_algo FROM users WHERE name = ?1"
+				"SELECT user_id, name, role, password_hash, password_salt, password_iterations, password_algo FROM users WHERE name = ?1"
 			)
 			.bind(username)
 			.first<UserAuthRow>();
@@ -98,11 +99,20 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 			maxAge: SESSION_TTL_SECONDS,
 		});
 
+		const adminSettings = await getAdminSettingsRow(db);
+
 		return c.json({
 			ok: true,
 			user: {
 				id: user.user_id,
 				name: user.name,
+				role: user.role,
+			},
+			permissions: {
+				canAccessAdminControls: canAccessAdminControls(
+					user.role,
+					Boolean(adminSettings.allow_user_role_admin_controls)
+				),
 			},
 		});
 	});
@@ -116,6 +126,7 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 		if (!db) return c.json({ ok: false, error: "D1 binding DB is not configured" }, 500);
 
 		const userId = c.get("authUserId");
+		const userRole = c.get("authUserRole");
 		const user = await db
 			.prepare("SELECT user_id, name FROM users WHERE user_id = ?1")
 			.bind(userId)
@@ -125,7 +136,18 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 			return c.json({ ok: false, error: "User not found" }, 401);
 		}
 
-		return c.json({ ok: true, user: { id: user.user_id, name: user.name } });
+		const adminSettings = await getAdminSettingsRow(db);
+
+		return c.json({
+			ok: true,
+			user: { id: user.user_id, name: user.name, role: userRole },
+			permissions: {
+				canAccessAdminControls: canAccessAdminControls(
+					userRole,
+					Boolean(adminSettings.allow_user_role_admin_controls)
+				),
+			},
+		});
 	});
 
 	app.post("/api/auth/logout", async (c) => {

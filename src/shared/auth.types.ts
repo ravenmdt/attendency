@@ -7,6 +7,7 @@ export type AuthUser = {
   id: number
   name: string
   role: UserRole
+  imageUrl: string | null
 }
 
 export type AuthPermissions = {

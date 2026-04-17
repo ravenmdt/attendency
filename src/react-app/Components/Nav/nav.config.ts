@@ -6,7 +6,7 @@ import {
   HomeIcon,
   UsersIcon,
 } from "@heroicons/react/24/outline";
-import type { NavigationItem, SidebarProfile, TeamLink } from "./nav.types";
+import type { NavigationItem, TeamLink } from "./nav.types";
 
 /*
   nav.config.ts
@@ -34,11 +34,6 @@ export const teamLinks: TeamLink[] = [
   { id: 3, name: "Workcation", href: "#", initial: "W", current: false },
 ];
 
-export const sidebarProfile: SidebarProfile = {
-  name: "Tom Cook",
-  imageUrl:
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-};
 
 export const sidebarBrand = {
   name: "Attendency",

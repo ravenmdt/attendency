@@ -1,11 +1,6 @@
 import { ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../Auth/AuthContext";
-import {
-  navigationItems,
-  sidebarBrand,
-  sidebarProfile,
-  teamLinks,
-} from "./nav.config";
+import { navigationItems, sidebarBrand, teamLinks } from "./nav.config";
 import type { AppView } from "./nav.types";
 import { classNames } from "./nav.utils";
 
@@ -32,7 +27,12 @@ export default function NavSidebarContent({
   isLoggingOut,
   showProfileFooter = false,
 }: NavSidebarContentProps) {
-  const { canAccessAdminControls } = useAuth();
+  const { canAccessAdminControls, currentUser } = useAuth();
+
+  const profileName = currentUser?.name ?? "Signed-in user";
+  const profileImageUrl =
+    currentUser?.imageUrl ??
+    "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
 
   // The server tells the UI whether the current signed-in person may see
   // the Admin Controls entry. Hiding it here keeps the navigation honest.
@@ -148,18 +148,24 @@ export default function NavSidebarContent({
           {showProfileFooter ? (
             <li className="-mx-6 mt-auto">
               {/* Simple profile preview pinned to the bottom of the desktop sidebar. */}
-              <a
-                href="#"
-                className="ui-profile-link flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold"
+              <button
+                type="button"
+                onClick={() => onSelectView("Profile")}
+                className={classNames(
+                  currentView === "Profile"
+                    ? "ui-nav-item-active"
+                    : "ui-profile-link",
+                  "flex w-full items-center gap-x-4 px-6 py-3 text-left text-sm/6 font-semibold",
+                )}
               >
                 <img
-                  alt=""
-                  src={sidebarProfile.imageUrl}
+                  alt={profileName}
+                  src={profileImageUrl}
                   className="ui-profile-avatar size-8 rounded-full outline -outline-offset-1"
                 />
-                <span className="sr-only">Your profile</span>
-                <span aria-hidden="true">{sidebarProfile.name}</span>
-              </a>
+                <span className="sr-only">Current user profile</span>
+                <span aria-hidden="true">{profileName}</span>
+              </button>
             </li>
           ) : null}
         </ul>

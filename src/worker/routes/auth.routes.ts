@@ -19,6 +19,7 @@ import {
 	timingSafeEqualHex,
 	type UserAuthRow,
 } from "../auth/security";
+import { mapStoredImageUrlForClient } from "./userImage.utils";
 import { requireAuth } from "../middleware/requireAuth";
 import type { AppEnv } from "../types";
 
@@ -53,7 +54,7 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 
 		const user = await db
 			.prepare(
-				"SELECT user_id, name, role, password_hash, password_salt, password_iterations, password_algo FROM users WHERE name = ?1"
+				"SELECT user_id, name, role, image_url AS imageUrl, password_hash, password_salt, password_iterations, password_algo FROM users WHERE name = ?1"
 			)
 			.bind(username)
 			.first<UserAuthRow>();
@@ -107,6 +108,7 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 				id: user.user_id,
 				name: user.name,
 				role: user.role,
+				imageUrl: mapStoredImageUrlForClient(user.user_id, user.imageUrl ?? null),
 			},
 			permissions: {
 				canAccessAdminControls: canAccessAdminControls(
@@ -128,9 +130,9 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 		const userId = c.get("authUserId");
 		const userRole = c.get("authUserRole");
 		const user = await db
-			.prepare("SELECT user_id, name FROM users WHERE user_id = ?1")
+			.prepare("SELECT user_id, name, image_url AS imageUrl FROM users WHERE user_id = ?1")
 			.bind(userId)
-			.first<{ user_id: number; name: string }>();
+			.first<{ user_id: number; name: string; imageUrl: string | null }>();
 
 		if (!user) {
 			return c.json({ ok: false, error: "User not found" }, 401);
@@ -140,7 +142,12 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 
 		return c.json({
 			ok: true,
-			user: { id: user.user_id, name: user.name, role: userRole },
+			user: {
+				id: user.user_id,
+				name: user.name,
+				role: userRole,
+				imageUrl: mapStoredImageUrlForClient(user.user_id, user.imageUrl ?? null),
+			},
 			permissions: {
 				canAccessAdminControls: canAccessAdminControls(
 					userRole,

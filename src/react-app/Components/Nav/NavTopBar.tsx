@@ -1,5 +1,5 @@
 import { Bars3Icon } from "@heroicons/react/24/outline";
-import { sidebarProfile } from "./nav.config";
+import { useAuth } from "../Auth/AuthContext";
 import type { AppView } from "./nav.types";
 
 /*
@@ -14,12 +14,20 @@ import type { AppView } from "./nav.types";
 type NavTopBarProps = {
   currentView: AppView;
   onOpenSidebar: () => void;
+  onOpenProfile: () => void;
 };
 
 export default function NavTopBar({
   currentView,
   onOpenSidebar,
+  onOpenProfile,
 }: NavTopBarProps) {
+  const { currentUser } = useAuth();
+  const profileName = currentUser?.name ?? "Signed-in user";
+  const profileImageUrl =
+    currentUser?.imageUrl ??
+    "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
+
   return (
     <div className="ui-surface sticky top-0 z-40 flex items-center gap-x-6 px-4 py-4 shadow-xs sm:px-6 lg:hidden dark:shadow-none dark:after:pointer-events-none dark:after:absolute dark:after:inset-0 dark:after:border-b dark:after:border-white/10 dark:after:bg-black/10">
       <button
@@ -35,14 +43,14 @@ export default function NavTopBar({
         {currentView}
       </div>
 
-      <a href="#">
-        <span className="sr-only">Your profile</span>
+      <button type="button" onClick={onOpenProfile}>
+        <span className="sr-only">Current user profile</span>
         <img
-          alt=""
-          src={sidebarProfile.imageUrl}
+          alt={profileName}
+          src={profileImageUrl}
           className="ui-profile-avatar size-8 rounded-full outline -outline-offset-1"
         />
-      </a>
+      </button>
     </div>
   );
 }

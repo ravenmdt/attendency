@@ -18,6 +18,7 @@ export type UserAuthRow = {
 	user_id: number;
 	name: string;
 	role: UserRole;
+	imageUrl?: string | null;
 	password_hash: string;
 	password_salt: string;
 	password_iterations: number;

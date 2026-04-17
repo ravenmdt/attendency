@@ -12,6 +12,7 @@ import type { ComponentType, SVGProps } from "react";
 export type AppView =
   | "Dashboard"
   | "Team"
+  | "Profile"
   | "Admin Controls"
   | "Calendar"
   | "Documents"

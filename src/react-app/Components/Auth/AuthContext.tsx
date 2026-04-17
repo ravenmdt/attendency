@@ -36,6 +36,7 @@ type AuthContextValue = {
     input: RequestInfo | URL,
     init?: RequestInit,
   ) => Promise<Response>;
+  updateCurrentUser: (user: AuthUser) => void;
 };
 
 // ─── Context creation ─────────────────────────────────────────────────────────
@@ -170,6 +171,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setCanAccessAdminControls(false);
   }
 
+  function updateCurrentUser(user: AuthUser) {
+    setCurrentUser(user);
+  }
+
   // The Provider makes `isAuthenticated`, `login`, and `logout` available
   // to every component nested inside it.
   return (
@@ -182,6 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         logout,
         authenticatedFetch,
+        updateCurrentUser,
       }}
     >
       {children}

@@ -19,5 +19,11 @@
 			"database_id": "959630e6-7c70-4d6e-b1d7-8969f7abeb59",
 			"preview_database_id": "959630e6-7c70-4d6e-b1d7-8969f7abeb59"
 		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "PROFILE_IMAGES",
+			"bucket_name": "attendency"
+		}
 	]
 }

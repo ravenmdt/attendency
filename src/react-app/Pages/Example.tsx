@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import AdminControls from "../Components/AdminControls/AdminControls";
 import Calendar from "../Components/Calendar/Calendar";
+import Dashboard from "../Components/Dashboard/Dashboard";
 import NavDesktopSidebar from "../Components/Nav/NavDesktopSidebar";
 import NavMobileSidebar from "../Components/Nav/NavMobileSidebar";
 import NavTopBar from "../Components/Nav/NavTopBar";
 import { useAuth } from "../Components/Auth/AuthContext";
 import type { AppView } from "../Components/Nav/nav.types";
 import { useAppNavigation } from "../Components/Nav/useAppNavigation";
+import UserProfile from "../Components/UserProfile/UserProfile";
 import UserEdit from "../Components/Users/UserEdit";
 import UserList from "../Components/Users/UserList";
 
@@ -97,7 +99,7 @@ export default function Example() {
   function renderMainContent() {
     switch (currentView) {
       case "Dashboard":
-        return <div>Welcome to Dashboard</div>;
+        return <Dashboard />;
 
       case "Team":
         return isAdmin && isEditingUser ? (
@@ -113,6 +115,9 @@ export default function Example() {
             onAddUser={isAdmin ? handleStartUserCreate : undefined}
           />
         );
+
+      case "Profile":
+        return <UserProfile />;
 
       case "Calendar":
         return <Calendar />;
@@ -161,6 +166,7 @@ export default function Example() {
       <NavTopBar
         currentView={currentView}
         onOpenSidebar={() => setSidebarOpen(true)}
+        onOpenProfile={() => selectView("Profile")}
       />
 
       <main className="py-10 lg:pl-72">

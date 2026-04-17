@@ -27,7 +27,8 @@ export function mapStoredImageUrlForClient(
     return storedValue;
   }
 
-  return `/api/users/${userId}/photo`;
+  const version = encodeURIComponent(storedValue);
+  return `/api/users/${userId}/photo?v=${version}`;
 }
 
 export function isInternalProfilePhotoRoute(value: string | null): boolean {

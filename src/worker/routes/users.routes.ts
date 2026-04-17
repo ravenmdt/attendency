@@ -419,7 +419,7 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 
 			const headers = new Headers();
 			headers.set("Content-Type", object.httpMetadata?.contentType || "image/jpeg");
-			headers.set("Cache-Control", "private, max-age=86400");
+			headers.set("Cache-Control", "private, no-store, max-age=0");
 			return new Response(object.body, { headers });
 		}
 
@@ -439,7 +439,7 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 			return new Response(bytes, {
 				headers: {
 					"Content-Type": mimeMatch[1],
-					"Cache-Control": "private, max-age=86400",
+					"Cache-Control": "private, no-store, max-age=0",
 				},
 			});
 		}

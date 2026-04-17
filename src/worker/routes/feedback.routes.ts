@@ -8,6 +8,7 @@ import type {
 } from "../../shared/feedback.types";
 import { requireAuth } from "../middleware/requireAuth";
 import type { AppEnv } from "../types";
+import { mapStoredImageUrlForClient } from "./userImage.utils";
 
 // ─── DB row shape returned by the SQL query ───────────────────────────────────
 // Column aliases must match exactly what the SELECT returns.
@@ -23,14 +24,20 @@ type FeedbackDbRow = {
 
 // ─── Helper: map a raw DB row to the API-safe FeedbackItem shape ──────────────
 function mapRow(row: FeedbackDbRow): FeedbackItem {
+  // The database stores private/internal photo keys (for example
+  // "profile-images/user-1-...jpg"). Before sending data to the frontend,
+  // convert those stored values into a client-safe URL route that the browser
+  // can request while still respecting auth.
+  const mappedImageUrl = mapStoredImageUrlForClient(
+    Number(row.userId),
+    row.userImageUrl ?? null,
+  );
+
   return {
     feedbackId: Number(row.feedbackId),
     userId: Number(row.userId),
     userName: row.userName,
-    // Return the image URL as-is — profile images stored in R2 are already
-    // mapped to the /api/users/:id/photo route before insertion (see users.routes.ts).
-    // Feedback reads the value straight from the users table, so the same logic applies.
-    userImageUrl: row.userImageUrl ?? null,
+    userImageUrl: mappedImageUrl,
     text: row.text,
     createdAt: Number(row.createdAt),
     accepted: Boolean(row.accepted),

@@ -77,8 +77,8 @@ export default function Dashboard() {
                   </li>
                   <li>Improved layout</li>
                   <li>
-                    Improved mobile support such that calendar works properly on
-                    small screens
+                    <p className="line-through">Improved mobile support such that calendar works properly on
+                    small screens</p>
                   </li>
                   <li>
                     Add a jaarplan to calendar data link such that on the

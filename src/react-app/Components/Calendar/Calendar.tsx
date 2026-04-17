@@ -289,6 +289,17 @@ export default function Calendar() {
                 : `Save changes${hasPendingChanges ? ` (${pendingChanges.length})` : ""}`}
             </button>
           </div>
+          {/* Keep save action directly visible on small screens, not hidden in the overflow menu. */}
+          <button
+            type="button"
+            onClick={saveAvailabilityChanges}
+            disabled={!hasPendingChanges || isSaving}
+            className="ui-calendar-save-button ui-accent-ring ml-3 rounded-md px-3 py-2 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed md:hidden"
+          >
+            {isSaving
+              ? "Saving..."
+              : `Save${hasPendingChanges ? ` (${pendingChanges.length})` : ""}`}
+          </button>
           <Menu as="div" className="relative ml-6 md:hidden">
             <MenuButton className="ui-calendar-mobile-menu-button -mx-2 flex items-center rounded-full border border-transparent p-2">
               <span className="sr-only">Open menu</span>

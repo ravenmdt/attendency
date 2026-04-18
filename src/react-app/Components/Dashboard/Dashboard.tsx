@@ -126,13 +126,18 @@ export default function Dashboard() {
             </h3>
             <ul className="ui-text-muted mt-4 space-y-3 text-sm">
               <li className="ui-surface rounded-lg px-3 py-2">
-                1. Open Calendar and set your availability.
+                1. Open your profile, update your specials as required, select
+                your comfort level for SIM Control, change your password, set a
+                profile picture.
               </li>
               <li className="ui-surface rounded-lg px-3 py-2">
-                2. Check Reports for saved day and wave coverage.
+                2. Open Calendar and set your availability.
               </li>
               <li className="ui-surface rounded-lg px-3 py-2">
-                3. Use Feedback for ideas and follow-up requests.
+                3. Check Reports for saved day and wave coverage.
+              </li>
+              <li className="ui-surface rounded-lg px-3 py-2">
+                4. Use Feedback for ideas and follow-up requests.
               </li>
             </ul>
           </div>

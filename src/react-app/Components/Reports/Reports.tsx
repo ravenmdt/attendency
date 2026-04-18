@@ -121,20 +121,20 @@ export default function Reports() {
                     {formatLongDate(selectedDate)}
                   </time>
                 </h2>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <p className="ui-text-muted mt-1 text-sm">
                   {`Shows a summary of the day's availability, with a breakdown of how many users are fully vs partially available. 
                   Partial availability means the user is available for one of the partially available days this week.`}
                 </p>
               </div>
 
-              <div className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-white/5 dark:text-gray-300">
+              <div className="ui-pill-neutral rounded-full px-3 py-1 text-xs font-semibold">
                 {totalMarkedUsersForDay} total • {availableCount} available •{" "}
                 {partialCount} partial
               </div>
             </div>
 
             {isLoading ? (
-              <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">
+              <div className="ui-text-muted mt-6 text-sm">
                 Loading reports data…
               </div>
             ) : (
@@ -142,13 +142,13 @@ export default function Reports() {
                 <ReportsWavePanel
                   title="Wave 1"
                   users={selectedWaveGroups[0]}
-                  accentClassName="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                  accentClassName="ui-pill-success"
                   emptyMessage="No attendance entries are recorded for wave 1 on this day."
                 />
                 <ReportsWavePanel
                   title="Wave 2"
                   users={selectedWaveGroups[1]}
-                  accentClassName="bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300"
+                  accentClassName="ui-pill-info"
                   emptyMessage="No attendance entries are recorded for wave 2 on this day."
                 />
               </div>

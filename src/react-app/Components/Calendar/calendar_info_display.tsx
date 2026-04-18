@@ -38,7 +38,7 @@ function CalendarHoverInfo({
       title={`${label}: ${description}`}
     >
       <span aria-hidden="true">{children}</span>
-      <span className="pointer-events-none absolute top-1/2 left-full z-60 ml-2 hidden w-44 -translate-y-1/2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-[11px] leading-relaxed text-gray-700 shadow-lg group-hover/calendar-info:block group-focus/calendar-info:block dark:border-white/10 dark:bg-gray-800 dark:text-gray-200">
+      <span className="ui-tooltip-panel pointer-events-none absolute top-1/2 left-full z-60 ml-2 hidden w-44 -translate-y-1/2 rounded-lg border px-3 py-2 text-left text-[11px] leading-relaxed shadow-lg group-hover/calendar-info:block group-focus/calendar-info:block">
         <span className="ui-text-primary block font-semibold">{label}</span>
         <span className="ui-text-body mt-1 block">{description}</span>
       </span>
@@ -63,14 +63,14 @@ export function NightsIcon({
       label="Night shift"
       description="This date is marked for night-shift coverage."
     >
-      <MoonIcon className="size-4 text-indigo-600 dark:text-indigo-300" />
+      <MoonIcon className="ui-icon-accent size-4" />
     </CalendarHoverInfo>
   ) : (
     <CalendarHoverInfo
       label="Day shift"
       description="This date is marked for daytime coverage."
     >
-      <SunIcon className="size-4 text-amber-500 dark:text-amber-300" />
+      <SunIcon className="ui-icon-warning size-4" />
     </CalendarHoverInfo>
   );
 }
@@ -84,7 +84,7 @@ export function PriorityIcon({ priority }: { priority: boolean }) {
       label="Priority day"
       description="This day has been flagged as high priority."
     >
-      <BoltIcon className="size-4 text-amber-500 dark:text-amber-300" />
+      <BoltIcon className="ui-icon-warning size-4" />
     </CalendarHoverInfo>
   ) : (
     <span className="inline-block size-4" aria-hidden="true" />
@@ -104,7 +104,7 @@ export function TypeIcon({ type }: { type: string }) {
         normalizedType === "PTT" ? "Basic missions" : "Missionized missions"
       }
     >
-      <span className="inline-flex items-center rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700 dark:bg-white/10 dark:text-slate-200">
+      <span className="ui-pill-neutral inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold">
         {normalizedType}
       </span>
     </CalendarHoverInfo>

@@ -16,12 +16,12 @@ export default function UserProfilePasswordSection({
   onConfirmNewPasswordChange,
 }: UserProfilePasswordSectionProps) {
   return (
-    <div className="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3 dark:border-white/10">
+    <div className="ui-divider-soft grid grid-cols-1 gap-x-8 gap-y-10 border-b pb-12 md:grid-cols-3">
       <div>
-        <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">
+        <h2 className="ui-text-primary text-base/7 font-semibold">
           Change password
         </h2>
-        <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+        <p className="ui-text-muted mt-1 text-sm/6">
           Leave these fields blank if you do not want to change your password.
         </p>
       </div>

@@ -55,7 +55,7 @@ export default function FeedbackItemCard({
         {!isLast && (
           <span
             aria-hidden="true"
-            className="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200 dark:bg-white/10"
+            className="ui-surface-soft absolute top-5 left-5 -ml-px h-full w-0.5"
           />
         )}
 
@@ -70,8 +70,8 @@ export default function FeedbackItemCard({
               />
             ) : (
               // Fallback icon when the user has no profile photo
-              <div className="flex size-10 items-center justify-center rounded-full bg-gray-100 ring-2 ring-white dark:bg-gray-700 dark:ring-gray-900">
-                <UserCircleIcon className="size-8 text-gray-400 dark:text-gray-500" />
+              <div className="ui-surface-soft flex size-10 items-center justify-center rounded-full ring-2 ring-white dark:ring-gray-900">
+                <UserCircleIcon className="ui-text-icon size-8" />
               </div>
             )}
           </div>
@@ -80,17 +80,15 @@ export default function FeedbackItemCard({
           <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
             <div className="min-w-0 flex-1">
               {/* Author name */}
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-0.5">
+              <p className="ui-text-muted mb-0.5 text-xs font-medium">
                 {item.userName}
               </p>
 
               {/* Feedback text — line-through when accepted by an admin */}
               <p
                 className={[
-                  "text-sm text-gray-900 dark:text-white wrap-break-word",
-                  item.accepted
-                    ? "line-through text-gray-400 dark:text-gray-500"
-                    : "",
+                  "ui-text-primary wrap-break-word text-sm",
+                  item.accepted ? "ui-text-muted line-through" : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -108,7 +106,7 @@ export default function FeedbackItemCard({
                       onClick={() => onAccept(item.feedbackId)}
                       disabled={isAccepting || isDeleting}
                       title="Mark as accepted"
-                      className="inline-flex items-center gap-x-1 rounded px-2 py-0.5 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-green-400 dark:bg-green-900/20 dark:hover:bg-green-900/40 transition-colors"
+                      className="ui-pill-success inline-flex items-center gap-x-1 rounded px-2 py-0.5 text-xs font-medium transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <CheckIcon className="size-3.5" aria-hidden="true" />
                       {isAccepting ? "Accepting…" : "Accept"}
@@ -121,7 +119,7 @@ export default function FeedbackItemCard({
                     onClick={() => onDelete(item.feedbackId)}
                     disabled={isAccepting || isDeleting}
                     title="Delete permanently"
-                    className="inline-flex items-center gap-x-1 rounded px-2 py-0.5 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:bg-red-900/20 dark:hover:bg-red-900/40 transition-colors"
+                    className="ui-pill-danger inline-flex items-center gap-x-1 rounded px-2 py-0.5 text-xs font-medium transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <TrashIcon className="size-3.5" aria-hidden="true" />
                     {isDeleting ? "Deleting…" : "Delete"}
@@ -131,7 +129,7 @@ export default function FeedbackItemCard({
             </div>
 
             {/* ── Date ──────────────────────────────────────────────────────── */}
-            <div className="shrink-0 text-right text-xs whitespace-nowrap text-gray-500 dark:text-gray-400 pt-0.5">
+            <div className="ui-text-muted shrink-0 pt-0.5 text-right text-xs whitespace-nowrap">
               <time dateTime={new Date(item.createdAt).toISOString()}>
                 {formatDate(item.createdAt)}
               </time>

@@ -18,10 +18,8 @@ export default function UserProfilePhotoSection({
   return (
     <div className="grid grid-cols-1 gap-x-8 gap-y-10 pb-12 md:grid-cols-3">
       <div>
-        <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">
-          Photo
-        </h2>
-        <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+        <h2 className="ui-text-primary text-base/7 font-semibold">Photo</h2>
+        <p className="ui-text-muted mt-1 text-sm/6">
           Upload a photo for your current account. Large images are resized
           automatically and then saved privately for signed-in app use.
         </p>
@@ -33,7 +31,7 @@ export default function UserProfilePhotoSection({
             Upload photo
           </label>
           <div className="mt-2 flex flex-wrap items-center gap-3">
-            <label className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20">
+            <label className="ui-secondary-button rounded-md px-3 py-2 text-sm font-semibold inset-ring focus-visible:outline-2 focus-visible:outline-offset-2">
               <span>{isPreparingImage ? "Preparing..." : "Choose photo"}</span>
               <input
                 type="file"
@@ -46,7 +44,7 @@ export default function UserProfilePhotoSection({
             <button
               type="button"
               onClick={onRemovePhoto}
-              className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
+              className="ui-secondary-button rounded-md px-3 py-2 text-sm font-semibold inset-ring focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               Remove photo
             </button>
@@ -67,10 +65,10 @@ export default function UserProfilePhotoSection({
             ) : (
               <UserCircleIcon
                 aria-hidden="true"
-                className="size-12 text-gray-300 dark:text-gray-500"
+                className="ui-text-icon size-12"
               />
             )}
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="ui-text-muted text-sm">
               {imageUrl
                 ? "This preview shows the image that will be saved to your profile."
                 : "No profile photo selected yet."}

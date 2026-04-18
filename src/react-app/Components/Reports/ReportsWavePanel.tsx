@@ -23,7 +23,7 @@ export default function ReportsWavePanel({
       <div className="flex items-center justify-between gap-3">
         <div>
           <h3 className="ui-text-primary text-sm font-semibold">{title}</h3>
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="ui-text-muted mt-1 text-xs">
             {availableCount} available • {partialCount} partial
           </p>
         </div>
@@ -38,15 +38,13 @@ export default function ReportsWavePanel({
       </div>
 
       {users.length === 0 ? (
-        <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-          {emptyMessage}
-        </p>
+        <p className="ui-text-muted mt-4 text-sm">{emptyMessage}</p>
       ) : (
-        <ol className="mt-4 flex flex-col gap-y-2 text-sm text-gray-500 dark:text-gray-400">
+        <ol className="ui-text-muted mt-4 flex flex-col gap-y-2 text-sm">
           {users.map((user) => (
             <li
               key={`${title}-${user.userId}`}
-              className="group flex items-center gap-x-4 rounded-xl px-3 py-2 hover:bg-gray-100 dark:hover:bg-white/5"
+              className="ui-interactive-soft group flex items-center gap-x-4 rounded-xl px-3 py-2"
             >
               {user.imageUrl ? (
                 <img
@@ -57,15 +55,15 @@ export default function ReportsWavePanel({
               ) : (
                 <UserCircleIcon
                   aria-hidden="true"
-                  className="size-10 flex-none text-gray-300 dark:text-gray-500"
+                  className="ui-text-icon size-10 flex-none"
                 />
               )}
 
               <div className="min-w-0 flex-auto">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                <p className="ui-text-primary truncate text-sm font-medium">
                   {user.name}
                 </p>
-                <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                <p className="ui-text-muted mt-0.5 text-xs">
                   {user.qualification}
                 </p>
               </div>
@@ -80,10 +78,10 @@ export default function ReportsWavePanel({
                 <span className="group/info relative flex-none">
                   <InformationCircleIcon
                     aria-label="Special instructions"
-                    className="size-4 cursor-help text-indigo-400 dark:text-indigo-300"
+                    className="ui-action-link size-4 cursor-help"
                   />
                   {/* Tooltip: absolutely positioned above the icon */}
-                  <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden w-56 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-left text-xs leading-relaxed text-white shadow-lg group-hover/info:block dark:bg-gray-700">
+                  <span className="ui-tooltip-panel pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden w-56 -translate-x-1/2 rounded-lg border px-3 py-2 text-left text-xs leading-relaxed shadow-lg group-hover/info:block">
                     {user.specialInstructions}
                   </span>
                 </span>
@@ -93,8 +91,8 @@ export default function ReportsWavePanel({
                 className={[
                   "rounded-full px-2 py-1 text-[11px] font-semibold",
                   user.availabilityStatus === "partial"
-                    ? "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"
-                    : "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+                    ? "ui-pill-warning"
+                    : "ui-pill-success",
                 ].join(" ")}
               >
                 {user.availabilityStatus === "partial"

@@ -101,7 +101,7 @@ export default function ReportsCalendarInfoCard({
                   ? "Night-shift coverage is planned for this date."
                   : "This date is marked for standard daytime coverage."
               }
-              toneClassName="bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300"
+              toneClassName="ui-pill-info"
             />
             <DetailTile
               label="Priority"
@@ -112,16 +112,14 @@ export default function ReportsCalendarInfoCard({
                   : "No elevated priority has been set for this day."
               }
               toneClassName={
-                info.priority
-                  ? "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"
-                  : "bg-gray-200 text-gray-700 dark:bg-white/10 dark:text-gray-300"
+                info.priority ? "ui-pill-warning" : "ui-pill-neutral"
               }
             />
             <DetailTile
               label="Type"
               value={info.type?.trim() || "Not set"}
               helperText="Short calendar code used across the shared schedule."
-              toneClassName="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+              toneClassName="ui-pill-success"
             />
           </dl>
 
@@ -139,7 +137,7 @@ export default function ReportsCalendarInfoCard({
           </div>
         </>
       ) : (
-        <div className="ui-text-muted mt-6 rounded-lg border border-dashed border-gray-300 px-4 py-5 text-sm dark:border-white/10">
+        <div className="ui-text-muted ui-divider-soft mt-6 rounded-lg border border-dashed px-4 py-5 text-sm">
           No calendar info has been saved for the selected day yet.
         </div>
       )}

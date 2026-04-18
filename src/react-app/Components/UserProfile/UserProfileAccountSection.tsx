@@ -21,12 +21,10 @@ export default function UserProfileAccountSection({
   onSpecialInstructionsChange,
 }: UserProfileAccountSectionProps) {
   return (
-    <div className="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3 dark:border-white/10">
+    <div className="ui-divider-soft grid grid-cols-1 gap-x-8 gap-y-10 border-b pb-12 md:grid-cols-3">
       <div>
-        <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">
-          Profile
-        </h2>
-        <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+        <h2 className="ui-text-primary text-base/7 font-semibold">Profile</h2>
+        <p className="ui-text-muted mt-1 text-sm/6">
           These settings only update the currently signed-in account.
         </p>
       </div>
@@ -35,12 +33,12 @@ export default function UserProfileAccountSection({
         <div className="sm:col-span-4">
           <label
             htmlFor="profile-username"
-            className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+            className="ui-text-primary block text-sm/6 font-medium"
           >
             Username
           </label>
           <div className="mt-2">
-            <div className="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600 dark:bg-white/5 dark:outline-white/10 dark:focus-within:outline-indigo-500">
+            <div className="ui-field-shell flex items-center rounded-md pl-3 outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2">
               <input
                 id="profile-username"
                 name="profile-username"
@@ -48,17 +46,17 @@ export default function UserProfileAccountSection({
                 value={username}
                 onChange={(event) => onUsernameChange(event.target.value)}
                 placeholder="janesmith"
-                className="block min-w-0 grow bg-white py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6 dark:bg-transparent dark:text-white dark:placeholder:text-gray-500"
+                className="ui-field-input block min-w-0 grow py-1.5 pr-3 pl-1 text-base focus:outline-none sm:text-sm/6"
               />
             </div>
           </div>
         </div>
 
         <div className="sm:col-span-3">
-          <label className="block text-sm/6 font-medium text-gray-900 dark:text-white">
+          <label className="ui-text-primary block text-sm/6 font-medium">
             Role
           </label>
-          <div className="mt-2 rounded-md bg-white px-3 py-2 text-sm text-gray-700 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-gray-200 dark:outline-white/10">
+          <div className="ui-field-display mt-2 rounded-md px-3 py-2 text-sm outline-1 -outline-offset-1">
             {roleLabel}
           </div>
         </div>
@@ -66,7 +64,7 @@ export default function UserProfileAccountSection({
         <div className="sm:col-span-3">
           <label
             htmlFor="profile-qualification"
-            className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+            className="ui-text-primary block text-sm/6 font-medium"
           >
             Qualification
           </label>
@@ -78,7 +76,7 @@ export default function UserProfileAccountSection({
               onChange={(event) =>
                 onQualificationChange(event.target.value as UserQualification)
               }
-              className="block w-full rounded-md bg-white px-3 py-2 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500"
+              className="ui-field-display block w-full rounded-md px-3 py-2 text-sm outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2"
             >
               {qualificationOptions.map((option) => (
                 <option key={option.id} value={option.name}>
@@ -96,7 +94,7 @@ export default function UserProfileAccountSection({
         <div className="col-span-full">
           <label
             htmlFor="profile-special-instructions"
-            className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+            className="ui-text-primary block text-sm/6 font-medium"
           >
             Specials
           </label>
@@ -108,10 +106,10 @@ export default function UserProfileAccountSection({
               value={specialInstructions}
               onChange={(e) => onSpecialInstructionsChange(e.target.value)}
               placeholder="E.g. Partial available 2 days means, pick only 1 please"
-              className="block w-full resize-none rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500"
+              className="ui-field-display block w-full resize-none rounded-md px-3 py-1.5 text-base outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
             />
           </div>
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          <p className="ui-text-muted mt-2 text-xs">
             Leave blank to show no tooltip in Reports.
           </p>
         </div>

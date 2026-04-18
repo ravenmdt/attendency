@@ -39,13 +39,13 @@ export default function ReportsChangeFeed({
           <h2 className="ui-text-primary text-base font-semibold">
             Recent attendance changes
           </h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <p className="ui-text-muted mt-1 text-sm">
             This rolling feed highlights attendance updates for upcoming copy
             work in the next {cutoffDays} days.
           </p>
         </div>
 
-        <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300">
+        <span className="ui-pill-accent rounded-full px-3 py-1 text-xs font-semibold">
           {cutoffDays}-day window
         </span>
       </div>
@@ -55,7 +55,7 @@ export default function ReportsChangeFeed({
       ) : listError ? (
         <p className="ui-danger-text py-4 text-sm">{listError}</p>
       ) : items.length === 0 ? (
-        <p className="ui-text-body py-4 text-sm text-gray-500 dark:text-gray-400">
+        <p className="ui-text-muted py-4 text-sm">
           No attendance changes are currently visible inside the rolling copy
           window.
         </p>

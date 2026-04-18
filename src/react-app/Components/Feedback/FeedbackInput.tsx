@@ -38,10 +38,10 @@ export default function FeedbackInput({
     <div className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
       {/* ── Left description column (mirrors the two-col layout used in settings) */}
       <div>
-        <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">
+        <h2 className="ui-text-primary text-base/7 font-semibold">
           Share Feedback
         </h2>
-        <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+        <p className="ui-text-muted mt-1 text-sm/6">
           Your feedback is visible to everyone. Use Ctrl+Enter to submit
           quickly.
         </p>
@@ -52,14 +52,14 @@ export default function FeedbackInput({
         <div className="col-span-full">
           <label
             htmlFor="feedback-text"
-            className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+            className="ui-text-primary block text-sm/6 font-medium"
           >
             Your feedback
           </label>
 
           {/* Input container — same outline + focus style as the text inputs in settings */}
           <div className="mt-2">
-            <div className="flex rounded-md bg-white outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600 dark:bg-white/5 dark:outline-white/10 dark:focus-within:outline-indigo-500">
+            <div className="ui-field-shell flex rounded-md outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2">
               <textarea
                 id="feedback-text"
                 name="feedback-text"
@@ -75,13 +75,13 @@ export default function FeedbackInput({
                 rows={5}
                 maxLength={2000}
                 disabled={isSubmitting}
-                className="block w-full resize-none overflow-y-auto bg-white py-2 px-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6 rounded-md dark:bg-transparent dark:text-white dark:placeholder:text-gray-500 disabled:opacity-50"
+                className="ui-field-input block w-full resize-none overflow-y-auto rounded-md px-3 py-2 text-base focus:outline-none sm:text-sm/6 disabled:opacity-50"
               />
             </div>
           </div>
 
           {/* Character counter — gives users a sense of how much they've written */}
-          <p className="mt-1 text-xs text-gray-400 dark:text-gray-500 text-right">
+          <p className="ui-text-muted mt-1 text-right text-xs">
             {value.length} / 2000
           </p>
         </div>

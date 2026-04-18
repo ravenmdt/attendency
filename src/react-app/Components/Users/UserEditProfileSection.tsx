@@ -28,10 +28,10 @@ export function UserEditProfileSection({
   return (
     <div className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
       <div>
-        <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">
+        <h2 className="ui-text-primary text-base/7 font-semibold">
           {isCreateMode ? "Add user" : "Profile"}
         </h2>
-        <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+        <p className="ui-text-muted mt-1 text-sm/6">
           {isCreateMode
             ? "Create a new user profile with the default access settings."
             : "This information will be displayed publicly so be careful what you share."}
@@ -42,13 +42,13 @@ export function UserEditProfileSection({
         <div className="sm:col-span-4">
           <label
             htmlFor="username"
-            className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+            className="ui-text-primary block text-sm/6 font-medium"
           >
             Username
           </label>
           <div className="mt-2">
-            <div className="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600 dark:bg-white/5 dark:outline-white/10 dark:focus-within:outline-indigo-500">
-              <div className="shrink-0 text-base text-gray-500 select-none sm:text-sm/6 dark:text-gray-400"></div>
+            <div className="ui-field-shell flex items-center rounded-md pl-3 outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2">
+              <div className="ui-text-muted shrink-0 text-base select-none sm:text-sm/6"></div>
               <input
                 id="username"
                 name="username"
@@ -56,7 +56,7 @@ export function UserEditProfileSection({
                 value={username}
                 onChange={(event) => onUsernameChange(event.target.value)}
                 placeholder="janesmith"
-                className="block min-w-0 grow bg-white py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6 dark:bg-transparent dark:text-white dark:placeholder:text-gray-500"
+                className="ui-field-input block min-w-0 grow py-1.5 pr-3 pl-1 text-base focus:outline-none sm:text-sm/6"
               />
             </div>
           </div>
@@ -65,19 +65,19 @@ export function UserEditProfileSection({
         <div className="sm:col-span-3">
           <label
             htmlFor="password"
-            className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+            className="ui-text-primary block text-sm/6 font-medium"
           >
             {isCreateMode ? "Initial password" : "Reset password"}
           </label>
 
           {isCreateMode ? (
-            <div className="mt-2 rounded-md bg-white px-3 py-2 text-sm text-gray-700 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-gray-200 dark:outline-white/10">
+            <div className="ui-field-display mt-2 rounded-md px-3 py-2 text-sm outline-1 -outline-offset-1">
               New users will start with the current default password managed in
               Admin Controls.
             </div>
           ) : (
             <>
-              <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+              <p className="ui-text-muted mb-2 text-sm">
                 Resetting a password applies the current default from Admin
                 Controls.
               </p>
@@ -96,7 +96,7 @@ export function UserEditProfileSection({
         <div className="col-span-full">
           <label
             htmlFor="photo"
-            className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+            className="ui-text-primary block text-sm/6 font-medium"
           >
             Photo
           </label>
@@ -110,12 +110,12 @@ export function UserEditProfileSection({
             ) : (
               <UserCircleIcon
                 aria-hidden="true"
-                className="size-12 text-gray-300 dark:text-gray-500"
+                className="ui-text-icon size-12"
               />
             )}
             <button
               type="button"
-              className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50 dark:bg-white/10 dark:text-white dark:shadow-none dark:inset-ring-white/5 dark:hover:bg-white/20"
+              className="ui-secondary-button rounded-md px-3 py-2 text-sm font-semibold inset-ring focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               Change
             </button>

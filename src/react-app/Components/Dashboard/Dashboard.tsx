@@ -24,40 +24,35 @@ const DASHBOARD_SECTIONS = [
     description:
       "View the current accounts, qualifications, and team access setup.",
     icon: UsersIcon,
-    accentClassName:
-      "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
+    accentClassName: "ui-pill-info",
   },
   {
     title: "Calendar",
     description:
       "Mark your day-by-day and wave-by-wave availability for scheduling.",
     icon: CalendarDaysIcon,
-    accentClassName:
-      "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300",
+    accentClassName: "ui-pill-accent",
   },
   {
     title: "Reports",
     description:
       "Review saved attendance, planning details, and recent change activity.",
     icon: ChartBarSquareIcon,
-    accentClassName:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+    accentClassName: "ui-pill-success",
   },
   {
     title: "Profile",
     description:
       "Manage your qualification comfort level, password, and profile picture.",
     icon: UserCircleIcon,
-    accentClassName:
-      "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+    accentClassName: "ui-pill-warning",
   },
   {
     title: "Feedback",
     description:
       "Share ideas, issues, and follow-up requests with the wider team.",
     icon: ChatBubbleLeftRightIcon,
-    accentClassName:
-      "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
+    accentClassName: "ui-pill-danger",
   },
 ] as const;
 
@@ -68,7 +63,7 @@ export default function Dashboard() {
     <div className="space-y-6">
       <header>
         <h1 className="ui-text-primary text-2xl font-semibold">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p className="ui-text-muted mt-1 text-sm">
           Your starting point for attendance updates, team visibility, and
           shared planning information.
         </p>
@@ -83,10 +78,10 @@ export default function Dashboard() {
         <div className="grid gap-0 lg:grid-cols-[1.5fr_1fr]">
           <div className="p-6 sm:p-8">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300">
+              <span className="ui-pill-accent rounded-full px-3 py-1 text-xs font-semibold">
                 {currentUser?.role ?? "User"}
               </span>
-              <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-white/5 dark:text-gray-300">
+              <span className="ui-pill-neutral rounded-full px-3 py-1 text-xs font-semibold">
                 Shared attendance workspace
               </span>
             </div>
@@ -100,12 +95,12 @@ export default function Dashboard() {
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-white/5">
+              <div className="ui-surface-soft rounded-lg border p-4">
                 <p className="ui-text-primary text-sm font-semibold">
                   Best experience
                 </p>
                 <div className="mt-2 flex items-start gap-3">
-                  <ComputerDesktopIcon className="mt-0.5 size-5 text-indigo-500 dark:text-indigo-300" />
+                  <ComputerDesktopIcon className="ui-icon-accent mt-0.5 size-5" />
                   <p className="ui-text-muted text-sm">
                     A desktop browser is still recommended for the clearest
                     scheduling workflow.
@@ -113,7 +108,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-white/5">
+              <div className="ui-surface-soft rounded-lg border p-4">
                 <p className="ui-text-primary text-sm font-semibold">
                   Quick reminder
                 </p>
@@ -125,18 +120,18 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="border-t border-gray-200 bg-gray-50 p-6 sm:p-8 lg:border-t-0 lg:border-l dark:border-white/10 dark:bg-white/5">
+          <div className="ui-surface-soft ui-divider-soft border-t p-6 sm:p-8 lg:border-t-0 lg:border-l">
             <h3 className="ui-text-primary text-sm font-semibold">
               Getting started
             </h3>
             <ul className="ui-text-muted mt-4 space-y-3 text-sm">
-              <li className="rounded-lg bg-white px-3 py-2 dark:bg-black/10">
+              <li className="ui-surface rounded-lg px-3 py-2">
                 1. Open Calendar and set your availability.
               </li>
-              <li className="rounded-lg bg-white px-3 py-2 dark:bg-black/10">
+              <li className="ui-surface rounded-lg px-3 py-2">
                 2. Check Reports for saved day and wave coverage.
               </li>
-              <li className="rounded-lg bg-white px-3 py-2 dark:bg-black/10">
+              <li className="ui-surface rounded-lg px-3 py-2">
                 3. Use Feedback for ideas and follow-up requests.
               </li>
             </ul>
@@ -154,7 +149,7 @@ export default function Dashboard() {
           <h2 className="ui-text-primary text-base font-semibold">
             Navigate the workspace
           </h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <p className="ui-text-muted mt-1 text-sm">
             Each section supports a different part of the planning cycle.
           </p>
         </div>
@@ -166,7 +161,7 @@ export default function Dashboard() {
             return (
               <div
                 key={section.title}
-                className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-white/5"
+                className="ui-surface-soft rounded-xl border p-4"
               >
                 <div className="flex items-start gap-3">
                   <span

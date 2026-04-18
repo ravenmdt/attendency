@@ -48,7 +48,7 @@ const layoutOptions = [
 ];
 
 const checkboxClassName =
-  "col-start-1 row-start-1 appearance-none rounded-sm border border-gray-300 bg-white checked:border-indigo-600 checked:bg-indigo-600 indeterminate:border-indigo-600 indeterminate:bg-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:checked:bg-gray-100 dark:border-white/10 dark:bg-white/5 dark:checked:border-indigo-500 dark:checked:bg-indigo-500 dark:indeterminate:border-indigo-500 dark:indeterminate:bg-indigo-500 dark:focus-visible:outline-indigo-500 dark:disabled:border-white/5 dark:disabled:bg-white/10 dark:disabled:checked:bg-white/10 forced-colors:appearance-auto";
+  "ui-checkbox-input col-start-1 row-start-1 appearance-none rounded-sm border focus-visible:outline-2 focus-visible:outline-offset-2 forced-colors:appearance-auto";
 
 export default function AdminControls() {
   const admin = useAdminControls();
@@ -74,7 +74,7 @@ export default function AdminControls() {
         </header>
 
         {!admin.canEdit ? (
-          <p className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+          <p className="ui-warning-banner rounded-lg px-4 py-3 text-sm">
             View only: only Admin users can change these project-wide settings.
           </p>
         ) : null}
@@ -98,7 +98,7 @@ export default function AdminControls() {
               The navigation uses this saved setting whenever users sign in.
             </p>
 
-            <div className="mt-4 divide-y divide-gray-200 border-t border-b border-gray-200 dark:divide-white/10 dark:border-white/10">
+            <div className="ui-divider-soft mt-4  border-t border-b">
               {roleOptions.map((role) => {
                 const isChecked =
                   role.name === "Admin"
@@ -122,7 +122,7 @@ export default function AdminControls() {
                         {role.description}
                       </p>
                       {role.locked ? (
-                        <p className="mt-1 text-xs font-medium text-amber-700 dark:text-amber-300">
+                        <p className="ui-pill-warning mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium">
                           Always enabled
                         </p>
                       ) : null}
@@ -178,7 +178,7 @@ export default function AdminControls() {
             </div>
           </fieldset>
 
-          <div className="mt-6 border-t border-gray-200 pt-6 dark:border-white/10">
+          <div className="ui-divider-soft mt-6 border-t pt-6">
             <h3 className="ui-text-primary text-sm font-semibold">
               Attendance feed rollover window
             </h3>
@@ -190,12 +190,12 @@ export default function AdminControls() {
             <div className="mt-4 max-w-xs">
               <label
                 htmlFor="attendance-feed-cutoff-days"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="ui-text-primary block text-sm/6 font-medium"
               >
                 Feed window in days
               </label>
               <div className="mt-2">
-                <div className="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600 dark:bg-white/5 dark:outline-white/10 dark:focus-within:outline-indigo-500">
+                <div className="ui-field-shell flex items-center rounded-md pl-3 outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2">
                   <input
                     id="attendance-feed-cutoff-days"
                     name="attendance-feed-cutoff-days"
@@ -223,7 +223,7 @@ export default function AdminControls() {
             </div>
           </div>
 
-          <div className="mt-6 border-t border-gray-200 pt-6 dark:border-white/10">
+          <div className="ui-divider-soft mt-6 border-t pt-6">
             <h3 className="ui-text-primary text-sm font-semibold">
               Default password
             </h3>
@@ -235,12 +235,12 @@ export default function AdminControls() {
             <div className="mt-4 max-w-xl">
               <label
                 htmlFor="default-password"
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                className="ui-text-primary block text-sm/6 font-medium"
               >
                 New default password
               </label>
               <div className="mt-2">
-                <div className="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600 dark:bg-white/5 dark:outline-white/10 dark:focus-within:outline-indigo-500">
+                <div className="ui-field-shell flex items-center rounded-md pl-3 outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2">
                   <input
                     id="default-password"
                     name="default-password"
@@ -278,7 +278,7 @@ export default function AdminControls() {
             </p>
           </div>
 
-          <div className="mt-4 divide-y divide-gray-200 border-t border-b border-gray-200 dark:divide-white/10 dark:border-white/10">
+          <div className="ui-divider-soft mt-4 border-t border-b">
             {layoutOptions.map((option) => {
               const isChecked =
                 option.id === "layout-show-day-icons"

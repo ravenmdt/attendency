@@ -49,6 +49,175 @@
     color: var(--theme-danger-text);
   }
 
+  .ui-text-icon {
+    color: var(--theme-text-icon);
+  }
+
+  .ui-surface-soft {
+    background-color: var(--theme-surface-soft);
+    border-color: var(--theme-border-subtle);
+  }
+
+  .ui-interactive-soft:hover,
+  .ui-interactive-soft:focus-within {
+    background-color: var(--theme-surface-soft);
+  }
+
+  .ui-divider-soft {
+    border-color: var(--theme-panel-divider);
+  }
+
+  .ui-warning-banner {
+    background-color: var(--theme-warning-banner-bg);
+    color: var(--theme-warning-banner-text);
+  }
+
+  .ui-pill-neutral {
+    background-color: var(--theme-badge-neutral-bg);
+    color: var(--theme-badge-neutral-text);
+  }
+
+  .ui-pill-accent {
+    background-color: var(--theme-badge-accent-bg);
+    color: var(--theme-badge-accent-text);
+  }
+
+  .ui-pill-info {
+    background-color: var(--theme-badge-info-bg);
+    color: var(--theme-badge-info-text);
+  }
+
+  .ui-pill-success {
+    background-color: var(--theme-badge-success-bg);
+    color: var(--theme-badge-success-text);
+  }
+
+  .ui-pill-warning {
+    background-color: var(--theme-badge-warning-bg);
+    color: var(--theme-badge-warning-text);
+  }
+
+  .ui-pill-danger {
+    background-color: var(--theme-badge-danger-bg);
+    color: var(--theme-badge-danger-text);
+  }
+
+  .ui-icon-accent {
+    color: var(--theme-badge-accent-text);
+  }
+
+  .ui-icon-info {
+    color: var(--theme-badge-info-text);
+  }
+
+  .ui-icon-success {
+    color: var(--theme-badge-success-text);
+  }
+
+  .ui-icon-warning {
+    color: var(--theme-badge-warning-text);
+  }
+
+  .ui-field-shell {
+    background-color: var(--theme-field-bg);
+    outline-color: var(--theme-field-border);
+  }
+  .ui-field-shell:focus-within {
+    outline-color: var(--theme-field-focus);
+  }
+
+  .ui-field-input {
+    background-color: transparent;
+    color: var(--theme-field-text);
+  }
+  .ui-field-input::placeholder {
+    color: var(--theme-field-placeholder);
+  }
+
+  .ui-field-display {
+    background-color: var(--theme-field-bg);
+    color: var(--theme-field-text);
+    outline-color: var(--theme-field-border);
+  }
+  .ui-field-display::placeholder {
+    color: var(--theme-field-placeholder);
+  }
+  .ui-field-display:focus,
+  .ui-field-display:focus-within {
+    outline-color: var(--theme-field-focus);
+  }
+
+  .ui-secondary-button {
+    background-color: var(--theme-button-secondary-bg);
+    color: var(--theme-button-secondary-text);
+    box-shadow: var(--theme-button-secondary-shadow);
+    --tw-inset-ring-color: var(--theme-button-secondary-ring);
+  }
+  .ui-secondary-button:hover {
+    background-color: var(--theme-button-secondary-bg-hover);
+  }
+  .ui-secondary-button:focus-visible {
+    outline-color: var(--theme-button-secondary-outline);
+  }
+
+  .ui-checkbox-input {
+    border-color: var(--theme-checkbox-border);
+    background-color: var(--theme-checkbox-bg);
+    --tw-outline-color: var(--theme-checkbox-focus);
+  }
+  .ui-checkbox-input:checked,
+  .ui-checkbox-input:indeterminate {
+    border-color: var(--theme-checkbox-checked-border);
+    background-color: var(--theme-checkbox-checked-bg);
+  }
+  .ui-checkbox-input:disabled {
+    border-color: var(--theme-checkbox-disabled-border);
+    background-color: var(--theme-checkbox-disabled-bg);
+  }
+
+  .ui-select-panel {
+    background-color: var(--theme-dialog-surface);
+    outline-color: var(--theme-dialog-border);
+  }
+
+  .ui-select-option {
+    color: var(--theme-field-text);
+  }
+  .ui-select-option[data-focus] {
+    background-color: var(--theme-accent-bg);
+    color: var(--theme-button-primary-text);
+  }
+
+  .ui-dialog-backdrop {
+    background-color: var(--theme-dialog-backdrop);
+  }
+
+  .ui-dialog-panel {
+    background-color: var(--theme-dialog-surface);
+    outline-color: var(--theme-dialog-border);
+  }
+
+  .ui-tooltip-panel {
+    background-color: var(--theme-dialog-surface);
+    border-color: var(--theme-dialog-border);
+    color: var(--theme-text-primary);
+  }
+
+  .ui-dialog-close {
+    color: var(--theme-dialog-close-text);
+  }
+  .ui-dialog-close:hover {
+    color: var(--theme-dialog-close-text-hover);
+  }
+
+  .ui-danger-bubble {
+    background-color: var(--theme-danger-bubble-bg);
+  }
+
+  .ui-danger-icon {
+    color: var(--theme-danger-bubble-icon);
+  }
+
   .ui-action-link {
     color: var(--theme-action-link);
   }

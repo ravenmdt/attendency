@@ -39,10 +39,8 @@ export function UserEditSettingsSection({
   return (
     <div className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
       <div>
-        <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">
-          Settings
-        </h2>
-        <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
+        <h2 className="ui-text-primary text-base/7 font-semibold">Settings</h2>
+        <p className="ui-text-muted mt-1 text-sm/6">
           Adjust these to grant different permissions to this user or adjust
           their preferred SIM control level of difficulty for scheduling
           purposes.
@@ -53,7 +51,7 @@ export function UserEditSettingsSection({
         <div className="sm:col-span-4">
           <label
             htmlFor="qualification"
-            className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+            className="ui-text-primary block text-sm/6 font-medium"
           >
             Qualification
           </label>
@@ -94,8 +92,8 @@ export function UserEditSettingsSection({
                           className={classNames(
                             "inline-block size-2 shrink-0 rounded-full",
                             selectedQualification?.id === option.id
-                              ? "bg-green-400 dark:bg-green-500"
-                              : "bg-gray-200 dark:bg-white/20",
+                              ? "ui-pill-success"
+                              : "ui-pill-neutral",
                           )}
                           aria-hidden="true"
                         />
@@ -114,7 +112,7 @@ export function UserEditSettingsSection({
         <div className="sm:col-span-3">
           <label
             htmlFor="role"
-            className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+            className="ui-text-primary block text-sm/6 font-medium"
           >
             Role
           </label>
@@ -151,8 +149,8 @@ export function UserEditSettingsSection({
                           className={classNames(
                             "inline-block size-2 shrink-0 rounded-full",
                             selectedRole?.id === option.id
-                              ? "bg-green-400 dark:bg-green-500"
-                              : "bg-gray-200 dark:bg-white/20",
+                              ? "ui-pill-success"
+                              : "ui-pill-neutral",
                           )}
                           aria-hidden="true"
                         />

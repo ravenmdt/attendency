@@ -24,10 +24,7 @@ type CalendarDayCellProps = {
   onToggle: (date: string, wave: AvailabilityWave) => void;
   // Optional handlers used for admin-only calendar_info multi-select behavior.
   isMultiSelected?: boolean;
-  onDayClick?: (
-    date: string,
-    event: React.MouseEvent<HTMLDivElement>,
-  ) => void;
+  onDayClick?: (date: string, event: React.MouseEvent<HTMLDivElement>) => void;
   onDayContextMenu?: (
     date: string,
     event: React.MouseEvent<HTMLDivElement>,

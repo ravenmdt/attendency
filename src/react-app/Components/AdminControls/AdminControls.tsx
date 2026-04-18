@@ -94,7 +94,9 @@ export default function AdminControls() {
             <div className="mt-4 divide-y divide-gray-200 border-t border-b border-gray-200 dark:divide-white/10 dark:border-white/10">
               {roleOptions.map((role) => {
                 const isChecked =
-                  role.name === "Admin" ? true : admin.allowUserRoleAdminControls;
+                  role.name === "Admin"
+                    ? true
+                    : admin.allowUserRoleAdminControls;
                 const isDisabled =
                   role.locked || !admin.canEdit || admin.isSaving;
 

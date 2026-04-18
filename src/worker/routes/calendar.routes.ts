@@ -50,12 +50,19 @@ export function registerCalendarRoutes(app: Hono<AppEnv>) {
 		const db = c.env.DB;
 		if (!db) return c.json({ ok: false, error: "D1 binding DB is not configured" }, 500);
 
-		const userId = c.get("authUserId");
-
 		try {
 			const result = await db
 				.prepare(
-					`SELECT
+					`WITH shared_info AS (
+						SELECT
+							ci.*,
+							ROW_NUMBER() OVER (
+								PARTITION BY ci.date
+								ORDER BY COALESCE(ci.updated_at, ci.created_at, 0) DESC, ci.user_id ASC
+							) AS row_number
+						FROM calendar_info ci
+					)
+					SELECT
 						ci.date AS date,
 						ci.nights AS nights,
 						ci.priority AS priority,
@@ -64,22 +71,30 @@ export function registerCalendarRoutes(app: Hono<AppEnv>) {
 						created_by.name AS createdByName,
 						COALESCE(ci.updated_at, ci.created_at) AS updatedAt,
 						COALESCE(updated_by.name, created_by.name) AS updatedByName
-					 FROM calendar_info ci
-					 LEFT JOIN users created_by
+					FROM shared_info ci
+					LEFT JOIN users created_by
 						ON created_by.user_id = COALESCE(ci.created_by_user_id, ci.user_id)
-					 LEFT JOIN users updated_by
+					LEFT JOIN users updated_by
 						ON updated_by.user_id = COALESCE(ci.updated_by_user_id, ci.user_id)
-					 WHERE ci.user_id = ?1
-					 ORDER BY ci.date ASC`
+					WHERE ci.row_number = 1
+					ORDER BY ci.date ASC`
 				)
-				.bind(userId)
 				.all<CalendarInfoApiRow>();
 
 			return c.json({ ok: true, rows: result.results });
 		} catch {
 			const fallbackResult = await db
 				.prepare(
-					`SELECT
+					`WITH shared_info AS (
+						SELECT
+							ci.*,
+							ROW_NUMBER() OVER (
+								PARTITION BY ci.date
+								ORDER BY ci.user_id ASC
+							) AS row_number
+						FROM calendar_info ci
+					)
+					SELECT
 						ci.date AS date,
 						ci.nights AS nights,
 						ci.priority AS priority,
@@ -88,12 +103,11 @@ export function registerCalendarRoutes(app: Hono<AppEnv>) {
 						owner.name AS createdByName,
 						NULL AS updatedAt,
 						owner.name AS updatedByName
-					 FROM calendar_info ci
-					 LEFT JOIN users owner ON owner.user_id = ci.user_id
-					 WHERE ci.user_id = ?1
-					 ORDER BY ci.date ASC`
+					FROM shared_info ci
+					LEFT JOIN users owner ON owner.user_id = ci.user_id
+					WHERE ci.row_number = 1
+					ORDER BY ci.date ASC`
 				)
-				.bind(userId)
 				.all<CalendarInfoApiRow>();
 
 			return c.json({ ok: true, rows: fallbackResult.results });
@@ -176,7 +190,7 @@ export function registerCalendarRoutes(app: Hono<AppEnv>) {
 		}
 
 		const allowedTypes = new Set<CalendarInfoType>(["PTT", "ACT"]);
-		const userId = c.get("authUserId");
+		const actorUserId = c.get("authUserId");
 		const nowMs = Date.now();
 		const auditStatements: D1PreparedStatement[] = [];
 		const fallbackStatements: D1PreparedStatement[] = [];
@@ -204,29 +218,81 @@ export function registerCalendarRoutes(app: Hono<AppEnv>) {
 				type: normalizedType,
 			};
 
+			const existingRow = await db
+				.prepare(
+					"SELECT user_id AS userId FROM calendar_info WHERE date = ?1 ORDER BY user_id ASC LIMIT 1"
+				)
+				.bind(safeChange.date)
+				.first<{ userId: number }>();
+
+			const ownerUserId = existingRow?.userId ?? actorUserId;
+
 			auditStatements.push(
-				db
-					.prepare(
-						"INSERT INTO calendar_info (user_id, date, nights, priority, type, created_at, created_by_user_id, updated_at, updated_by_user_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?6, ?7) ON CONFLICT(user_id, date) DO UPDATE SET nights = excluded.nights, priority = excluded.priority, type = excluded.type, updated_at = excluded.updated_at, updated_by_user_id = excluded.updated_by_user_id"
-					)
-					.bind(
-						userId,
-						safeChange.date,
-						safeChange.nights,
-						safeChange.priority,
-						safeChange.type,
-						nowMs,
-						userId,
-					)
+				db.prepare("DELETE FROM calendar_info WHERE date = ?1 AND user_id <> ?2").bind(safeChange.date, ownerUserId)
+			);
+			fallbackStatements.push(
+				db.prepare("DELETE FROM calendar_info WHERE date = ?1 AND user_id <> ?2").bind(safeChange.date, ownerUserId)
 			);
 
-			fallbackStatements.push(
-				db
-					.prepare(
-						"INSERT INTO calendar_info (user_id, date, nights, priority, type) VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT(user_id, date) DO UPDATE SET nights = excluded.nights, priority = excluded.priority, type = excluded.type"
-					)
-					.bind(userId, safeChange.date, safeChange.nights, safeChange.priority, safeChange.type)
-			);
+			if (existingRow) {
+				auditStatements.push(
+					db
+						.prepare(
+							"UPDATE calendar_info SET nights = ?1, priority = ?2, type = ?3, updated_at = ?4, updated_by_user_id = ?5 WHERE user_id = ?6 AND date = ?7"
+						)
+						.bind(
+							safeChange.nights,
+							safeChange.priority,
+							safeChange.type,
+							nowMs,
+							actorUserId,
+							ownerUserId,
+							safeChange.date,
+						)
+				);
+
+				fallbackStatements.push(
+					db
+						.prepare(
+							"UPDATE calendar_info SET nights = ?1, priority = ?2, type = ?3 WHERE user_id = ?4 AND date = ?5"
+						)
+						.bind(
+							safeChange.nights,
+							safeChange.priority,
+							safeChange.type,
+							ownerUserId,
+							safeChange.date,
+						)
+				);
+			} else {
+				auditStatements.push(
+					db
+						.prepare(
+							"INSERT INTO calendar_info (user_id, date, nights, priority, type, created_at, created_by_user_id, updated_at, updated_by_user_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?6, ?7)"
+						)
+						.bind(
+							actorUserId,
+							safeChange.date,
+							safeChange.nights,
+							safeChange.priority,
+							safeChange.type,
+							nowMs,
+							actorUserId,
+						)
+				);
+
+				fallbackStatements.push(
+					db
+						.prepare("INSERT INTO calendar_info (user_id, date, nights, priority, type) VALUES (?1, ?2, ?3, ?4, ?5)")
+						.bind(
+							actorUserId,
+							safeChange.date,
+							safeChange.nights,
+							safeChange.priority,
+							safeChange.type,
+						)
+				);
+			}
 		}
 
 		if (auditStatements.length > 0) {
@@ -263,7 +329,6 @@ export function registerCalendarRoutes(app: Hono<AppEnv>) {
 			return c.json({ ok: false, error: "Maximum 100 dates are allowed per request" }, 400);
 		}
 
-		const userId = c.get("authUserId");
 		const uniqueDates = [...new Set(payload.dates)];
 		const statements: D1PreparedStatement[] = [];
 
@@ -272,11 +337,7 @@ export function registerCalendarRoutes(app: Hono<AppEnv>) {
 				return c.json({ ok: false, error: "Invalid date entry in payload" }, 400);
 			}
 
-			statements.push(
-				db
-					.prepare("DELETE FROM calendar_info WHERE user_id = ?1 AND date = ?2")
-					.bind(userId, date)
-			);
+			statements.push(db.prepare("DELETE FROM calendar_info WHERE date = ?1").bind(date));
 		}
 
 		if (statements.length > 0) {

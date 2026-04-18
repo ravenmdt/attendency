@@ -76,18 +76,20 @@ export default function Reports() {
 
       {error ? <p className="ui-danger-text text-sm">{error}</p> : null}
 
-      <div className="md:grid md:grid-cols-2 md:gap-0">
-        <ReportsMonthCalendar
-          selectedDate={selectedDate}
-          visibleMonth={visibleMonth}
-          availabilityByDate={availabilityByDate}
-          onSelectDate={setSelectedDate}
-          onPreviousMonth={() => showMonth(-1)}
-          onNextMonth={() => showMonth(1)}
-          onGoToToday={goToToday}
-        />
+      <div className="md:grid md:grid-cols-2 md:items-start md:gap-0">
+        <div className="md:self-start">
+          <ReportsMonthCalendar
+            selectedDate={selectedDate}
+            visibleMonth={visibleMonth}
+            availabilityByDate={availabilityByDate}
+            onSelectDate={setSelectedDate}
+            onPreviousMonth={() => showMonth(-1)}
+            onNextMonth={() => showMonth(1)}
+            onGoToToday={goToToday}
+          />
+        </div>
 
-        <section className="mt-6 space-y-4 md:mt-0 md:pl-6">
+        <section className="mt-6 space-y-4 md:mt-0 md:self-start md:pl-6">
           <div className="ui-surface ui-border rounded-xl border p-5 sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>

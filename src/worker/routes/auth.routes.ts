@@ -54,7 +54,9 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 
 		const user = await db
 			.prepare(
-				"SELECT user_id, name, role, image_url AS imageUrl, password_hash, password_salt, password_iterations, password_algo FROM users WHERE name = ?1"
+				// COLLATE NOCASE makes login username matching case-insensitive.
+				// Example: "sniff", "Sniff", and "SNIFF" all map to the same account.
+				"SELECT user_id, name, role, image_url AS imageUrl, password_hash, password_salt, password_iterations, password_algo FROM users WHERE name = ?1 COLLATE NOCASE"
 			)
 			.bind(username)
 			.first<UserAuthRow>();

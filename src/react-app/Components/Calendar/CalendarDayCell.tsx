@@ -21,6 +21,16 @@ type CalendarDayCellProps = {
   wave1: AvailabilityValue;
   // Called when the user clicks a wave bar to cycle its state.
   onToggle: (date: string, wave: AvailabilityWave) => void;
+  // Optional handlers used for admin-only calendar_info multi-select behavior.
+  isMultiSelected?: boolean;
+  onDayClick?: (
+    date: string,
+    event: React.MouseEvent<HTMLDivElement>,
+  ) => void;
+  onDayContextMenu?: (
+    date: string,
+    event: React.MouseEvent<HTMLDivElement>,
+  ) => void;
 };
 
 export function CalendarDayCell({
@@ -29,6 +39,9 @@ export function CalendarDayCell({
   wave0,
   wave1,
   onToggle,
+  isMultiSelected = false,
+  onDayClick,
+  onDayContextMenu,
 }: CalendarDayCellProps) {
   // Strip the leading zero from the day number ("08" → "8") for compact display.
   const dayNumber = day.date.split("-")[2].replace(/^0/, "");
@@ -39,7 +52,10 @@ export function CalendarDayCell({
     <div
       data-is-today={day.isToday ? "" : undefined}
       data-is-current-month={day.isCurrentMonth ? "" : undefined}
-      className="group relative ui-calendar-day-cell px-3 py-2"
+      data-is-multi-selected={isMultiSelected ? "" : undefined}
+      onClick={(event) => onDayClick?.(day.date, event)}
+      onContextMenu={(event) => onDayContextMenu?.(day.date, event)}
+      className="group relative ui-calendar-day-cell px-3 py-2 data-is-multi-selected:outline-2 data-is-multi-selected:outline-indigo-500 data-is-multi-selected:-outline-offset-2"
     >
       {/* Date number in the top-left corner. Today's date gets an indigo circle. */}
       <time
@@ -79,14 +95,20 @@ export function CalendarDayCell({
         <div className="flex-1 flex flex-col gap-1 pt-0.5">
           <button
             type="button"
-            onClick={() => onToggle(day.date, 0)}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggle(day.date, 0);
+            }}
             aria-label={`Toggle wave 0 availability for ${day.date}`}
             title="Wave 0"
             className={`h-4 w-full rounded-sm ${availabilityColorClass(wave0)}`}
           />
           <button
             type="button"
-            onClick={() => onToggle(day.date, 1)}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggle(day.date, 1);
+            }}
             aria-label={`Toggle wave 1 availability for ${day.date}`}
             title="Wave 1"
             className={`h-4 w-full rounded-sm ${availabilityColorClass(wave1)}`}

@@ -51,7 +51,9 @@ export function registerReportsRoutes(app: Hono<AppEnv>) {
           u.user_id AS userId,
           u.name AS name,
           u.qualification AS qualification,
-          u.image_url AS imageUrl
+          u.image_url AS imageUrl,
+          -- Include special_instructions so the Reports panel can show a tooltip.
+          u.special_instructions AS specialInstructions
         FROM availability a
         INNER JOIN users u ON u.user_id = a.user_id
         WHERE a.date >= ?1

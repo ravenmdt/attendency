@@ -25,8 +25,10 @@ export default function UserProfile() {
           username={profile.username}
           qualification={profile.qualification}
           roleLabel={profile.roleLabel}
+          specialInstructions={profile.specialInstructions}
           onUsernameChange={profile.setUsername}
           onQualificationChange={profile.setQualification}
+          onSpecialInstructionsChange={profile.setSpecialInstructions}
         />
 
         <UserProfilePasswordSection

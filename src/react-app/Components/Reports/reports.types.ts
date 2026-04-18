@@ -10,6 +10,8 @@ export type ReportUserEntry = {
   qualification: UserQualification;
   imageUrl: string | null;
   availabilityStatus: ReportAvailabilityStatus;
+  // Nullable because users are not required to set special instructions.
+  specialInstructions: string | null;
 };
 
 export type ReportDayWaveGroups = {

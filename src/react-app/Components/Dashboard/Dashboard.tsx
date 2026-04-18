@@ -66,27 +66,7 @@ export default function Dashboard() {
                 </li>
               </ul>
               <p className="mt-8 text-xl font-medium text-pretty text-gray-500 sm:text-xl/8 dark:text-gray-400">
-                Features to follow include:
-                <ul className="ui-text-muted mt-2 ml-4 list-disc">
-                  <li>Feedback section</li>
-                  <li>
-                    A single "Specials" text box in your profile section for
-                    each user such that on the reports OPS can view in the
-                    reports section. You can update the text at any time to keep
-                    it up to date as required.
-                  </li>
-                  <li>Improved layout</li>
-                  <li>
-                    Improved mobile support such that calendar works properly on
-                    small screens
-                  </li>
-                  <li>
-                    Add a jaarplan to calendar data link such that on the
-                    calendar all users can see if the weeks ahead are
-                    nightflying weeks, have a higher priority due to
-                    understaffing of SQN SIM operators or are ACT/PTT weeks.
-                  </li>
-                </ul>
+                Features to follow are now listed in the feedback section
               </p>
             </p>
           </div>

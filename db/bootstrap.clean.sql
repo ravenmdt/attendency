@@ -17,14 +17,20 @@ DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS availability;
 DROP TABLE IF EXISTS calendar_info;
 DROP TABLE IF EXISTS admin_settings;
+DROP TABLE IF EXISTS feedback;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
   user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL UNIQUE,
+  -- Username uniqueness is case-insensitive by convention.
+  -- This prevents separate accounts like "Sniff" and "sniff".
+  name TEXT NOT NULL COLLATE NOCASE UNIQUE,
   qualification TEXT NOT NULL DEFAULT 'NONE' CHECK (qualification IN ('NONE', 'PTT', 'ACT', 'PTT TO ACT')),
   role TEXT NOT NULL DEFAULT 'User' CHECK (role IN ('User', 'Admin')),
   image_url TEXT,
+  -- Free-text notes the user writes about themselves (e.g. shift caveats).
+  -- Shown as a hover tooltip in the Reports view. NULL means no notes set.
+  special_instructions TEXT,
   last_login_at INTEGER,
   password_hash TEXT NOT NULL,
   password_salt TEXT NOT NULL,
@@ -67,7 +73,7 @@ CREATE TABLE calendar_info (
   date TEXT NOT NULL,
   nights INTEGER NOT NULL CHECK (nights IN (0, 1)),
   priority INTEGER NOT NULL CHECK (priority IN (0, 1)),
-  type TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('PTT', 'ACT')),
   created_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000),
   created_by_user_id INTEGER,
   updated_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000),
@@ -86,6 +92,17 @@ CREATE TABLE availability (
   PRIMARY KEY (user_id, date, wave),
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
+
+CREATE TABLE feedback (
+  feedback_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id     INTEGER NOT NULL,
+  text        TEXT NOT NULL,
+  created_at  INTEGER NOT NULL,
+  accepted    INTEGER NOT NULL DEFAULT 0 CHECK (accepted IN (0, 1)),
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_feedback_created_at ON feedback(created_at);
 
 -- Seed one clean admin account.
 -- Plaintext password = test

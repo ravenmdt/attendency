@@ -50,6 +50,8 @@ type SaveCurrentUserProfileRequest = {
 	currentPassword?: string;
 	newPassword?: string;
 	confirmNewPassword?: string;
+	// Free-text notes the user wants to save. Empty string means clear.
+	specialInstructions?: string;
 };
 
 function parseUserId(rawValue: string): number | null {
@@ -105,8 +107,10 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 		const db = c.env.DB;
 		if (!db) return c.json({ ok: false, error: "D1 binding DB is not configured" }, 500);
 
-		const nowMs = Date.now();
 		const currentUserId = c.get("authUserId");
+		const nowMs = Date.now();
+		// 10 minutes expressed in milliseconds — used to determine who is "online".
+		const onlineWindowMs = 10 * 60 * 1000;
 		const result = await db
 			.prepare(
 				`SELECT
@@ -116,18 +120,45 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 					u.role AS role,
 					u.image_url AS imageUrl,
 					u.last_login_at AS lastLoginAt,
+					-- A user is considered "online" if they have any active session
+					-- where their last API activity was within the past 10 minutes.
+					-- This is more accurate than checking session expiry alone,
+					-- which can stay valid for hours even after the user has left.
 					CASE
 						WHEN EXISTS (
-							SELECT 1
-							FROM sessions s
-							WHERE s.user_id = u.user_id AND s.expires_at > ?1
+							SELECT 1 FROM sessions s
+							WHERE s.user_id = u.user_id
+							  AND s.expires_at > ?1
+							  AND s.last_seen_at > ?2
 						) THEN 1
 						ELSE 0
 					END AS isOnline
 				FROM users u
-				ORDER BY CASE WHEN u.user_id = ?2 THEN 0 ELSE 1 END, LOWER(u.name) ASC`
+				ORDER BY
+					-- 1. Keep the currently signed-in user pinned to the top.
+					CASE WHEN u.user_id = ?3 THEN 0 ELSE 1 END,
+					-- 2. Online users before offline users.
+					--    We repeat the same CASE as the isOnline column because SQLite
+					--    does not allow ORDER BY to reference a SELECT alias directly.
+					CASE
+						WHEN EXISTS (
+							SELECT 1 FROM sessions s
+							WHERE s.user_id = u.user_id
+							  AND s.expires_at > ?1
+							  AND s.last_seen_at > ?2
+						) THEN 0
+						ELSE 1
+					END,
+					-- 3. Within each online/offline group, Admin users before User users.
+					CASE WHEN u.role = 'Admin' THEN 0 ELSE 1 END,
+					-- 4. Within each role group, sort names alphabetically.
+					LOWER(u.name) ASC`
 			)
-			.bind(nowMs, currentUserId)
+			.bind(
+				nowMs,                      // ?1 — current time, used to filter out expired sessions
+				nowMs - onlineWindowMs,     // ?2 — 10 minutes ago, the cutoff for "recently active"
+				currentUserId,              // ?3 — pinned user at the top of the list
+			)
 			.all<UserListDbRow>();
 
 		const rows: UserListApiRow[] = result.results.map(mapUserRow);
@@ -220,7 +251,17 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 			return c.json({ ok: false, error: "User not found" }, 404);
 		}
 
-		return c.json({ ok: true, user: mapUserRow(row) });
+		// Fetch special_instructions separately so we don't need to change the
+		// shared getUserById query (which is also used by the admin user list).
+		const instrRow = await db
+			.prepare("SELECT special_instructions AS specialInstructions FROM users WHERE user_id = ?1")
+			.bind(authUserId)
+			.first<{ specialInstructions: string | null }>();
+
+		return c.json({
+			ok: true,
+			user: { ...mapUserRow(row), specialInstructions: instrRow?.specialInstructions ?? null },
+		});
 	});
 
 	app.post("/api/users/me", async (c) => {
@@ -352,10 +393,17 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 		}
 
 		try {
+			// Sanitize special instructions: trim whitespace, treat blank as null.
+			const nextSpecialInstructions =
+				typeof payload.specialInstructions === "string" &&
+				payload.specialInstructions.trim().length > 0
+					? payload.specialInstructions.trim()
+					: null;
+
 			if (wantsPasswordChange && nextPasswordHash && nextPasswordSalt && nextPasswordIterations) {
 				await db
 					.prepare(
-						"UPDATE users SET name = ?1, qualification = ?2, image_url = ?3, password_hash = ?4, password_salt = ?5, password_iterations = ?6, password_algo = ?7 WHERE user_id = ?8"
+						"UPDATE users SET name = ?1, qualification = ?2, image_url = ?3, password_hash = ?4, password_salt = ?5, password_iterations = ?6, password_algo = ?7, special_instructions = ?8 WHERE user_id = ?9"
 					)
 					.bind(
 						normalizedName,
@@ -365,13 +413,14 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 						nextPasswordSalt,
 						nextPasswordIterations,
 						nextPasswordAlgo,
+						nextSpecialInstructions,
 						authUserId
 					)
 					.run();
 			} else {
 				await db
-					.prepare("UPDATE users SET name = ?1, qualification = ?2, image_url = ?3 WHERE user_id = ?4")
-					.bind(normalizedName, nextQualification, nextStoredImageValue, authUserId)
+					.prepare("UPDATE users SET name = ?1, qualification = ?2, image_url = ?3, special_instructions = ?4 WHERE user_id = ?5")
+					.bind(normalizedName, nextQualification, nextStoredImageValue, nextSpecialInstructions, authUserId)
 					.run();
 			}
 		} catch (error) {
@@ -391,7 +440,19 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 			return c.json({ ok: false, error: "User not found" }, 404);
 		}
 
-		return c.json({ ok: true, user: mapUserRow(updatedRow) });
+		// Fetch the updated special_instructions to include in the response.
+		const updatedInstrRow = await db
+			.prepare("SELECT special_instructions AS specialInstructions FROM users WHERE user_id = ?1")
+			.bind(authUserId)
+			.first<{ specialInstructions: string | null }>();
+
+		return c.json({
+			ok: true,
+			user: {
+				...mapUserRow(updatedRow),
+				specialInstructions: updatedInstrRow?.specialInstructions ?? null,
+			},
+		});
 	});
 
 	app.get("/api/users/:id/photo", async (c) => {

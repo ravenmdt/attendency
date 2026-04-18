@@ -6,6 +6,8 @@ import type {
   ApiResponse,
   AvailabilityApiRow,
   CalendarInfoApiRow,
+  CalendarInfoSaveRequest,
+  CalendarInfoSaveChange,
 } from '../../../shared/calendar.types'
 
 // ─── API response shapes ───────────────────────────────────────────────────────
@@ -22,7 +24,7 @@ import type {
 //   3. Expose `applyChanges` so Calendar.tsx can merge saved edits back into the
 //      baseline without needing direct access to `setBaselineAvailability`.
 export function useCalendarData() {
-  const { authenticatedFetch } = useAuth()
+  const { authenticatedFetch, currentUser } = useAuth()
 
   // The "ground truth" availability from D1. Updated after each successful save.
   // Key = "YYYY-MM-DD|wave", value = true/false.
@@ -82,7 +84,7 @@ export function useCalendarData() {
       })
       .catch((err) => console.error('Failed to load calendar data:', err))
       .finally(() => setIsLoading(false))
-  }, [])
+  }, [authenticatedFetch])
 
   // Merges a batch of just-saved overrides back into the baseline.
   // Called by Calendar.tsx after a successful POST to /api/availability/save
@@ -102,5 +104,57 @@ export function useCalendarData() {
     })
   }
 
-  return { baselineAvailability, calendarInfoMap, isLoading, applyChanges }
+  // Merges calendar_info changes into local state after a successful save so the
+  // UI immediately reflects the latest server-persisted values.
+  function applyCalendarInfoChanges(changes: CalendarInfoSaveChange[]) {
+    setCalendarInfoMap((current) => {
+      const next = new Map(current)
+      const nowMs = Date.now()
+
+      for (const change of changes) {
+        const existing = next.get(change.date)
+
+        next.set(change.date, {
+          date: change.date,
+          nights: change.nights === 1,
+          priority: change.priority === 1,
+          type: change.type,
+          createdAt: existing?.createdAt ?? nowMs,
+          createdByName: existing?.createdByName ?? currentUser?.name ?? null,
+          updatedAt: nowMs,
+          updatedByName:
+            currentUser?.name ?? existing?.updatedByName ?? existing?.createdByName ?? null,
+        })
+      }
+      return next
+    })
+  }
+
+  // Saves calendar_info rows in one request and updates local state only after
+  // the backend confirms the write succeeded.
+  async function saveCalendarInfoChanges(changes: CalendarInfoSaveChange[]) {
+    if (changes.length === 0) return { ok: true as const }
+
+    const response = await authenticatedFetch('/api/calendar-info/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ changes } as CalendarInfoSaveRequest),
+    })
+
+    if (!response.ok) {
+      const message = await response.text()
+      throw new Error(message || 'Failed to save calendar info')
+    }
+
+    applyCalendarInfoChanges(changes)
+    return { ok: true as const }
+  }
+
+  return {
+    baselineAvailability,
+    calendarInfoMap,
+    isLoading,
+    applyChanges,
+    saveCalendarInfoChanges,
+  }
 }

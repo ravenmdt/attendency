@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AdminControls from "../Components/AdminControls/AdminControls";
 import Calendar from "../Components/Calendar/Calendar";
 import Dashboard from "../Components/Dashboard/Dashboard";
+import Feedback from "../Components/Feedback/Feedback";
 import NavDesktopSidebar from "../Components/Nav/NavDesktopSidebar";
 import NavMobileSidebar from "../Components/Nav/NavMobileSidebar";
 import NavTopBar from "../Components/Nav/NavTopBar";
@@ -132,8 +133,8 @@ export default function Example() {
           </p>
         );
 
-      case "Documents":
-        return <div>Documents content</div>;
+      case "Feedback":
+        return <Feedback />;
 
       case "Reports":
         return <Reports />;

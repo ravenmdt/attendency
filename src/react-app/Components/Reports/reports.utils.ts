@@ -46,6 +46,8 @@ export function buildReportsAvailabilityMap(
       qualification: row.qualification,
       imageUrl: row.imageUrl,
       availabilityStatus: row.available === 1 ? "available" : "partial",
+      // Pass through special instructions so the wave panel can show a tooltip.
+      specialInstructions: row.specialInstructions ?? null,
     });
 
     grouped.set(row.date, currentDay);

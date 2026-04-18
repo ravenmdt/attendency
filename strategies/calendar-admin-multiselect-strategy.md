@@ -16,6 +16,7 @@ Implement admin-only multi-day selection on the calendar page with a custom cont
 
 ## Interaction Model
 
+-
 - Desktop:
   - Single click selects one day.
   - Ctrl/Cmd click toggles individual day selection.

@@ -12,7 +12,14 @@
 //   3. When the real backend is ready, only the `login` and `logout` functions
 //      below need to be updated — everything else stays the same.
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import type {
   AuthPermissions,
   AuthUser,
@@ -100,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
   }, []);
 
-  function handleUnauthorized() {
+  const handleUnauthorized = useCallback(() => {
     setIsAuthenticated(false);
     setCurrentUser(null);
     setCanAccessAdminControls(false);
@@ -114,28 +121,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     ) {
       window.location.replace("/login");
     }
-  }
+  }, []);
 
-  async function authenticatedFetch(
-    input: RequestInfo | URL,
-    init?: RequestInit,
-  ) {
-    const response = await fetch(input, {
-      credentials: "same-origin",
-      ...init,
-    });
+  const authenticatedFetch = useCallback(
+    async (input: RequestInfo | URL, init?: RequestInit) => {
+      const response = await fetch(input, {
+        credentials: "same-origin",
+        ...init,
+      });
 
-    if (response.status === 401) {
-      handleUnauthorized();
-    }
+      if (response.status === 401) {
+        handleUnauthorized();
+      }
 
-    return response;
-  }
+      return response;
+    },
+    [handleUnauthorized],
+  );
 
   // Sends credentials to the backend login endpoint.
   // If the backend accepts them, it sets an HttpOnly session cookie and we
   // mark the frontend auth state as true.
-  async function login(username: string, password: string) {
+  const login = useCallback(async (username: string, password: string) => {
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -174,10 +181,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setShowNightIcons(true);
       return { ok: false as const, error: "Network error while signing in" };
     }
-  }
+  }, []);
 
   // Logs out from the backend and clears local auth state regardless of API result.
-  async function logout() {
+  const logout = useCallback(async () => {
     try {
       await fetch("/api/auth/logout", {
         method: "POST",
@@ -191,44 +198,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setCanAccessAdminControls(false);
     setShowDayIcons(true);
     setShowNightIcons(true);
-  }
+  }, []);
 
-  function updateCurrentUser(user: AuthUser) {
+  const updateCurrentUser = useCallback((user: AuthUser) => {
     setCurrentUser(user);
-  }
+  }, []);
 
-  function updatePermissions(permissions: Partial<AuthPermissions>) {
-    if (typeof permissions.canAccessAdminControls === "boolean") {
-      setCanAccessAdminControls(permissions.canAccessAdminControls);
-    }
-    if (typeof permissions.showDayIcons === "boolean") {
-      setShowDayIcons(permissions.showDayIcons);
-    }
-    if (typeof permissions.showNightIcons === "boolean") {
-      setShowNightIcons(permissions.showNightIcons);
-    }
-  }
+  const updatePermissions = useCallback(
+    (permissions: Partial<AuthPermissions>) => {
+      if (typeof permissions.canAccessAdminControls === "boolean") {
+        setCanAccessAdminControls(permissions.canAccessAdminControls);
+      }
+      if (typeof permissions.showDayIcons === "boolean") {
+        setShowDayIcons(permissions.showDayIcons);
+      }
+      if (typeof permissions.showNightIcons === "boolean") {
+        setShowNightIcons(permissions.showNightIcons);
+      }
+    },
+    [],
+  );
 
-  // The Provider makes `isAuthenticated`, `login`, and `logout` available
-  // to every component nested inside it.
+  const contextValue = useMemo(
+    () => ({
+      isAuthenticated,
+      isCheckingSession,
+      currentUser,
+      canAccessAdminControls,
+      showDayIcons,
+      showNightIcons,
+      login,
+      logout,
+      authenticatedFetch,
+      updateCurrentUser,
+      updatePermissions,
+    }),
+    [
+      authenticatedFetch,
+      canAccessAdminControls,
+      currentUser,
+      isAuthenticated,
+      isCheckingSession,
+      login,
+      logout,
+      showDayIcons,
+      showNightIcons,
+      updateCurrentUser,
+      updatePermissions,
+    ],
+  );
+
+  // The Provider makes auth state and helpers available to every nested screen.
   return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        isCheckingSession,
-        currentUser,
-        canAccessAdminControls,
-        showDayIcons,
-        showNightIcons,
-        login,
-        logout,
-        authenticatedFetch,
-        updateCurrentUser,
-        updatePermissions,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 }
 
@@ -237,6 +259,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 // useAuth() is the friendly way to read the auth context from any component.
 // Example usage inside a component:
 //   const { isAuthenticated, login, logout } = useAuth()
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
 

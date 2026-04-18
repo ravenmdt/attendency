@@ -1,8 +1,8 @@
 {
 	"name": "attendency",
-	"description": "A template for building a React application with Vite, Hono, and Cloudflare Workers",
+	"description": "Attendance planning and reporting app built with React, Hono, and Cloudflare Workers",
 	"cloudflare": {
-		"label": "Vite React Template",
+		"label": "Attendency",
 		"products": [
 			"Workers"
 		],

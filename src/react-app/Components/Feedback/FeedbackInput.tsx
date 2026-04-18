@@ -35,14 +35,15 @@ export default function FeedbackInput({
   const isEmpty = value.trim().length === 0;
 
   return (
-    <div className="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3 dark:border-white/10">
+    <div className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
       {/* ── Left description column (mirrors the two-col layout used in settings) */}
       <div>
         <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white">
           Share Feedback
         </h2>
         <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-400">
-          Your feedback is visible to everyone. Use Ctrl+Enter to submit quickly.
+          Your feedback is visible to everyone. Use Ctrl+Enter to submit
+          quickly.
         </p>
       </div>
 

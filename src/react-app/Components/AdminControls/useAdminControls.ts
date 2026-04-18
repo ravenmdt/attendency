@@ -87,7 +87,7 @@ export function useAdminControls() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [authenticatedFetch]);
 
   async function handleSave(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

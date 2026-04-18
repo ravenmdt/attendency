@@ -68,27 +68,27 @@ export default function UserList({ onEditUser, onAddUser }: UserListProps) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [authenticatedFetch]);
 
   if (isLoading) {
     return (
-      <p className="ui-user-list-meta px-4 py-5 text-sm sm:px-6 lg:px-8">
-        Loading users...
-      </p>
+      <section className="ui-surface ui-border rounded-xl border p-5 text-sm sm:p-6">
+        <p className="ui-user-list-meta">Loading users...</p>
+      </section>
     );
   }
 
   if (error) {
     return (
-      <p className="ui-danger-text px-4 py-5 text-sm sm:px-6 lg:px-8">
-        {error}
-      </p>
+      <section className="ui-surface ui-border rounded-xl border p-5 text-sm sm:p-6">
+        <p className="ui-danger-text">{error}</p>
+      </section>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+    <section className="ui-surface ui-border overflow-hidden rounded-xl border">
+      <div className="flex items-center justify-between gap-4 px-5 py-5 sm:px-6">
         <div>
           <h2 className="ui-user-list-name text-base/7 font-semibold">
             Team users
@@ -186,6 +186,6 @@ export default function UserList({ onEditUser, onAddUser }: UserListProps) {
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }

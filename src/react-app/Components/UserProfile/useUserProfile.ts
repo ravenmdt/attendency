@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../Auth/AuthContext";
 import { resizeProfileImageFile } from "./profileImage.utils";
 import type {
@@ -26,11 +26,7 @@ export function useUserProfile() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
-  useEffect(() => {
-    void loadProfile();
-  }, []);
-
-  async function loadProfile() {
+  const loadProfile = useCallback(async () => {
     try {
       setIsLoading(true);
       setError("");
@@ -52,7 +48,11 @@ export function useUserProfile() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [authenticatedFetch]);
+
+  useEffect(() => {
+    void loadProfile();
+  }, [loadProfile]);
 
   function handleResetForm() {
     setUsername(initialProfile?.name ?? "");

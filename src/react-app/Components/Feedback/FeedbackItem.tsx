@@ -61,7 +61,7 @@ export default function FeedbackItemCard({
 
         <div className="relative flex space-x-3">
           {/* ── Avatar ──────────────────────────────────────────────────────── */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             {item.userImageUrl ? (
               <img
                 src={item.userImageUrl}
@@ -87,8 +87,10 @@ export default function FeedbackItemCard({
               {/* Feedback text — line-through when accepted by an admin */}
               <p
                 className={[
-                  "text-sm text-gray-900 dark:text-white break-words",
-                  item.accepted ? "line-through text-gray-400 dark:text-gray-500" : "",
+                  "text-sm text-gray-900 dark:text-white wrap-break-word",
+                  item.accepted
+                    ? "line-through text-gray-400 dark:text-gray-500"
+                    : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -129,7 +131,7 @@ export default function FeedbackItemCard({
             </div>
 
             {/* ── Date ──────────────────────────────────────────────────────── */}
-            <div className="flex-shrink-0 text-right text-xs whitespace-nowrap text-gray-500 dark:text-gray-400 pt-0.5">
+            <div className="shrink-0 text-right text-xs whitespace-nowrap text-gray-500 dark:text-gray-400 pt-0.5">
               <time dateTime={new Date(item.createdAt).toISOString()}>
                 {formatDate(item.createdAt)}
               </time>

@@ -156,7 +156,7 @@ export function useUserEditor({
     return () => {
       isMounted = false;
     };
-  }, [isCreateMode, userId]);
+  }, [authenticatedFetch, isCreateMode, userId]);
 
   async function handleSave(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

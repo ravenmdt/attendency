@@ -15,34 +15,47 @@ export default function Feedback() {
   const feedback = useFeedbackData();
 
   return (
-    <div className="space-y-12">
-      {/* ── Submission form ──────────────────────────────────────────────────── */}
-      <FeedbackInput
-        value={feedback.draftText}
-        onChange={feedback.setDraftText}
-        onSubmit={feedback.handleSubmit}
-        isSubmitting={feedback.isSubmitting}
-        submitError={feedback.submitError}
-      />
+    <div className="space-y-6">
+      <header>
+        <h1 className="ui-text-primary text-2xl font-semibold">Feedback</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Share updates, suggestions, and issues with the rest of the team.
+        </p>
+      </header>
 
-      {/* ── Feed heading ─────────────────────────────────────────────────────── */}
-      <div>
-        <h2 className="text-base/7 font-semibold text-gray-900 dark:text-white mb-6">
-          All Feedback
-        </h2>
-
-        {/* ── Timeline feed ─────────────────────────────────────────────────── */}
-        <FeedbackFeed
-          items={feedback.items}
-          isLoading={feedback.isLoading}
-          listError={feedback.listError}
-          isAdmin={feedback.isAdmin}
-          acceptingId={feedback.acceptingId}
-          deletingId={feedback.deletingId}
-          onAccept={feedback.handleAccept}
-          onDelete={feedback.handleDelete}
+      <section className="ui-surface ui-border rounded-xl border p-5 sm:p-6">
+        <FeedbackInput
+          value={feedback.draftText}
+          onChange={feedback.setDraftText}
+          onSubmit={feedback.handleSubmit}
+          isSubmitting={feedback.isSubmitting}
+          submitError={feedback.submitError}
         />
-      </div>
+      </section>
+
+      <section className="ui-surface ui-border rounded-xl border p-5 sm:p-6">
+        <div>
+          <h2 className="ui-text-primary text-base font-semibold">
+            All Feedback
+          </h2>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Review the full shared feedback feed and any accepted items.
+          </p>
+        </div>
+
+        <div className="mt-6">
+          <FeedbackFeed
+            items={feedback.items}
+            isLoading={feedback.isLoading}
+            listError={feedback.listError}
+            isAdmin={feedback.isAdmin}
+            acceptingId={feedback.acceptingId}
+            deletingId={feedback.deletingId}
+            onAccept={feedback.handleAccept}
+            onDelete={feedback.handleDelete}
+          />
+        </div>
+      </section>
     </div>
   );
 }

@@ -152,7 +152,7 @@ export default function UserList({ onEditUser, onAddUser }: UserListProps) {
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-x-4">
-              <div className="hidden sm:flex sm:flex-col sm:items-end">
+              <div className="flex flex-col items-end text-right">
                 <p className="ui-user-list-role text-sm/6">{person.role}</p>
                 {person.isOnline ? (
                   <div className="mt-1 flex items-center gap-x-1.5">

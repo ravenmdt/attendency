@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { shiftMonth } from "../Calendar/calendar.utils";
 import ReportsCalendarInfoCard from "./ReportsCalendarInfoCard";
+import ReportsChangeFeed from "./ReportsChangeFeed";
 import ReportsMonthCalendar from "./ReportsMonthCalendar";
 import ReportsWavePanel from "./ReportsWavePanel";
 import { useReportsData } from "./useReportsData";
@@ -30,9 +31,18 @@ export default function Reports() {
   const {
     availabilityByDate,
     calendarInfoByDate,
+    changeFeedItems,
     isLoading,
     isCalendarInfoLoading,
+    isChangeFeedLoading,
     error,
+    changeFeedError,
+    changeFeedCutoffDays,
+    canManageChangeFeed,
+    acceptingChangeId,
+    deletingChangeId,
+    handleAcceptChange,
+    handleDeleteChange,
   } = useReportsData(visibleMonth);
 
   const selectedWaveGroups = useMemo(
@@ -77,7 +87,7 @@ export default function Reports() {
       {error ? <p className="ui-danger-text text-sm">{error}</p> : null}
 
       <div className="md:grid md:grid-cols-2 md:items-start md:gap-0">
-        <div className="md:self-start">
+        <div className="space-y-6 md:self-start md:pr-6">
           <ReportsMonthCalendar
             selectedDate={selectedDate}
             visibleMonth={visibleMonth}
@@ -86,6 +96,18 @@ export default function Reports() {
             onPreviousMonth={() => showMonth(-1)}
             onNextMonth={() => showMonth(1)}
             onGoToToday={goToToday}
+          />
+
+          <ReportsChangeFeed
+            items={changeFeedItems}
+            isLoading={isChangeFeedLoading}
+            listError={changeFeedError}
+            cutoffDays={changeFeedCutoffDays}
+            canManageItems={canManageChangeFeed}
+            acceptingId={acceptingChangeId}
+            deletingId={deletingChangeId}
+            onAccept={handleAcceptChange}
+            onDelete={handleDeleteChange}
           />
         </div>
 

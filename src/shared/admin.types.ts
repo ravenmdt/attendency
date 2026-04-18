@@ -8,17 +8,22 @@
 
 export type AdminSettingsApi = {
   allowUserRoleAdminControls: boolean;
+  allowAdminAssistantRoleAdminControls: boolean;
   defaultPasswordConfigured: boolean;
   showDayIcons: boolean;
   showNightIcons: boolean;
+  // Controls how far ahead the Reports attendance feed should look.
+  attendanceFeedCutoffDays: number;
   updatedAt: number | null;
   canEdit: boolean;
 };
 
 export type AdminSettingsSaveRequest = {
   allowUserRoleAdminControls: boolean;
+  allowAdminAssistantRoleAdminControls: boolean;
   showDayIcons: boolean;
   showNightIcons: boolean;
+  attendanceFeedCutoffDays: number;
   defaultPassword?: string;
 };
 

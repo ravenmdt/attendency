@@ -1,6 +1,6 @@
 export type UserQualification = 'NONE' | 'PTT' | 'ACT' | 'PTT TO ACT'
 
-export type UserRole = 'User' | 'Admin'
+export type UserRole = 'User' | 'Admin Assistant' | 'Admin'
 
 export type UserListApiRow = {
   id: number

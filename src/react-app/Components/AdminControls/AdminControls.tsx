@@ -17,6 +17,13 @@ const roleOptions = [
     locked: true,
   },
   {
+    id: "role-admin-assistant",
+    name: "Admin Assistant",
+    description:
+      "If enabled, signed-in users with the Admin Assistant role may also see the Admin Controls button in the navigation.",
+    locked: false,
+  },
+  {
     id: "role-user",
     name: "User",
     description:
@@ -96,7 +103,9 @@ export default function AdminControls() {
                 const isChecked =
                   role.name === "Admin"
                     ? true
-                    : admin.allowUserRoleAdminControls;
+                    : role.name === "Admin Assistant"
+                      ? admin.allowAdminAssistantRoleAdminControls
+                      : admin.allowUserRoleAdminControls;
                 const isDisabled =
                   role.locked || !admin.canEdit || admin.isSaving;
 
@@ -129,9 +138,15 @@ export default function AdminControls() {
                           type="checkbox"
                           onChange={(event) => {
                             if (role.locked) return;
-                            admin.setAllowUserRoleAdminControls(
-                              event.target.checked,
-                            );
+                            if (role.name === "Admin Assistant") {
+                              admin.setAllowAdminAssistantRoleAdminControls(
+                                event.target.checked,
+                              );
+                            } else {
+                              admin.setAllowUserRoleAdminControls(
+                                event.target.checked,
+                              );
+                            }
                           }}
                           className={checkboxClassName}
                         />
@@ -162,6 +177,51 @@ export default function AdminControls() {
               })}
             </div>
           </fieldset>
+
+          <div className="mt-6 border-t border-gray-200 pt-6 dark:border-white/10">
+            <h3 className="ui-text-primary text-sm font-semibold">
+              Attendance feed rollover window
+            </h3>
+            <p className="ui-text-muted mt-1 text-sm">
+              Choose how many upcoming days the Reports attendance change feed
+              should cover for rollover and copy-forward work.
+            </p>
+
+            <div className="mt-4 max-w-xs">
+              <label
+                htmlFor="attendance-feed-cutoff-days"
+                className="block text-sm/6 font-medium text-gray-900 dark:text-white"
+              >
+                Feed window in days
+              </label>
+              <div className="mt-2">
+                <div className="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600 dark:bg-white/5 dark:outline-white/10 dark:focus-within:outline-indigo-500">
+                  <input
+                    id="attendance-feed-cutoff-days"
+                    name="attendance-feed-cutoff-days"
+                    type="number"
+                    min={1}
+                    max={21}
+                    step={1}
+                    value={admin.attendanceFeedCutoffDays}
+                    disabled={!admin.canEdit || admin.isSaving}
+                    onChange={(event) => {
+                      const nextValue = Number.parseInt(event.target.value, 10);
+                      admin.setAttendanceFeedCutoffDays(
+                        Number.isNaN(nextValue) ? 13 : nextValue,
+                      );
+                    }}
+                    className="block min-w-0 grow bg-white py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6 dark:bg-transparent dark:text-white dark:placeholder:text-gray-500"
+                  />
+                </div>
+              </div>
+              <p className="ui-text-muted mt-2 text-sm">
+                13 days is the recommended default. The Reports page uses this
+                saved value dynamically when deciding which future changes to
+                show.
+              </p>
+            </div>
+          </div>
 
           <div className="mt-6 border-t border-gray-200 pt-6 dark:border-white/10">
             <h3 className="ui-text-primary text-sm font-semibold">

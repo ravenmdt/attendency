@@ -41,7 +41,7 @@ type UserListDbRow = {
 };
 
 const USER_QUALIFICATIONS: UserQualification[] = ["NONE", "PTT", "ACT", "PTT TO ACT"];
-const USER_ROLES: UserRole[] = ["User", "Admin"];
+const USER_ROLES: UserRole[] = ["User", "Admin Assistant", "Admin"];
 
 type SaveCurrentUserProfileRequest = {
 	name?: string;
@@ -149,8 +149,13 @@ export function registerUserRoutes(app: Hono<AppEnv>) {
 						) THEN 0
 						ELSE 1
 					END,
-					-- 3. Within each online/offline group, Admin users before User users.
-					CASE WHEN u.role = 'Admin' THEN 0 ELSE 1 END,
+					-- 3. Within each online/offline group, Admin users first,
+					--    then Admin Assistant, then User.
+					CASE
+						WHEN u.role = 'Admin' THEN 0
+						WHEN u.role = 'Admin Assistant' THEN 1
+						ELSE 2
+					END,
 					-- 4. Within each role group, sort names alphabetically.
 					LOWER(u.name) ASC`
 			)

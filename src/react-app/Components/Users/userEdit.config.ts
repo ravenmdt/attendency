@@ -36,7 +36,8 @@ export const qualificationOptions: QualificationOption[] = [
 
 export const roleOptions: RoleOption[] = [
   { id: 1, name: "User" },
-  { id: 2, name: "Admin" },
+  { id: 2, name: "Admin Assistant" },
+  { id: 3, name: "Admin" },
 ];
 
 // New users start with the safest defaults unless the operator changes them.

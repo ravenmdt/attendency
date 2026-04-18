@@ -115,7 +115,8 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 			permissions: {
 				canAccessAdminControls: canAccessAdminControls(
 					user.role,
-					Boolean(adminSettings.allow_user_role_admin_controls)
+					Boolean(adminSettings.allow_user_role_admin_controls),
+					Boolean(adminSettings.allow_admin_assistant_role_admin_controls),
 				),
 				showDayIcons:
 					adminSettings.show_day_icons === undefined || adminSettings.show_day_icons === null
@@ -161,7 +162,8 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 			permissions: {
 				canAccessAdminControls: canAccessAdminControls(
 					userRole,
-					Boolean(adminSettings.allow_user_role_admin_controls)
+					Boolean(adminSettings.allow_user_role_admin_controls),
+					Boolean(adminSettings.allow_admin_assistant_role_admin_controls),
 				),
 				showDayIcons:
 					adminSettings.show_day_icons === undefined || adminSettings.show_day_icons === null

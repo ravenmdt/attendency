@@ -23,8 +23,12 @@ export function useAdminControls() {
 
   const [allowUserRoleAdminControls, setAllowUserRoleAdminControls] =
     useState(false);
+  const [allowAdminAssistantRoleAdminControls, setAllowAdminAssistantRoleAdminControls] =
+    useState(false);
   const [showDayIcons, setShowDayIcons] = useState(true);
   const [showNightIcons, setShowNightIcons] = useState(true);
+  const [attendanceFeedCutoffDays, setAttendanceFeedCutoffDays] =
+    useState(13);
   const [defaultPassword, setDefaultPassword] = useState("");
   const [defaultPasswordConfigured, setDefaultPasswordConfigured] =
     useState(false);
@@ -58,8 +62,12 @@ export function useAdminControls() {
         if (!isMounted) return;
 
         setAllowUserRoleAdminControls(body.settings.allowUserRoleAdminControls);
+        setAllowAdminAssistantRoleAdminControls(
+          body.settings.allowAdminAssistantRoleAdminControls,
+        );
         setShowDayIcons(body.settings.showDayIcons);
         setShowNightIcons(body.settings.showNightIcons);
+        setAttendanceFeedCutoffDays(body.settings.attendanceFeedCutoffDays);
         setDefaultPasswordConfigured(body.settings.defaultPasswordConfigured);
         setCanEdit(body.settings.canEdit);
         setDefaultPassword("");
@@ -94,8 +102,15 @@ export function useAdminControls() {
       const trimmedPassword = defaultPassword.trim();
       const payload: AdminSettingsSaveRequest = {
         allowUserRoleAdminControls,
+        allowAdminAssistantRoleAdminControls,
         showDayIcons,
         showNightIcons,
+        // Clamp the value client-side so the UI always sends a sane integer,
+        // while the server still remains the source of truth for validation.
+        attendanceFeedCutoffDays: Math.min(
+          21,
+          Math.max(1, Math.trunc(attendanceFeedCutoffDays)),
+        ),
         ...(trimmedPassword.length > 0
           ? { defaultPassword: trimmedPassword }
           : {}),
@@ -118,14 +133,22 @@ export function useAdminControls() {
       }
 
       setAllowUserRoleAdminControls(body.settings.allowUserRoleAdminControls);
+      setAllowAdminAssistantRoleAdminControls(
+        body.settings.allowAdminAssistantRoleAdminControls,
+      );
       setShowDayIcons(body.settings.showDayIcons);
       setShowNightIcons(body.settings.showNightIcons);
+      setAttendanceFeedCutoffDays(body.settings.attendanceFeedCutoffDays);
       setDefaultPasswordConfigured(body.settings.defaultPasswordConfigured);
       setDefaultPassword("");
       setStatusMessage(body.message);
       updatePermissions({
         canAccessAdminControls:
-          currentUser?.role === "Admin" || body.settings.allowUserRoleAdminControls,
+          currentUser?.role === "Admin"
+            ? true
+            : currentUser?.role === "Admin Assistant"
+              ? body.settings.allowAdminAssistantRoleAdminControls
+              : body.settings.allowUserRoleAdminControls,
         showDayIcons: body.settings.showDayIcons,
         showNightIcons: body.settings.showNightIcons,
       });
@@ -142,10 +165,14 @@ export function useAdminControls() {
     currentUser,
     allowUserRoleAdminControls,
     setAllowUserRoleAdminControls,
+    allowAdminAssistantRoleAdminControls,
+    setAllowAdminAssistantRoleAdminControls,
     showDayIcons,
     setShowDayIcons,
     showNightIcons,
     setShowNightIcons,
+    attendanceFeedCutoffDays,
+    setAttendanceFeedCutoffDays,
     defaultPassword,
     setDefaultPassword,
     defaultPasswordConfigured,

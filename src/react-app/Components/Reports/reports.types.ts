@@ -1,6 +1,11 @@
 import type { CalendarInfoItem } from "../Calendar/calendar.types";
-import type { ReportAvailabilityApiRow } from "../../../shared/reports.types";
+import type {
+  AttendanceChangeFeedItem,
+  ReportAvailabilityApiRow,
+} from "../../../shared/reports.types";
 import type { UserQualification } from "../../../shared/users.types";
+
+export type { AttendanceChangeFeedItem };
 
 export type ReportAvailabilityStatus = "available" | "partial";
 
@@ -25,9 +30,18 @@ export type ReportCalendarInfoByDate = Map<string, CalendarInfoItem>;
 export type ReportMonthQueryResult = {
   isLoading: boolean;
   isCalendarInfoLoading: boolean;
+  isChangeFeedLoading: boolean;
   error: string;
+  changeFeedError: string;
+  changeFeedCutoffDays: number;
+  canManageChangeFeed: boolean;
+  acceptingChangeId: number | null;
+  deletingChangeId: number | null;
   availabilityByDate: ReportAvailabilityByDate;
   calendarInfoByDate: ReportCalendarInfoByDate;
+  changeFeedItems: AttendanceChangeFeedItem[];
+  handleAcceptChange: (changeId: number) => Promise<void>;
+  handleDeleteChange: (changeId: number) => Promise<void>;
 };
 
 export type ReportsCalendarProps = {

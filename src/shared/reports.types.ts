@@ -25,6 +25,50 @@ export type ReportsMonthErrorResponse = {
   error: string;
 };
 
+export type AttendanceChangeFeedItem = {
+  changeId: number;
+  subjectUserId: number;
+  subjectUserName: string;
+  subjectUserImageUrl: string | null;
+  actorUserId: number | null;
+  actorUserName: string | null;
+  date: string;
+  wave: 0 | 1;
+  previousAvailable: 0 | 1 | null;
+  nextAvailable: 0 | 1 | null;
+  action: "created" | "updated" | "cleared";
+  accepted: boolean;
+  createdAt: number;
+};
+
+export type ReportsChangeFeedSuccessResponse = {
+  ok: true;
+  cutoffDays: number;
+  items: AttendanceChangeFeedItem[];
+};
+
+export type ReportsChangeFeedErrorResponse = {
+  ok: false;
+  error: string;
+};
+
 export type ReportsMonthResponse =
   | ReportsMonthSuccessResponse
   | ReportsMonthErrorResponse;
+
+export type ReportsChangeFeedResponse =
+  | ReportsChangeFeedSuccessResponse
+  | ReportsChangeFeedErrorResponse;
+
+export type ReportsChangeFeedMutationSuccessResponse = {
+  ok: true;
+};
+
+export type ReportsChangeFeedMutationErrorResponse = {
+  ok: false;
+  error: string;
+};
+
+export type ReportsChangeFeedMutationResponse =
+  | ReportsChangeFeedMutationSuccessResponse
+  | ReportsChangeFeedMutationErrorResponse;

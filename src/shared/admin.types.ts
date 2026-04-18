@@ -9,12 +9,16 @@
 export type AdminSettingsApi = {
   allowUserRoleAdminControls: boolean;
   defaultPasswordConfigured: boolean;
+  showDayIcons: boolean;
+  showNightIcons: boolean;
   updatedAt: number | null;
   canEdit: boolean;
 };
 
 export type AdminSettingsSaveRequest = {
   allowUserRoleAdminControls: boolean;
+  showDayIcons: boolean;
+  showNightIcons: boolean;
   defaultPassword?: string;
 };
 

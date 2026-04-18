@@ -45,6 +45,8 @@ CREATE TABLE admin_settings (
   default_password_iterations INTEGER NOT NULL DEFAULT 100000,
   default_password_algo TEXT NOT NULL DEFAULT 'pbkdf2-sha256',
   allow_user_role_admin_controls INTEGER NOT NULL DEFAULT 0 CHECK (allow_user_role_admin_controls IN (0, 1)),
+  show_day_icons INTEGER NOT NULL DEFAULT 1 CHECK (show_day_icons IN (0, 1)),
+  show_night_icons INTEGER NOT NULL DEFAULT 1 CHECK (show_night_icons IN (0, 1)),
   updated_at INTEGER,
   updated_by_user_id INTEGER,
   FOREIGN KEY (updated_by_user_id) REFERENCES users(user_id) ON DELETE SET NULL
@@ -137,6 +139,8 @@ INSERT INTO admin_settings (
   default_password_iterations,
   default_password_algo,
   allow_user_role_admin_controls,
+  show_day_icons,
+  show_night_icons,
   updated_at,
   updated_by_user_id
 )
@@ -147,6 +151,8 @@ VALUES (
   100000,
   'pbkdf2-sha256',
   0,
+  1,
+  1,
   1776435000000,
   1
 );

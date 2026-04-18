@@ -85,21 +85,7 @@ export default function ReportsCalendarInfoCard({
             Calendar info for{" "}
             <time dateTime={selectedDate}>{formatLongDate(selectedDate)}</time>
           </h2>
-          <p className="ui-text-muted mt-1 text-sm">
-            Shared day metadata and audit history shown across the calendar.
-          </p>
         </div>
-
-        <span
-          className={[
-            "rounded-full px-3 py-1 text-xs font-semibold",
-            info
-              ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
-              : "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-300",
-          ].join(" ")}
-        >
-          {info ? "Saved" : "No info"}
-        </span>
       </div>
 
       {isLoading ? (

@@ -86,7 +86,9 @@ export default function Calendar() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Multi-day selection is only used by admin context actions on calendar_info.
-  const [selectedDates, setSelectedDates] = useState<Set<string>>(() => new Set());
+  const [selectedDates, setSelectedDates] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [selectionAnchorDate, setSelectionAnchorDate] = useState<string | null>(
     null,
   );
@@ -251,10 +253,16 @@ export default function Calendar() {
     let nextY = contextMenu.y;
 
     if (rect.right > window.innerWidth - padding) {
-      nextX = Math.max(padding, nextX - (rect.right - (window.innerWidth - padding)));
+      nextX = Math.max(
+        padding,
+        nextX - (rect.right - (window.innerWidth - padding)),
+      );
     }
     if (rect.bottom > window.innerHeight - padding) {
-      nextY = Math.max(padding, nextY - (rect.bottom - (window.innerHeight - padding)));
+      nextY = Math.max(
+        padding,
+        nextY - (rect.bottom - (window.innerHeight - padding)),
+      );
     }
     if (rect.left < padding) {
       nextX = padding;
@@ -276,10 +284,7 @@ export default function Calendar() {
       Math.max(x, padding),
       window.innerWidth - menuWidth - padding,
     );
-    const safeY = Math.min(
-      Math.max(y, padding),
-      window.innerHeight - padding,
-    );
+    const safeY = Math.min(Math.max(y, padding), window.innerHeight - padding);
 
     return { x: safeX, y: safeY };
   }
@@ -339,7 +344,9 @@ export default function Calendar() {
       const next = new Set(current);
 
       if (modifiers.shift && selectionAnchorDate) {
-        return new Set(buildRectangularGridSelection(selectionAnchorDate, date));
+        return new Set(
+          buildRectangularGridSelection(selectionAnchorDate, date),
+        );
       }
 
       if (modifiers.ctrlOrMeta) {
@@ -357,7 +364,10 @@ export default function Calendar() {
     setSelectionAnchorDate(date);
   }
 
-  function handleDayClick(date: string, event: React.MouseEvent<HTMLDivElement>) {
+  function handleDayClick(
+    date: string,
+    event: React.MouseEvent<HTMLDivElement>,
+  ) {
     closeContextMenu();
     handleDaySelection(date, {
       ctrlOrMeta: event.ctrlKey || event.metaKey,
@@ -418,7 +428,9 @@ export default function Calendar() {
     handleDayClick(date, event);
   }
 
-  function normalizeCalendarInfoType(type: string | undefined): CalendarInfoType {
+  function normalizeCalendarInfoType(
+    type: string | undefined,
+  ): CalendarInfoType {
     return type === "PTT" ? "PTT" : "ACT";
   }
 
@@ -467,7 +479,9 @@ export default function Calendar() {
     try {
       setIsSavingCalendarInfo(true);
       const dates = Array.from(selectedDates.values());
-      const changes = dates.map((date) => buildCalendarInfoChange(date, transform));
+      const changes = dates.map((date) =>
+        buildCalendarInfoChange(date, transform),
+      );
       await saveCalendarInfoChanges(changes);
     } catch (error) {
       console.error("Calendar info bulk save failed:", error);
@@ -746,7 +760,9 @@ export default function Calendar() {
                 }
                 onClick={(event) => handleMobileCellClick(day.date, event)}
                 onContextMenu={(event) => handleDayContextMenu(day.date, event)}
-                onTouchStart={(event) => handleMobileTouchStart(day.date, event)}
+                onTouchStart={(event) =>
+                  handleMobileTouchStart(day.date, event)
+                }
                 onTouchEnd={clearLongPressTimer}
                 onTouchCancel={clearLongPressTimer}
                 onTouchMove={clearLongPressTimer}
@@ -791,8 +807,8 @@ export default function Calendar() {
       </div>
       {!canAccessAdminControls && (
         <div className="px-6 py-3 text-xs text-gray-600 dark:text-gray-300">
-          Calendar day multi-select and calendar info context actions are reserved
-          for admins.
+          Calendar day multi-select and calendar info context actions are
+          reserved for admins.
         </div>
       )}
       <Dialog
@@ -838,10 +854,11 @@ export default function Calendar() {
                   </DialogTitle>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Are you sure you want to delete the saved calendar info for{" "}
-                      {selectedDates.size} selected day{selectedDates.size === 1 ? "" : "s"}?
-                      This action will remove the day metadata from the database and
-                      cannot be undone.
+                      Are you sure you want to delete the saved calendar info
+                      for {selectedDates.size} selected day
+                      {selectedDates.size === 1 ? "" : "s"}? This action will
+                      remove the day metadata from the database and cannot be
+                      undone.
                     </p>
                   </div>
                 </div>
@@ -854,7 +871,9 @@ export default function Calendar() {
                   disabled={isSavingCalendarInfo}
                   className="ui-user-edit-delete inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50 sm:ml-3 sm:w-auto"
                 >
-                  {isSavingCalendarInfo ? "Deleting..." : "Delete calendar info"}
+                  {isSavingCalendarInfo
+                    ? "Deleting..."
+                    : "Delete calendar info"}
                 </button>
                 <button
                   type="button"
@@ -878,7 +897,8 @@ export default function Calendar() {
         >
           <div className="mb-1 flex items-center justify-between px-2 py-1">
             <p className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-              {selectedDates.size} day{selectedDates.size === 1 ? "" : "s"} selected
+              {selectedDates.size} day{selectedDates.size === 1 ? "" : "s"}{" "}
+              selected
             </p>
             <button
               type="button"

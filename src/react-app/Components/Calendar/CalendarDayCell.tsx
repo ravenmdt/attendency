@@ -3,6 +3,7 @@
 // This is a "presentational" component — it only renders what it receives via
 // props and calls back to the parent (Calendar) when the user interacts.
 // Keeping display logic here lets Calendar.tsx stay focused on state management.
+import { useAuth } from "../Auth/AuthContext";
 import { NightsIcon, PriorityIcon, TypeIcon } from "./calendar_info_display";
 import { availabilityColorClass } from "./calendar.utils";
 import type {
@@ -43,6 +44,8 @@ export function CalendarDayCell({
   onDayClick,
   onDayContextMenu,
 }: CalendarDayCellProps) {
+  const { showDayIcons, showNightIcons } = useAuth();
+
   // Strip the leading zero from the day number ("08" → "8") for compact display.
   const dayNumber = day.date.split("-")[2].replace(/^0/, "");
 
@@ -76,7 +79,11 @@ export function CalendarDayCell({
           {info && (
             <>
               <div>
-                <NightsIcon nights={info.nights} />
+                <NightsIcon
+                  nights={info.nights}
+                  showDayIcon={showDayIcons}
+                  showNightIcon={showNightIcons}
+                />
               </div>
               <div>
                 <PriorityIcon priority={info.priority} />

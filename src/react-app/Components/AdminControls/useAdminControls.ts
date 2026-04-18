@@ -19,10 +19,12 @@ import { useAuth } from "../Auth/AuthContext";
 */
 
 export function useAdminControls() {
-  const { authenticatedFetch, currentUser } = useAuth();
+  const { authenticatedFetch, currentUser, updatePermissions } = useAuth();
 
   const [allowUserRoleAdminControls, setAllowUserRoleAdminControls] =
     useState(false);
+  const [showDayIcons, setShowDayIcons] = useState(true);
+  const [showNightIcons, setShowNightIcons] = useState(true);
   const [defaultPassword, setDefaultPassword] = useState("");
   const [defaultPasswordConfigured, setDefaultPasswordConfigured] =
     useState(false);
@@ -56,6 +58,8 @@ export function useAdminControls() {
         if (!isMounted) return;
 
         setAllowUserRoleAdminControls(body.settings.allowUserRoleAdminControls);
+        setShowDayIcons(body.settings.showDayIcons);
+        setShowNightIcons(body.settings.showNightIcons);
         setDefaultPasswordConfigured(body.settings.defaultPasswordConfigured);
         setCanEdit(body.settings.canEdit);
         setDefaultPassword("");
@@ -90,6 +94,8 @@ export function useAdminControls() {
       const trimmedPassword = defaultPassword.trim();
       const payload: AdminSettingsSaveRequest = {
         allowUserRoleAdminControls,
+        showDayIcons,
+        showNightIcons,
         ...(trimmedPassword.length > 0
           ? { defaultPassword: trimmedPassword }
           : {}),
@@ -112,9 +118,17 @@ export function useAdminControls() {
       }
 
       setAllowUserRoleAdminControls(body.settings.allowUserRoleAdminControls);
+      setShowDayIcons(body.settings.showDayIcons);
+      setShowNightIcons(body.settings.showNightIcons);
       setDefaultPasswordConfigured(body.settings.defaultPasswordConfigured);
       setDefaultPassword("");
       setStatusMessage(body.message);
+      updatePermissions({
+        canAccessAdminControls:
+          currentUser?.role === "Admin" || body.settings.allowUserRoleAdminControls,
+        showDayIcons: body.settings.showDayIcons,
+        showNightIcons: body.settings.showNightIcons,
+      });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to save admin settings",
@@ -128,6 +142,10 @@ export function useAdminControls() {
     currentUser,
     allowUserRoleAdminControls,
     setAllowUserRoleAdminControls,
+    showDayIcons,
+    setShowDayIcons,
+    showNightIcons,
+    setShowNightIcons,
     defaultPassword,
     setDefaultPassword,
     defaultPasswordConfigured,

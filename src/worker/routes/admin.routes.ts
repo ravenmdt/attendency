@@ -35,6 +35,8 @@ type AdminSettingsRow = {
   default_password_iterations: number;
   default_password_algo: string;
   allow_user_role_admin_controls: number;
+  show_day_icons?: number | null;
+  show_night_icons?: number | null;
   updated_at: number | null;
   updated_by_user_id: number | null;
 };
@@ -43,6 +45,14 @@ function mapAdminSettings(row: AdminSettingsRow, canEdit: boolean) {
   return {
     allowUserRoleAdminControls: Boolean(row.allow_user_role_admin_controls),
     defaultPasswordConfigured: Boolean(row.default_password_hash),
+    showDayIcons:
+      row.show_day_icons === undefined || row.show_day_icons === null
+        ? true
+        : Boolean(row.show_day_icons),
+    showNightIcons:
+      row.show_night_icons === undefined || row.show_night_icons === null
+        ? true
+        : Boolean(row.show_night_icons),
     updatedAt: row.updated_at === null ? null : Number(row.updated_at),
     canEdit,
   };
@@ -72,50 +82,62 @@ async function insertInitialAdminSettings(db: D1Database) {
         default_password_iterations,
         default_password_algo,
         allow_user_role_admin_controls,
+        show_day_icons,
+        show_night_icons,
         updated_at,
         updated_by_user_id
-      ) VALUES (1, ?1, ?2, ?3, 'pbkdf2-sha256', 0, ?4, NULL)`
+      ) VALUES (1, ?1, ?2, ?3, 'pbkdf2-sha256', 0, 1, 1, ?4, NULL)`
     )
     .bind(passwordHash, saltHex, PBKDF2_ITERATIONS, Date.now())
     .run();
 }
 
 export async function getAdminSettingsRow(db: D1Database) {
-  let row = await db
-    .prepare(
-      `SELECT
-        settings_id,
-        default_password_hash,
-        default_password_salt,
-        default_password_iterations,
-        default_password_algo,
-        allow_user_role_admin_controls,
-        updated_at,
-        updated_by_user_id
-      FROM admin_settings
-      WHERE settings_id = 1`
-    )
-    .first<AdminSettingsRow>();
+  async function selectSettingsRow() {
+    try {
+      return await db
+        .prepare(
+          `SELECT
+            settings_id,
+            default_password_hash,
+            default_password_salt,
+            default_password_iterations,
+            default_password_algo,
+            allow_user_role_admin_controls,
+            show_day_icons,
+            show_night_icons,
+            updated_at,
+            updated_by_user_id
+          FROM admin_settings
+          WHERE settings_id = 1`
+        )
+        .first<AdminSettingsRow>();
+    } catch {
+      return await db
+        .prepare(
+          `SELECT
+            settings_id,
+            default_password_hash,
+            default_password_salt,
+            default_password_iterations,
+            default_password_algo,
+            allow_user_role_admin_controls,
+            updated_at,
+            updated_by_user_id
+          FROM admin_settings
+          WHERE settings_id = 1`
+        )
+        .first<AdminSettingsRow>();
+    }
+  }
+
+  let row = await selectSettingsRow();
 
   if (row) return row;
 
   await insertInitialAdminSettings(db);
 
-  row = await db
-    .prepare(
-      `SELECT
-        settings_id,
-        default_password_hash,
-        default_password_salt,
-        default_password_iterations,
-        default_password_algo,
-        allow_user_role_admin_controls,
-        updated_at,
-        updated_by_user_id
-      FROM admin_settings
-      WHERE settings_id = 1`
-    )
-    .first<AdminSettingsRow>();
+  row = await selectSettingsRow();
 
   if (!row) {
     throw new Error("Admin settings row could not be initialized");
@@ -187,9 +209,16 @@ export function registerAdminRoutes(app: Hono<AppEnv>) {
       );
     }
 
-    if (typeof payload.allowUserRoleAdminControls !== "boolean") {
+    if (
+      typeof payload.allowUserRoleAdminControls !== "boolean" ||
+      typeof payload.showDayIcons !== "boolean" ||
+      typeof payload.showNightIcons !== "boolean"
+    ) {
       return c.json<AdminSettingsSaveResponse>(
-        { ok: false, error: "User-role visibility must be true or false" },
+        {
+          ok: false,
+          error: "All admin control and layout visibility settings must be true or false",
+        },
         400,
       );
     }
@@ -219,40 +248,91 @@ export function registerAdminRoutes(app: Hono<AppEnv>) {
         PBKDF2_ITERATIONS,
       );
 
-      await db
-        .prepare(
-          `UPDATE admin_settings
-           SET
-             default_password_hash = ?1,
-             default_password_salt = ?2,
-             default_password_iterations = ?3,
-             default_password_algo = 'pbkdf2-sha256',
-             allow_user_role_admin_controls = ?4,
-             updated_at = ?5,
-             updated_by_user_id = ?6
-           WHERE settings_id = 1`
-        )
-        .bind(
-          passwordHash,
-          saltHex,
-          PBKDF2_ITERATIONS,
-          payload.allowUserRoleAdminControls ? 1 : 0,
-          nowMs,
-          authUserId,
-        )
-        .run();
+      try {
+        await db
+          .prepare(
+            `UPDATE admin_settings
+             SET
+               default_password_hash = ?1,
+               default_password_salt = ?2,
+               default_password_iterations = ?3,
+               default_password_algo = 'pbkdf2-sha256',
+               allow_user_role_admin_controls = ?4,
+               show_day_icons = ?5,
+               show_night_icons = ?6,
+               updated_at = ?7,
+               updated_by_user_id = ?8
+             WHERE settings_id = 1`
+          )
+          .bind(
+            passwordHash,
+            saltHex,
+            PBKDF2_ITERATIONS,
+            payload.allowUserRoleAdminControls ? 1 : 0,
+            payload.showDayIcons ? 1 : 0,
+            payload.showNightIcons ? 1 : 0,
+            nowMs,
+            authUserId,
+          )
+          .run();
+      } catch {
+        await db
+          .prepare(
+            `UPDATE admin_settings
+             SET
+               default_password_hash = ?1,
+               default_password_salt = ?2,
+               default_password_iterations = ?3,
+               default_password_algo = 'pbkdf2-sha256',
+               allow_user_role_admin_controls = ?4,
+               updated_at = ?5,
+               updated_by_user_id = ?6
+             WHERE settings_id = 1`
+          )
+          .bind(
+            passwordHash,
+            saltHex,
+            PBKDF2_ITERATIONS,
+            payload.allowUserRoleAdminControls ? 1 : 0,
+            nowMs,
+            authUserId,
+          )
+          .run();
+      }
     } else {
-      await db
-        .prepare(
-          `UPDATE admin_settings
-           SET
-             allow_user_role_admin_controls = ?1,
-             updated_at = ?2,
-             updated_by_user_id = ?3
-           WHERE settings_id = 1`
-        )
-        .bind(payload.allowUserRoleAdminControls ? 1 : 0, nowMs, authUserId)
-        .run();
+      try {
+        await db
+          .prepare(
+            `UPDATE admin_settings
+             SET
+               allow_user_role_admin_controls = ?1,
+               show_day_icons = ?2,
+               show_night_icons = ?3,
+               updated_at = ?4,
+               updated_by_user_id = ?5
+             WHERE settings_id = 1`
+          )
+          .bind(
+            payload.allowUserRoleAdminControls ? 1 : 0,
+            payload.showDayIcons ? 1 : 0,
+            payload.showNightIcons ? 1 : 0,
+            nowMs,
+            authUserId,
+          )
+          .run();
+      } catch {
+        await db
+          .prepare(
+            `UPDATE admin_settings
+             SET
+               allow_user_role_admin_controls = ?1,
+               updated_at = ?2,
+               updated_by_user_id = ?3
+             WHERE settings_id = 1`
+          )
+          .bind(payload.allowUserRoleAdminControls ? 1 : 0, nowMs, authUserId)
+          .run();
+      }
     }
 
     const updatedSettings = await getAdminSettingsRow(db);

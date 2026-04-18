@@ -14,6 +14,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import type {
+  AuthPermissions,
   AuthUser,
   LoginResponse,
   SessionResponse,
@@ -27,6 +28,8 @@ type AuthContextValue = {
   isCheckingSession: boolean;
   currentUser: AuthUser | null;
   canAccessAdminControls: boolean;
+  showDayIcons: boolean;
+  showNightIcons: boolean;
   login: (
     username: string,
     password: string,
@@ -37,6 +40,7 @@ type AuthContextValue = {
     init?: RequestInit,
   ) => Promise<Response>;
   updateCurrentUser: (user: AuthUser) => void;
+  updatePermissions: (permissions: Partial<AuthPermissions>) => void;
 };
 
 // ─── Context creation ─────────────────────────────────────────────────────────
@@ -54,6 +58,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [canAccessAdminControls, setCanAccessAdminControls] = useState(false);
+  const [showDayIcons, setShowDayIcons] = useState(true);
+  const [showNightIcons, setShowNightIcons] = useState(true);
   // While true, the app is checking /api/auth/session on first load.
   const [isCheckingSession, setIsCheckingSession] = useState(true);
 
@@ -71,17 +77,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setIsAuthenticated(true);
           setCurrentUser(body.user);
           setCanAccessAdminControls(body.permissions.canAccessAdminControls);
+          setShowDayIcons(body.permissions.showDayIcons);
+          setShowNightIcons(body.permissions.showNightIcons);
           return;
         }
 
         setIsAuthenticated(false);
         setCurrentUser(null);
         setCanAccessAdminControls(false);
+        setShowDayIcons(true);
+        setShowNightIcons(true);
       })
       .catch(() => {
         setIsAuthenticated(false);
         setCurrentUser(null);
         setCanAccessAdminControls(false);
+        setShowDayIcons(true);
+        setShowNightIcons(true);
       })
       .finally(() => {
         setIsCheckingSession(false);
@@ -92,6 +104,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsAuthenticated(false);
     setCurrentUser(null);
     setCanAccessAdminControls(false);
+    setShowDayIcons(true);
+    setShowNightIcons(true);
     setIsCheckingSession(false);
 
     if (
@@ -138,6 +152,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsAuthenticated(false);
         setCurrentUser(null);
         setCanAccessAdminControls(false);
+        setShowDayIcons(true);
+        setShowNightIcons(true);
         return {
           ok: false as const,
           error: body && !body.ok ? body.error : "Login failed",
@@ -147,11 +163,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticated(true);
       setCurrentUser(body.user);
       setCanAccessAdminControls(body.permissions.canAccessAdminControls);
+      setShowDayIcons(body.permissions.showDayIcons);
+      setShowNightIcons(body.permissions.showNightIcons);
       return { ok: true as const };
     } catch {
       setIsAuthenticated(false);
       setCurrentUser(null);
       setCanAccessAdminControls(false);
+      setShowDayIcons(true);
+      setShowNightIcons(true);
       return { ok: false as const, error: "Network error while signing in" };
     }
   }
@@ -169,10 +189,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsAuthenticated(false);
     setCurrentUser(null);
     setCanAccessAdminControls(false);
+    setShowDayIcons(true);
+    setShowNightIcons(true);
   }
 
   function updateCurrentUser(user: AuthUser) {
     setCurrentUser(user);
+  }
+
+  function updatePermissions(permissions: Partial<AuthPermissions>) {
+    if (typeof permissions.canAccessAdminControls === "boolean") {
+      setCanAccessAdminControls(permissions.canAccessAdminControls);
+    }
+    if (typeof permissions.showDayIcons === "boolean") {
+      setShowDayIcons(permissions.showDayIcons);
+    }
+    if (typeof permissions.showNightIcons === "boolean") {
+      setShowNightIcons(permissions.showNightIcons);
+    }
   }
 
   // The Provider makes `isAuthenticated`, `login`, and `logout` available
@@ -184,10 +218,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isCheckingSession,
         currentUser,
         canAccessAdminControls,
+        showDayIcons,
+        showNightIcons,
         login,
         logout,
         authenticatedFetch,
         updateCurrentUser,
+        updatePermissions,
       }}
     >
       {children}

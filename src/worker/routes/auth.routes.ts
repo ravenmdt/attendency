@@ -117,6 +117,14 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 					user.role,
 					Boolean(adminSettings.allow_user_role_admin_controls)
 				),
+				showDayIcons:
+					adminSettings.show_day_icons === undefined || adminSettings.show_day_icons === null
+						? true
+						: Boolean(adminSettings.show_day_icons),
+				showNightIcons:
+					adminSettings.show_night_icons === undefined || adminSettings.show_night_icons === null
+						? true
+						: Boolean(adminSettings.show_night_icons),
 			},
 		});
 	});
@@ -155,6 +163,14 @@ export function registerAuthRoutes(app: Hono<AppEnv>) {
 					userRole,
 					Boolean(adminSettings.allow_user_role_admin_controls)
 				),
+				showDayIcons:
+					adminSettings.show_day_icons === undefined || adminSettings.show_day_icons === null
+						? true
+						: Boolean(adminSettings.show_day_icons),
+				showNightIcons:
+					adminSettings.show_night_icons === undefined || adminSettings.show_night_icons === null
+						? true
+						: Boolean(adminSettings.show_night_icons),
 			},
 		});
 	});

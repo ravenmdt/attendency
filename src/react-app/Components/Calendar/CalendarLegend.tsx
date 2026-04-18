@@ -1,3 +1,4 @@
+import { useAuth } from "../Auth/AuthContext";
 import { NightsIcon, PriorityIcon, TypeIcon } from "./calendar_info_display";
 import { availabilityColorClass } from "./calendar.utils";
 
@@ -10,6 +11,8 @@ import { availabilityColorClass } from "./calendar.utils";
 // 3) Uses the same icon/colour helpers as the cells, so the legend always
 //    stays in sync with what users see in the grid.
 export default function CalendarLegend() {
+  const { showDayIcons, showNightIcons } = useAuth();
+
   return (
     <section className="ui-calendar-legend border-b px-6 py-3 text-xs">
       <div className="grid gap-3 md:grid-cols-2">
@@ -18,18 +21,22 @@ export default function CalendarLegend() {
             Day Info (First Column)
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-4">
-            <span className="inline-flex items-center gap-2">
-              <span className="font-semibold ui-text-primary">
-                <NightsIcon nights={true} />
+            {showNightIcons ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="font-semibold ui-text-primary">
+                  <NightsIcon nights={true} showNightIcon={true} />
+                </span>
+                Night shift
               </span>
-              Night shift
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <span className="font-semibold ui-text-primary">
-                <NightsIcon nights={false} />
+            ) : null}
+            {showDayIcons ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="font-semibold ui-text-primary">
+                  <NightsIcon nights={false} showDayIcon={true} />
+                </span>
+                Day shift
               </span>
-              Day shift
-            </span>
+            ) : null}
             <span className="inline-flex items-center gap-2">
               <span className="font-semibold ui-text-primary">
                 <PriorityIcon priority={true} />

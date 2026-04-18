@@ -12,6 +12,8 @@ export type AuthUser = {
 
 export type AuthPermissions = {
   canAccessAdminControls: boolean
+  showDayIcons: boolean
+  showNightIcons: boolean
 }
 
 export type LoginRequest = {

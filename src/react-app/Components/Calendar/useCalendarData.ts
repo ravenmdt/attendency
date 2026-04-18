@@ -68,10 +68,14 @@ export function useCalendarData() {
         const infoMap = new Map<string, CalendarInfoItem>()
         for (const r of info.rows) {
           infoMap.set(r.date, {
-            date:     r.date,
-            nights:   Boolean(r.nights),
-            priority: Boolean(r.priority),
-            type:     r.type,
+            date:          r.date,
+            nights:        Boolean(r.nights),
+            priority:      Boolean(r.priority),
+            type:          r.type,
+            createdAt:     r.createdAt === null ? null : Number(r.createdAt),
+            createdByName: r.createdByName ?? null,
+            updatedAt:     r.updatedAt === null ? null : Number(r.updatedAt),
+            updatedByName: r.updatedByName ?? null,
           })
         }
         setCalendarInfoMap(infoMap)

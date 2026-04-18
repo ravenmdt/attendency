@@ -1,3 +1,4 @@
+import type { CalendarInfoItem } from "../Calendar/calendar.types";
 import type { ReportAvailabilityApiRow } from "../../../shared/reports.types";
 import type { UserQualification } from "../../../shared/users.types";
 
@@ -17,11 +18,14 @@ export type ReportDayWaveGroups = {
 };
 
 export type ReportAvailabilityByDate = Map<string, ReportDayWaveGroups>;
+export type ReportCalendarInfoByDate = Map<string, CalendarInfoItem>;
 
 export type ReportMonthQueryResult = {
   isLoading: boolean;
+  isCalendarInfoLoading: boolean;
   error: string;
   availabilityByDate: ReportAvailabilityByDate;
+  calendarInfoByDate: ReportCalendarInfoByDate;
 };
 
 export type ReportsCalendarProps = {

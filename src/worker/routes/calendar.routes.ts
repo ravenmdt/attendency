@@ -32,12 +32,53 @@ export function registerCalendarRoutes(app: Hono<AppEnv>) {
 		if (!db) return c.json({ ok: false, error: "D1 binding DB is not configured" }, 500);
 
 		const userId = c.get("authUserId");
-		const result = await db
-			.prepare("SELECT date, nights, priority, type FROM calendar_info WHERE user_id = ?1")
-			.bind(userId)
-			.all<CalendarInfoApiRow>();
 
-		return c.json({ ok: true, rows: result.results });
+		try {
+			const result = await db
+				.prepare(
+					`SELECT
+						ci.date AS date,
+						ci.nights AS nights,
+						ci.priority AS priority,
+						ci.type AS type,
+						ci.created_at AS createdAt,
+						created_by.name AS createdByName,
+						COALESCE(ci.updated_at, ci.created_at) AS updatedAt,
+						COALESCE(updated_by.name, created_by.name) AS updatedByName
+					 FROM calendar_info ci
+					 LEFT JOIN users created_by
+						ON created_by.user_id = COALESCE(ci.created_by_user_id, ci.user_id)
+					 LEFT JOIN users updated_by
+						ON updated_by.user_id = COALESCE(ci.updated_by_user_id, ci.user_id)
+					 WHERE ci.user_id = ?1
+					 ORDER BY ci.date ASC`
+				)
+				.bind(userId)
+				.all<CalendarInfoApiRow>();
+
+			return c.json({ ok: true, rows: result.results });
+		} catch {
+			const fallbackResult = await db
+				.prepare(
+					`SELECT
+						ci.date AS date,
+						ci.nights AS nights,
+						ci.priority AS priority,
+						ci.type AS type,
+						NULL AS createdAt,
+						owner.name AS createdByName,
+						NULL AS updatedAt,
+						owner.name AS updatedByName
+					 FROM calendar_info ci
+					 LEFT JOIN users owner ON owner.user_id = ci.user_id
+					 WHERE ci.user_id = ?1
+					 ORDER BY ci.date ASC`
+				)
+				.bind(userId)
+				.all<CalendarInfoApiRow>();
+
+			return c.json({ ok: true, rows: fallbackResult.results });
+		}
 	});
 
 	app.post("/api/availability/save", async (c) => {

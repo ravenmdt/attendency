@@ -16,6 +16,10 @@ export type CalendarInfoApiRow = {
   nights: 0 | 1
   priority: 0 | 1
   type: string
+  createdAt: number | null
+  createdByName: string | null
+  updatedAt: number | null
+  updatedByName: string | null
 }
 
 export type AvailabilitySaveChange = {

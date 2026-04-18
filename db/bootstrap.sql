@@ -67,8 +67,14 @@ CREATE TABLE calendar_info (
   nights INTEGER NOT NULL CHECK (nights IN (0, 1)),
   priority INTEGER NOT NULL CHECK (priority IN (0, 1)),
   type TEXT NOT NULL,
+  created_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000),
+  created_by_user_id INTEGER,
+  updated_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000),
+  updated_by_user_id INTEGER,
   PRIMARY KEY (user_id, date),
-  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (created_by_user_id) REFERENCES users(user_id) ON DELETE SET NULL,
+  FOREIGN KEY (updated_by_user_id) REFERENCES users(user_id) ON DELETE SET NULL
 );
 
 CREATE TABLE availability (

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { shiftMonth } from "../Calendar/calendar.utils";
+import ReportsCalendarInfoCard from "./ReportsCalendarInfoCard";
 import ReportsMonthCalendar from "./ReportsMonthCalendar";
 import ReportsWavePanel from "./ReportsWavePanel";
 import { useReportsData } from "./useReportsData";
@@ -26,11 +27,22 @@ export default function Reports() {
     getDefaultSelectedDate(new Date()),
   );
 
-  const { availabilityByDate, isLoading, error } = useReportsData(visibleMonth);
+  const {
+    availabilityByDate,
+    calendarInfoByDate,
+    isLoading,
+    isCalendarInfoLoading,
+    error,
+  } = useReportsData(visibleMonth);
 
   const selectedWaveGroups = useMemo(
     () => availabilityByDate.get(selectedDate) ?? createEmptyWaveGroups(),
     [availabilityByDate, selectedDate],
+  );
+
+  const selectedCalendarInfo = useMemo(
+    () => calendarInfoByDate.get(selectedDate),
+    [calendarInfoByDate, selectedDate],
   );
 
   function showMonth(delta: number) {
@@ -75,7 +87,7 @@ export default function Reports() {
           onGoToToday={goToToday}
         />
 
-        <section className="mt-6 md:mt-0 md:pl-6">
+        <section className="mt-6 space-y-4 md:mt-0 md:pl-6">
           <div className="ui-surface ui-border rounded-xl border p-5 sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -118,6 +130,12 @@ export default function Reports() {
               </div>
             )}
           </div>
+
+          <ReportsCalendarInfoCard
+            selectedDate={selectedDate}
+            info={selectedCalendarInfo}
+            isLoading={isCalendarInfoLoading}
+          />
         </section>
       </div>
     </div>

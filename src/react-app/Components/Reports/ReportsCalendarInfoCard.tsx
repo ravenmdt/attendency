@@ -65,7 +65,9 @@ function AuditRow({ label, person, timestamp }: AuditRowProps) {
         {label}
       </p>
       <p className="ui-text-primary mt-2 text-sm font-medium">{person}</p>
-      <p className="ui-text-muted mt-1 text-xs">{formatAuditTimestamp(timestamp)}</p>
+      <p className="ui-text-muted mt-1 text-xs">
+        {formatAuditTimestamp(timestamp)}
+      </p>
     </div>
   );
 }

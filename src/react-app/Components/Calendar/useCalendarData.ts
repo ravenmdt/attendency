@@ -6,6 +6,7 @@ import type {
   ApiResponse,
   AvailabilityApiRow,
   CalendarInfoApiRow,
+  CalendarInfoDeleteRequest,
   CalendarInfoSaveRequest,
   CalendarInfoSaveChange,
 } from '../../../shared/calendar.types'
@@ -130,6 +131,17 @@ export function useCalendarData() {
     })
   }
 
+  // Removes calendar_info rows from local state after a successful delete request.
+  function removeCalendarInfoDates(dates: string[]) {
+    setCalendarInfoMap((current) => {
+      const next = new Map(current)
+      for (const date of dates) {
+        next.delete(date)
+      }
+      return next
+    })
+  }
+
   // Saves calendar_info rows in one request and updates local state only after
   // the backend confirms the write succeeded.
   async function saveCalendarInfoChanges(changes: CalendarInfoSaveChange[]) {
@@ -150,11 +162,30 @@ export function useCalendarData() {
     return { ok: true as const }
   }
 
+  async function deleteCalendarInfoDates(dates: string[]) {
+    if (dates.length === 0) return { ok: true as const }
+
+    const response = await authenticatedFetch('/api/calendar-info/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dates } as CalendarInfoDeleteRequest),
+    })
+
+    if (!response.ok) {
+      const message = await response.text()
+      throw new Error(message || 'Failed to delete calendar info')
+    }
+
+    removeCalendarInfoDates(dates)
+    return { ok: true as const }
+  }
+
   return {
     baselineAvailability,
     calendarInfoMap,
     isLoading,
     applyChanges,
     saveCalendarInfoChanges,
+    deleteCalendarInfoDates,
   }
 }

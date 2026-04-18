@@ -4,6 +4,7 @@ import type {
 	AvailabilitySaveChange,
 	AvailabilitySaveRequest,
 	CalendarInfoApiRow,
+	CalendarInfoDeleteRequest,
 	CalendarInfoSaveChange,
 	CalendarInfoSaveRequest,
 	CalendarInfoType,
@@ -29,6 +30,7 @@ export function registerCalendarRoutes(app: Hono<AppEnv>) {
 	app.use("/api/availability", requireAuth);
 	app.use("/api/availability/save", requireAuth);
 	app.use("/api/calendar-info", requireAuth);
+	app.use("/api/calendar-info/delete", requireAuth);
 	app.use("/api/calendar-info/save", requireAuth);
 
 	app.get("/api/availability", async (c) => {
@@ -236,5 +238,51 @@ export function registerCalendarRoutes(app: Hono<AppEnv>) {
 		}
 
 		return c.json({ ok: true, applied: payload.changes.length });
+	});
+
+	app.post("/api/calendar-info/delete", async (c) => {
+		const db = c.env.DB;
+		if (!db) return c.json({ ok: false, error: "D1 binding DB is not configured" }, 500);
+
+		if (c.get("authUserRole") !== "Admin") {
+			return c.json({ ok: false, error: "Only Admin users can delete calendar info" }, 403);
+		}
+
+		let payload: CalendarInfoDeleteRequest;
+		try {
+			payload = (await c.req.json()) as CalendarInfoDeleteRequest;
+		} catch {
+			return c.json({ ok: false, error: "Invalid JSON payload" }, 400);
+		}
+
+		if (!Array.isArray(payload.dates)) {
+			return c.json({ ok: false, error: "Invalid payload: dates must be an array" }, 400);
+		}
+
+		if (payload.dates.length > 100) {
+			return c.json({ ok: false, error: "Maximum 100 dates are allowed per request" }, 400);
+		}
+
+		const userId = c.get("authUserId");
+		const uniqueDates = [...new Set(payload.dates)];
+		const statements: D1PreparedStatement[] = [];
+
+		for (const date of uniqueDates) {
+			if (typeof date !== "string" || !isValidIsoDate(date)) {
+				return c.json({ ok: false, error: "Invalid date entry in payload" }, 400);
+			}
+
+			statements.push(
+				db
+					.prepare("DELETE FROM calendar_info WHERE user_id = ?1 AND date = ?2")
+					.bind(userId, date)
+			);
+		}
+
+		if (statements.length > 0) {
+			await db.batch(statements);
+		}
+
+		return c.json({ ok: true, deleted: uniqueDates.length });
 	});
 }

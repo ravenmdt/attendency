@@ -54,3 +54,12 @@ export type CalendarInfoSaveResponse = {
   ok: boolean
   applied: number
 }
+
+export type CalendarInfoDeleteRequest = {
+  dates: string[]
+}
+
+export type CalendarInfoDeleteResponse = {
+  ok: boolean
+  deleted: number
+}

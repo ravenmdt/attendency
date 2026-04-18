@@ -4,9 +4,10 @@ import {
   ChevronRightIcon,
   ClockIcon,
   EllipsisHorizontalIcon,
+  XMarkIcon,
 } from "@heroicons/react/20/solid";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../Auth/AuthContext";
 import type {
   AvailabilityOverride,
@@ -23,7 +24,17 @@ import {
 import { useCalendarData } from "./useCalendarData";
 import { CalendarDayCell } from "./CalendarDayCell";
 import CalendarLegend from "./CalendarLegend";
-import type { AvailabilitySaveRequest } from "../../../shared/calendar.types";
+import type {
+  AvailabilitySaveRequest,
+  CalendarInfoSaveChange,
+  CalendarInfoType,
+} from "../../../shared/calendar.types";
+
+type CalendarContextMenuState = {
+  isOpen: boolean;
+  x: number;
+  y: number;
+};
 
 /*
   Database reset commands:
@@ -44,7 +55,7 @@ import type { AvailabilitySaveRequest } from "../../../shared/calendar.types";
 */
 
 export default function Calendar() {
-  const { authenticatedFetch } = useAuth();
+  const { authenticatedFetch, canAccessAdminControls } = useAuth();
 
   // ── State ─────────────────────────────────────────────────────────────────
 
@@ -61,11 +72,31 @@ export default function Calendar() {
   >(() => new Map());
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingCalendarInfo, setIsSavingCalendarInfo] = useState(false);
+
+  // Multi-day selection is only used by admin context actions on calendar_info.
+  const [selectedDates, setSelectedDates] = useState<Set<string>>(() => new Set());
+  const [selectionAnchorDate, setSelectionAnchorDate] = useState<string | null>(
+    null,
+  );
+  const [contextMenu, setContextMenu] = useState<CalendarContextMenuState>({
+    isOpen: false,
+    x: 0,
+    y: 0,
+  });
+  const contextMenuRef = useRef<HTMLDivElement | null>(null);
+  const longPressTimerRef = useRef<number | null>(null);
+  const longPressTriggeredRef = useRef(false);
 
   // Custom hook that loads availability + calendar_info from D1 on first render.
   // `applyChanges` merges saved diffs into the baseline after a successful save.
-  const { baselineAvailability, calendarInfoMap, isLoading, applyChanges } =
-    useCalendarData();
+  const {
+    baselineAvailability,
+    calendarInfoMap,
+    isLoading,
+    applyChanges,
+    saveCalendarInfoChanges,
+  } = useCalendarData();
 
   // ── Derived values ─────────────────────────────────────────────────────────
 
@@ -83,6 +114,15 @@ export default function Calendar() {
     () => visibleDays.flatMap((day) => day.events),
     [visibleDays],
   );
+
+  // Fast lookup table used by rectangular Shift selection in the visible 7x6 grid.
+  const visibleDayIndexByDate = useMemo(() => {
+    const indexMap = new Map<string, number>();
+    visibleDays.forEach((day, index) => {
+      indexMap.set(day.date, index);
+    });
+    return indexMap;
+  }, [visibleDays]);
 
   // Flat array of override entries, ready to be sent as the save payload.
   const pendingChanges = useMemo(
@@ -169,6 +209,253 @@ export default function Calendar() {
       console.error("Availability save failed:", error);
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  // Calendar_info edits are admin-only, so the feature is shut down immediately
+  // if permissions are removed while this page is open.
+  useEffect(() => {
+    if (canAccessAdminControls) return;
+    setSelectedDates(new Set());
+    setSelectionAnchorDate(null);
+    setContextMenu({ isOpen: false, x: 0, y: 0 });
+  }, [canAccessAdminControls]);
+
+  // Reset grid selection when switching months so hidden off-screen dates
+  // are never modified by a later context action.
+  useEffect(() => {
+    setSelectedDates(new Set());
+    setSelectionAnchorDate(null);
+    setContextMenu({ isOpen: false, x: 0, y: 0 });
+  }, [visibleMonth]);
+
+  // Keep the context menu fully in view using actual rendered dimensions.
+  useEffect(() => {
+    if (!contextMenu.isOpen || !contextMenuRef.current) return;
+
+    const padding = 8;
+    const rect = contextMenuRef.current.getBoundingClientRect();
+    let nextX = contextMenu.x;
+    let nextY = contextMenu.y;
+
+    if (rect.right > window.innerWidth - padding) {
+      nextX = Math.max(padding, nextX - (rect.right - (window.innerWidth - padding)));
+    }
+    if (rect.bottom > window.innerHeight - padding) {
+      nextY = Math.max(padding, nextY - (rect.bottom - (window.innerHeight - padding)));
+    }
+    if (rect.left < padding) {
+      nextX = padding;
+    }
+    if (rect.top < padding) {
+      nextY = padding;
+    }
+
+    if (nextX === contextMenu.x && nextY === contextMenu.y) return;
+    setContextMenu((current) => ({ ...current, x: nextX, y: nextY }));
+  }, [contextMenu]);
+
+  // Small helper to keep custom menu fully visible in the viewport.
+  function getSafeMenuPosition(x: number, y: number) {
+    const menuWidth = 260;
+    const padding = 8;
+
+    const safeX = Math.min(
+      Math.max(x, padding),
+      window.innerWidth - menuWidth - padding,
+    );
+    const safeY = Math.min(
+      Math.max(y, padding),
+      window.innerHeight - padding,
+    );
+
+    return { x: safeX, y: safeY };
+  }
+
+  function closeContextMenu() {
+    setContextMenu({ isOpen: false, x: 0, y: 0 });
+  }
+
+  // Builds a literal rectangular selection in the 7x6 visible grid bounded by
+  // the anchor cell and clicked cell, without selecting cells outside columns.
+  function buildRectangularGridSelection(
+    startDate: string,
+    endDate: string,
+  ): string[] {
+    const startIndex = visibleDayIndexByDate.get(startDate);
+    const endIndex = visibleDayIndexByDate.get(endDate);
+
+    if (startIndex === undefined || endIndex === undefined) {
+      return [endDate];
+    }
+
+    const startRow = Math.floor(startIndex / 7);
+    const startColumn = startIndex % 7;
+    const endRow = Math.floor(endIndex / 7);
+    const endColumn = endIndex % 7;
+
+    const minRow = Math.min(startRow, endRow);
+    const maxRow = Math.max(startRow, endRow);
+    const minColumn = Math.min(startColumn, endColumn);
+    const maxColumn = Math.max(startColumn, endColumn);
+
+    const dates: string[] = [];
+    for (let row = minRow; row <= maxRow; row += 1) {
+      for (let column = minColumn; column <= maxColumn; column += 1) {
+        const day = visibleDays[row * 7 + column];
+        if (day) {
+          dates.push(day.date);
+        }
+      }
+    }
+
+    return dates;
+  }
+
+  function handleDaySelection(
+    date: string,
+    modifiers: { ctrlOrMeta: boolean; shift: boolean },
+  ) {
+    if (!canAccessAdminControls) return;
+
+    setSelectedDates((current) => {
+      const next = new Set(current);
+
+      if (modifiers.shift && selectionAnchorDate) {
+        return new Set(buildRectangularGridSelection(selectionAnchorDate, date));
+      }
+
+      if (modifiers.ctrlOrMeta) {
+        if (next.has(date)) {
+          next.delete(date);
+        } else {
+          next.add(date);
+        }
+        return next;
+      }
+
+      return new Set([date]);
+    });
+
+    setSelectionAnchorDate(date);
+  }
+
+  function handleDayClick(date: string, event: React.MouseEvent<HTMLDivElement>) {
+    closeContextMenu();
+    handleDaySelection(date, {
+      ctrlOrMeta: event.ctrlKey || event.metaKey,
+      shift: event.shiftKey,
+    });
+  }
+
+  function handleDayContextMenu(
+    date: string,
+    event: React.MouseEvent<HTMLDivElement>,
+  ) {
+    if (!canAccessAdminControls) return;
+
+    event.preventDefault();
+
+    // Required behavior: right-clicking an unselected date replaces selection first.
+    if (!selectedDates.has(date)) {
+      setSelectedDates(new Set([date]));
+      setSelectionAnchorDate(date);
+    }
+
+    const position = getSafeMenuPosition(event.clientX, event.clientY);
+    setContextMenu({ isOpen: true, x: position.x, y: position.y });
+  }
+
+  function clearLongPressTimer() {
+    if (longPressTimerRef.current === null) return;
+    window.clearTimeout(longPressTimerRef.current);
+    longPressTimerRef.current = null;
+  }
+
+  function handleMobileTouchStart(
+    date: string,
+    event: React.TouchEvent<HTMLDivElement>,
+  ) {
+    if (!canAccessAdminControls) return;
+
+    longPressTriggeredRef.current = false;
+    const touch = event.touches[0];
+    longPressTimerRef.current = window.setTimeout(() => {
+      longPressTriggeredRef.current = true;
+      setSelectedDates(new Set([date]));
+      setSelectionAnchorDate(date);
+      const position = getSafeMenuPosition(touch.clientX, touch.clientY);
+      setContextMenu({ isOpen: true, x: position.x, y: position.y });
+    }, 500);
+  }
+
+  function handleMobileCellClick(
+    date: string,
+    event: React.MouseEvent<HTMLDivElement>,
+  ) {
+    if (longPressTriggeredRef.current) {
+      longPressTriggeredRef.current = false;
+      return;
+    }
+
+    handleDayClick(date, event);
+  }
+
+  function normalizeCalendarInfoType(type: string | undefined): CalendarInfoType {
+    return type === "PTT" ? "PTT" : "ACT";
+  }
+
+  function buildCalendarInfoChange(
+    date: string,
+    transform: (base: {
+      nights: boolean;
+      priority: boolean;
+      type: CalendarInfoType;
+    }) => {
+      nights: boolean;
+      priority: boolean;
+      type: CalendarInfoType;
+    },
+  ): CalendarInfoSaveChange {
+    const existing = calendarInfoMap.get(date);
+    const base = {
+      nights: existing?.nights ?? false,
+      priority: existing?.priority ?? false,
+      type: normalizeCalendarInfoType(existing?.type),
+    };
+    const next = transform(base);
+
+    return {
+      date,
+      nights: next.nights ? 1 : 0,
+      priority: next.priority ? 1 : 0,
+      type: next.type,
+    };
+  }
+
+  async function applyCalendarInfoBulkAction(
+    transform: (base: {
+      nights: boolean;
+      priority: boolean;
+      type: CalendarInfoType;
+    }) => {
+      nights: boolean;
+      priority: boolean;
+      type: CalendarInfoType;
+    },
+  ) {
+    if (!canAccessAdminControls) return;
+    if (selectedDates.size === 0 || isSavingCalendarInfo) return;
+
+    try {
+      setIsSavingCalendarInfo(true);
+      const dates = Array.from(selectedDates.values());
+      const changes = dates.map((date) => buildCalendarInfoChange(date, transform));
+      await saveCalendarInfoChanges(changes);
+    } catch (error) {
+      console.error("Calendar info bulk save failed:", error);
+    } finally {
+      setIsSavingCalendarInfo(false);
     }
   }
 
@@ -382,7 +669,7 @@ export default function Calendar() {
             </div>
           ))}
         </div>
-        <div className="ui-calendar-grid-bg flex text-xs/6 lg:flex-auto">
+        <div className="ui-calendar-grid-bg flex select-none text-xs/6 lg:flex-auto">
           {/* Desktop grid: full cells with day info + availability bars (lg screens and up) */}
           <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
             {visibleDays.map((day) => (
@@ -393,6 +680,13 @@ export default function Calendar() {
                 wave0={getEffectiveAvailability(day.date, 0)}
                 wave1={getEffectiveAvailability(day.date, 1)}
                 onToggle={toggleWaveAvailability}
+                isMultiSelected={
+                  canAccessAdminControls && selectedDates.has(day.date)
+                }
+                onDayClick={canAccessAdminControls ? handleDayClick : undefined}
+                onDayContextMenu={
+                  canAccessAdminControls ? handleDayContextMenu : undefined
+                }
               />
             ))}
           </div>
@@ -404,7 +698,18 @@ export default function Calendar() {
                 data-is-today={day.isToday ? "" : undefined}
                 data-is-selected={day.isSelected ? "" : undefined}
                 data-is-current-month={day.isCurrentMonth ? "" : undefined}
-                className="group relative flex h-16 flex-col px-2 py-1.5 not-data-is-current-month:bg-gray-50 not-data-is-selected:not-data-is-current-month:not-data-is-today:text-gray-500 data-is-current-month:bg-white not-data-is-selected:data-is-current-month:not-data-is-today:text-gray-900 data-is-selected:font-semibold data-is-selected:text-white data-is-today:font-semibold not-data-is-selected:data-is-today:text-indigo-600 dark:not-data-is-current-month:bg-gray-900 dark:not-data-is-selected:not-data-is-current-month:not-data-is-today:text-gray-400 dark:not-data-is-current-month:before:pointer-events-none dark:not-data-is-current-month:before:absolute dark:not-data-is-current-month:before:inset-0 dark:not-data-is-current-month:before:bg-gray-800/50 dark:data-is-current-month:bg-gray-900 dark:not-data-is-selected:data-is-current-month:not-data-is-today:text-white dark:not-data-is-selected:data-is-today:text-indigo-400"
+                data-is-admin-selected={
+                  canAccessAdminControls && selectedDates.has(day.date)
+                    ? ""
+                    : undefined
+                }
+                onClick={(event) => handleMobileCellClick(day.date, event)}
+                onContextMenu={(event) => handleDayContextMenu(day.date, event)}
+                onTouchStart={(event) => handleMobileTouchStart(day.date, event)}
+                onTouchEnd={clearLongPressTimer}
+                onTouchCancel={clearLongPressTimer}
+                onTouchMove={clearLongPressTimer}
+                className="group relative flex h-16 flex-col px-2 py-1.5 not-data-is-current-month:bg-gray-50 not-data-is-selected:not-data-is-current-month:not-data-is-today:text-gray-500 data-is-current-month:bg-white not-data-is-selected:data-is-current-month:not-data-is-today:text-gray-900 data-is-selected:font-semibold data-is-selected:text-white data-is-today:font-semibold not-data-is-selected:data-is-today:text-indigo-600 data-is-admin-selected:outline-2 data-is-admin-selected:outline-indigo-500 data-is-admin-selected:-outline-offset-2 dark:not-data-is-current-month:bg-gray-900 dark:not-data-is-selected:not-data-is-current-month:not-data-is-today:text-gray-400 dark:not-data-is-current-month:before:pointer-events-none dark:not-data-is-current-month:before:absolute dark:not-data-is-current-month:before:inset-0 dark:not-data-is-current-month:before:bg-gray-800/50 dark:data-is-current-month:bg-gray-900 dark:not-data-is-selected:data-is-current-month:not-data-is-today:text-white dark:not-data-is-selected:data-is-today:text-indigo-400"
               >
                 <time
                   dateTime={day.date}
@@ -417,14 +722,22 @@ export default function Calendar() {
                 <div className="mt-auto grid grid-cols-1 gap-1">
                   <button
                     type="button"
-                    onClick={() => toggleWaveAvailability(day.date, 0)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleWaveAvailability(day.date, 0);
+                    }}
+                    onTouchStart={(event) => event.stopPropagation()}
                     aria-label={`Toggle wave 0 availability for ${day.date}`}
                     title="Wave 0"
                     className={`h-3.5 w-full rounded-sm ${availabilityColorClass(getEffectiveAvailability(day.date, 0))}`}
                   />
                   <button
                     type="button"
-                    onClick={() => toggleWaveAvailability(day.date, 1)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleWaveAvailability(day.date, 1);
+                    }}
+                    onTouchStart={(event) => event.stopPropagation()}
                     aria-label={`Toggle wave 1 availability for ${day.date}`}
                     title="Wave 1"
                     className={`h-3.5 w-full rounded-sm ${availabilityColorClass(getEffectiveAvailability(day.date, 1))}`}
@@ -435,6 +748,118 @@ export default function Calendar() {
           </div>
         </div>
       </div>
+      {!canAccessAdminControls && (
+        <div className="px-6 py-3 text-xs text-gray-600 dark:text-gray-300">
+          Calendar day multi-select and calendar info context actions are reserved
+          for admins.
+        </div>
+      )}
+      {canAccessAdminControls && contextMenu.isOpen && (
+        <div
+          ref={contextMenuRef}
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+          className="ui-calendar-menu-panel fixed z-30 max-h-[calc(100vh-1rem)] w-64 overflow-y-auto rounded-md p-2 shadow-lg outline-1"
+        >
+          <div className="mb-1 flex items-center justify-between px-2 py-1">
+            <p className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+              {selectedDates.size} day{selectedDates.size === 1 ? "" : "s"} selected
+            </p>
+            <button
+              type="button"
+              onClick={closeContextMenu}
+              aria-label="Close context menu"
+              className="ui-calendar-menu-item rounded-md p-1"
+            >
+              <XMarkIcon aria-hidden="true" className="size-4" />
+            </button>
+          </div>
+          <div className="mt-1 grid gap-1">
+            <button
+              type="button"
+              onClick={() =>
+                void applyCalendarInfoBulkAction((base) => ({
+                  ...base,
+                  nights: true,
+                }))
+              }
+              disabled={isSavingCalendarInfo}
+              className="ui-calendar-menu-item rounded-md px-3 py-2 text-left text-sm font-medium"
+            >
+              Set nights on
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                void applyCalendarInfoBulkAction((base) => ({
+                  ...base,
+                  nights: false,
+                }))
+              }
+              disabled={isSavingCalendarInfo}
+              className="ui-calendar-menu-item rounded-md px-3 py-2 text-left text-sm font-medium"
+            >
+              Set nights off
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                void applyCalendarInfoBulkAction((base) => ({
+                  ...base,
+                  priority: true,
+                }))
+              }
+              disabled={isSavingCalendarInfo}
+              className="ui-calendar-menu-item rounded-md px-3 py-2 text-left text-sm font-medium"
+            >
+              Set priority on
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                void applyCalendarInfoBulkAction((base) => ({
+                  ...base,
+                  priority: false,
+                }))
+              }
+              disabled={isSavingCalendarInfo}
+              className="ui-calendar-menu-item rounded-md px-3 py-2 text-left text-sm font-medium"
+            >
+              Set priority off
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                void applyCalendarInfoBulkAction((base) => ({
+                  ...base,
+                  type: "PTT",
+                }))
+              }
+              disabled={isSavingCalendarInfo}
+              className="ui-calendar-menu-item rounded-md px-3 py-2 text-left text-sm font-medium"
+            >
+              Set type to PTT
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                void applyCalendarInfoBulkAction((base) => ({
+                  ...base,
+                  type: "ACT",
+                }))
+              }
+              disabled={isSavingCalendarInfo}
+              className="ui-calendar-menu-item rounded-md px-3 py-2 text-left text-sm font-medium"
+            >
+              Set type to ACT
+            </button>
+          </div>
+          {isSavingCalendarInfo && (
+            <p className="px-2 pt-2 text-xs text-gray-500 dark:text-gray-400">
+              Applying changes...
+            </p>
+          )}
+        </div>
+      )}
       {/* Legend extracted into its own component for reuse across calendar views. */}
       <CalendarLegend />
       <div className="relative px-4 py-10 sm:px-6 lg:hidden dark:after:pointer-events-none dark:after:absolute dark:after:inset-x-0 dark:after:top-0 dark:after:h-px dark:after:bg-white/10">

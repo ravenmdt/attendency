@@ -33,7 +33,7 @@ export type CalendarInfoItem = {
   date: string
   nights: boolean    // true = night-shift is scheduled that day
   priority: boolean  // true = this day is marked as high priority
-  type: string       // short code, e.g. 'ACT', 'TRG', 'PTT', 'OFF'
+  type: 'PTT' | 'ACT' // short code restricted to PTT or ACT
 }
 
 // ─── Calendar grid ─────────────────────────────────────────────────────────────

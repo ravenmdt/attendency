@@ -73,7 +73,7 @@ CREATE TABLE calendar_info (
   date TEXT NOT NULL,
   nights INTEGER NOT NULL CHECK (nights IN (0, 1)),
   priority INTEGER NOT NULL CHECK (priority IN (0, 1)),
-  type TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('PTT', 'ACT')),
   PRIMARY KEY (user_id, date),
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
